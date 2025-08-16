@@ -52,10 +52,15 @@ public class SweetPlayerMarket extends BukkitPlugin {
             this.classLoader.addURL(library);
         }
     }
-    boolean onlineMode;
-    IEconomy vault;
-    IEconomy playerPoints;
-    IEconomyWithSign mPoints;
+    private boolean onlineMode;
+    private IEconomy vault;
+    private IEconomy playerPoints;
+    private IEconomyWithSign mPoints;
+
+    public boolean isOnlineMode() {
+        return onlineMode;
+    }
+
     @Nullable
     public IEconomy getVault() {
         return vault;
@@ -67,6 +72,35 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @Nullable
     public IEconomyWithSign getMPoints() {
         return mPoints;
+    }
+    @Nullable
+    public IEconomy parseEconomy(String str) {
+        if (str.equals("Vault")) {
+            return getVault();
+        }
+        if (str.equals("PlayerPoints")) {
+            return getPlayerPoints();
+        }
+        if (str.startsWith("MPoints:")) {
+            IEconomyWithSign withSign = getMPoints();
+            if (withSign != null) {
+                return withSign.of(str.substring(8));
+            }
+        }
+        return null;
+    }
+    @Nullable
+    public String economyToString(IEconomy economy) {
+        if (economy instanceof VaultEconomy) {
+            return "Vault";
+        }
+        if (economy instanceof PlayerPointsEconomy) {
+            return "PlayerPoints";
+        }
+        if (economy instanceof MPointsEconomy) {
+            return "MPoints:" + ((MPointsEconomy) economy).sign();
+        }
+        return null;
     }
 
     @Override

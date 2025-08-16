@@ -18,6 +18,10 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
         this.sign = sign;
     }
 
+    public String sign() {
+        return sign;
+    }
+
     @Override
     public IEconomy of(String sign) {
         IEconomy cache = caches.get(sign);
