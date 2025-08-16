@@ -93,7 +93,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         return null;
     }
     @Nullable
-    public String economyToString(IEconomy economy) {
+    public static String economyToString(IEconomy economy) {
         if (economy instanceof VaultEconomy) {
             return "Vault";
         }

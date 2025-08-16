@@ -3,13 +3,19 @@ package top.mrxiaom.sweet.playermarket.data;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+/**
+ * 全球市场商品信息
+ */
 public class MarketItem {
     private final @NotNull String shopId;
     private final @NotNull String playerId;
@@ -161,5 +167,31 @@ public class MarketItem {
         config.set("item", item);
         config.set("params", params);
         return config;
+    }
+
+    public MarketItemBuilder toBuilder() {
+        return builder(shopId, playerId, playerName)
+                .type(type)
+                .createTime(createTime)
+                .outdateTime(outdateTime)
+                .currencyName(currencyName)
+                .price(price)
+                .amount(amount)
+                .tag(tag)
+                .item(item)
+                .params(params);
+    }
+
+    public static MarketItemBuilder builder(String shopId, String playerId, String playerName) {
+        return new MarketItemBuilder(shopId, playerId, playerName);
+    }
+
+    public static MarketItemBuilder builder(String playerId, String playerName) {
+        return builder(UUID.randomUUID().toString(), playerId, playerName);
+    }
+
+    public static MarketItemBuilder builder(Player player) {
+        String playerId = SweetPlayerMarket.getInstance().getKey(player);
+        return builder(playerId, player.getName());
     }
 }
