@@ -10,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.economy.IEconomy;
@@ -17,6 +18,7 @@ import top.mrxiaom.pluginbase.economy.VaultEconomy;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
+import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomyWithSign;
 import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
@@ -56,6 +58,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private IEconomy vault;
     private IEconomy playerPoints;
     private IEconomyWithSign mPoints;
+    private MarketplaceDatabase marketplaceDatabase;
 
     public boolean isOnlineMode() {
         return onlineMode;
@@ -103,6 +106,11 @@ public class SweetPlayerMarket extends BukkitPlugin {
         return null;
     }
 
+    @NotNull
+    public MarketplaceDatabase getMarketplace() {
+        return marketplaceDatabase;
+    }
+
     @Override
     protected void beforeLoad() {
         MinecraftVersion.replaceLogger(getLogger());
@@ -114,7 +122,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @Override
     protected void beforeEnable() {
         options.registerDatabase(
-                // TODO: 在这里添加数据库
+                this.marketplaceDatabase = new MarketplaceDatabase(this)
         );
 
         initEconomy();

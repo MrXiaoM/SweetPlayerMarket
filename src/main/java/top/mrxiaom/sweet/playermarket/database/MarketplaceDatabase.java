@@ -1,0 +1,196 @@
+package top.mrxiaom.sweet.playermarket.database;
+
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import top.mrxiaom.pluginbase.database.IDatabase;
+import top.mrxiaom.pluginbase.economy.IEconomy;
+import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
+import top.mrxiaom.sweet.playermarket.data.EnumSort;
+import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.Searching;
+import top.mrxiaom.sweet.playermarket.func.AbstractPluginHolder;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MarketplaceDatabase extends AbstractPluginHolder implements IDatabase {
+    public class SearchHolder {
+        private final int page, size;
+        private final Searching searching;
+        public SearchHolder(int page, int size, boolean outdated) {
+            this.page = page;
+            this.size = size;
+            this.searching = Searching.of(outdated);
+        }
+
+        public SearchHolder player(Player player) {
+            searching.playerId(plugin.getKey(player));
+            return this;
+        }
+
+        public SearchHolder player(String playerId) {
+            searching.playerId(playerId);
+            return this;
+        }
+
+        public SearchHolder type(EnumMarketType type) {
+            searching.type(type);
+            return this;
+        }
+
+        public SearchHolder currency(String currency) {
+            searching.currency(currency);
+            return this;
+        }
+
+        public SearchHolder orderBy(String column, EnumSort sort) {
+            searching.orderBy(column, sort);
+            return this;
+        }
+
+        public List<MarketItem> search() {
+            return getItems(page, size, searching);
+        }
+    }
+    private String TABLE_MARKETPLACE;
+    public MarketplaceDatabase(SweetPlayerMarket plugin) {
+        super(plugin, true);
+    }
+
+    @Override
+    public void reload(Connection conn, String tablePrefix) throws SQLException {
+        TABLE_MARKETPLACE = tablePrefix + "marketplace";
+        try (PreparedStatement ps = conn.prepareStatement(
+                "CREATE TABLE if NOT EXISTS `" + TABLE_MARKETPLACE + "`(" +
+                        "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品ID
+                        "`player` VARCHAR(48)," +              // 商家的玩家ID
+                        "`shop_type` INT," +                   // 商品类型
+                        "`create_time` DATETIME," +            // 商品上架时间
+                        "`outdate_time` DATETIME NULL," +      // 商品到期时间 (NULL 代表永不过期)
+                        "`currency` VARCHAR(48)," +            // 商品使用货币
+                        "`price` VARCHAR(24)," +               // 商品价格
+                        "`amount` INT," +                      // 商品数量
+                        "`tag` VARCHAR(48)" +                  // 商品标签
+                        "`data` LONGTEXT" +                    // 商品数据，包括物品以及额外参数
+                ");"
+        )) { ps.execute(); }
+    }
+
+    private List<MarketItem> queryAndLoadItems(PreparedStatement ps) throws SQLException {
+        try (ResultSet resultSet = ps.executeQuery()) {
+            return loadItemsFromResult(resultSet);
+        }
+    }
+
+    private List<MarketItem> loadItemsFromResult(ResultSet result) throws SQLException {
+        List<MarketItem> items = new ArrayList<>();
+        while (result.next()) {
+            String shopId = result.getString("shop_id");
+            String playerId = result.getString("player");
+            int typeInt = result.getInt("shop_type");
+            EnumMarketType type = EnumMarketType.valueOf(typeInt);
+            if (type == null) {
+                warn("商品 " + shopId + " 的类型ID不正确 (" + typeInt + ")，请检查插件是否已更新到最新版本");
+                continue;
+            }
+            LocalDateTime createTime = result.getTimestamp("create_time").toLocalDateTime();
+            Timestamp outdateTimestamp = result.getTimestamp("outdate_time");
+            LocalDateTime outdate = outdateTimestamp == null ? null : outdateTimestamp.toLocalDateTime();
+            String currencyName = result.getString("currency");
+            IEconomy currency = plugin.parseEconomy(currencyName);
+            String priceStr = result.getString("price");
+            Double price = Util.parseDouble(priceStr).orElse(null);
+            if (price == null) {
+                warn("商品 " + shopId + " 的价格不正确 (" + priceStr + ")");
+                continue;
+            }
+            int amount = result.getInt("amount");
+            String tag = result.getString("tag");
+            Reader reader = new StringReader(result.getString("data"));
+            YamlConfiguration data = YamlConfiguration.loadConfiguration(reader);
+            try {
+                MarketItem marketItem = new MarketItem(shopId, playerId, type, createTime, outdate, currencyName, currency, price, amount, tag, data);
+                items.add(marketItem);
+            } catch (Throwable t) {
+                warn("商品 " + shopId + " 在读取时出现错误: " + t.getMessage());
+            }
+        }
+        return items;
+    }
+
+    public SearchHolder queryItems(int page, int size) {
+        return new SearchHolder(page, size, false);
+    }
+
+    public SearchHolder queryItemsOutdated(int page, int size) {
+        return new SearchHolder(page, size, true);
+    }
+
+    /**
+     * 获取所有商品
+     * @param page 第几页
+     * @param size 一页应该放多少个商品
+     * @param searching 搜素参数
+     * @return 搜索结果
+     */
+    public List<MarketItem> getItems(int page, int size, Searching searching) {
+        try (Connection conn = plugin.getConnection()) {
+            String conditions = searching.generateConditions();
+            String order = searching.generateOrder();
+            int startIndex = (page - 1) * size;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
+                            + "WHERE " + conditions + order
+                            + "LIMIT " + startIndex + ", " + size + ";"
+            )) {
+                searching.setValues(ps, 1);
+                return queryAndLoadItems(ps);
+            }
+        } catch (SQLException e) {
+            warn(e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 添加商品到商店中
+     */
+    public void putItem(MarketItem item) {
+        try (Connection conn = plugin.getConnection()) {
+            putItem(conn, item);
+        } catch (SQLException e) {
+            warn(e);
+        }
+    }
+
+    private void putItem(Connection conn, MarketItem item) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO `" + TABLE_MARKETPLACE + "` "
+                + "(`shop_id`,`player`,`shop_type`,`create_time`,`outdate_time`,`currency`,`price`,`amount`,`tag`,`data`) "
+                + "VALUES(?,?,?,?,?,?,?,?,?,?);"
+        )) {
+            ps.setString(1, item.shopId());
+            ps.setString(2, item.playerId());
+            ps.setInt(3, item.type().value());
+            ps.setTimestamp(4, Timestamp.valueOf(item.createTime()));
+            LocalDateTime outdateTime = item.outdateTime();
+            if (outdateTime == null) {
+                ps.setNull(5, Types.TIMESTAMP);
+            } else {
+                ps.setTimestamp(5, Timestamp.valueOf(outdateTime));
+            }
+            ps.setString(6, item.currencyName());
+            ps.setString(7, String.format("%.2f", item.price()));
+            ps.setInt(8, item.amount());
+            ps.setString(9, item.tag());
+            ps.setString(10, item.data().saveToString());
+            ps.execute();
+        }
+    }
+}
