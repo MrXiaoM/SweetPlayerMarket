@@ -1,0 +1,28 @@
+# 添加 goto 选项，使用指定路径的配置文件作为数据库配置
+# 添加后，剩余其它选项可以全部删除
+# goto: 'path/to/database.yml'
+
+# 数据库类型，可选 sqlite 与 mysql
+type: sqlite
+# 表名前缀
+table_prefix: 'sweetplayermarket_'
+# JDBC 参数
+query: 'useSSL=false&allowPublicKeyRetrieval=true&verifyServerCertificate=false&serverTimezone=UTC'
+# 连接池设置
+hikari:
+  max_lifetime: 120000
+  idle_timeout: 10000
+  connection_timeout: 5000
+  minimum_idle: 8
+  maximum_pool_size: 36
+# MySQL 设置
+mysql:
+  version: 8
+  host: localhost
+  port: 3306
+  user: 'root'
+  pass: 'root'
+  database: minecraft
+# SQLite 设置
+sqlite:
+  file: 'database.db'

@@ -1,0 +1,14 @@
+name: SweetPlayerMarket
+version: '${version}'
+main: top.mrxiaom.sweet.playermarket.SweetPlayerMarket
+api-version: 1.13
+softdepend:
+  - Vault
+  - PlayerPoints
+  - MPoints
+  - PlaceholderAPI
+authors: [ MrXiaoM ]
+commands:
+  sweetplayermarket:
+    description: 'The main command of SweetPlayerMarket'
+    aliases: [ spm, pm, playermarket ]
