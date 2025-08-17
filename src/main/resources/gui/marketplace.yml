@@ -1,0 +1,88 @@
+title: '全球市场 第%page%页'
+inventory:
+  - '框框框框框框框框框'
+  - '框物物物物物物物框'
+  - '框物物物物物物物框'
+  - '框物物物物物物物框'
+  - '框框框框框框框框框'
+  - '上　类币刷　序　下'
+main-icons:
+  物:
+    display: '&e&l%display%'
+    lore:
+      - item lore
+      - ''
+      - '  &f商家: &e%player%'
+      - '  &f类型: &e%type% x %amount%  '
+      - '  &f价格: &e%price% %currency%  '
+      - '  &f上架时间: &e%create_time%  '
+      - '  &f过期时间: &e%outdate_time%  '
+      - ''
+      - '&a左键 &7| &f下单并结算'
+  空:
+    material: AIR
+other-icons:
+  框:
+    material: WHITE_STAINED_GLASS_PANE
+    display: '&f'
+  上:
+    material: ARROW
+    display: '&e&l上一页'
+    left-click-commands:
+      - '[page]-1'
+  下:
+    material: ARROW
+    display: '&e&l下一页'
+    left-click-commands:
+      - '[page]+1'
+  类:
+    material: DIAMOND
+    display: '&e&l分类'
+    lore:
+      - ''
+      - '  &f当前分类: &e%search_type%  '
+      - ''
+      - '&a左键 &7| &f切换出售分类'
+      - '&b右键 &7| &f切换收购分类'
+      - '&eShift+左键 &7| &f切换所有分类'
+    left-click-commands:
+      - '[search:type]sell'
+    right-click-commands:
+      - '[search:type]buy'
+    shift-left-click-commands:
+      - '[search:type]none'
+  货:
+    material: DIAMOND
+    display: '&e&l筛选货币'
+    lore:
+      - ''
+      - '  &f当前筛选货币: &e%search_currency%  '
+      - ''
+      - '&a左键 &7| 切换筛选货币'
+    left-click-commands:
+      - '[search:currency]next'
+      #- '[search:currency]Vault'
+      #- '[search:currency]PlayerPoints'
+      #- '[search:currency]MPoints:sign'
+  刷:
+    material: DIAMOND
+    display: '&e&l刷新'
+    lore:
+      - ''
+      - '&a左键 &7| &f刷新商店菜单'
+    left-click-commands:
+      - '[refresh]'
+  序:
+    material: DIAMOND
+    display: '&e&l排序'
+    lore:
+      - ''
+      - '  &f排序依据: &e%search_sort_column%  '
+      - '  &f排序方式: &e%search_sort_type%  '
+      - ''
+      - '&a左键 &7| &f切换排序依据'
+      - '&b右键 &7| &f切换排序方式'
+    left-click-commands:
+      - '[search:sort]column'
+    right-click-commands:
+      - '[search:sort]type'

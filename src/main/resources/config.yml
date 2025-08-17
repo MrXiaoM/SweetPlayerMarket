@@ -9,3 +9,35 @@
 # false -- 使用玩家名
 # auto  -- 根据 server.properties 中的 online-mode 决定
 online-mode: auto
+
+# 通用时间格式
+datetime:
+  format: 'yyyy-MM-dd HH:mm:ss'
+  infinite: 无期限
+
+# 商品数据的显示名称
+display-names:
+  # 商店类型名称
+  market-types:
+    all: 所有
+    buy: 收购
+    sell: 出售
+
+  # 货币类型名称
+  currency-types:
+    all: 所有
+    # Vault 货币
+    vault: 金币
+    # PlayerPoints 货币
+    points: 点券
+    # MPoints 货币
+    m-points:
+      sign: '点数'
+  columns:
+    create_time: '创建时间'
+    outdate_time: '到期时间'
+    price: '价格'
+    amount: '数量'
+  sort:
+    asc: '升序 (从小到大)'
+    desc: '降序 (从大到小)'

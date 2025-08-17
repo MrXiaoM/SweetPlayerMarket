@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket;
         
+import com.google.common.collect.Lists;
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import me.yic.mpoints.MPointsAPI;
 import net.milkbowl.vault.economy.Economy;
@@ -9,15 +10,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
+import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.economy.IEconomy;
 import top.mrxiaom.pluginbase.economy.VaultEconomy;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
+import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomyWithSign;
 import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
@@ -25,6 +31,9 @@ import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class SweetPlayerMarket extends BukkitPlugin {
@@ -54,11 +63,14 @@ public class SweetPlayerMarket extends BukkitPlugin {
             this.classLoader.addURL(library);
         }
     }
+    private final boolean supportTranslatable = Util.isPresent("org.bukkit.Translatable");
     private boolean onlineMode;
     private IEconomy vault;
     private IEconomy playerPoints;
     private IEconomyWithSign mPoints;
     private MarketplaceDatabase marketplaceDatabase;
+    private DateTimeFormatter datetimeFormatter;
+    private String datetimeInfinite;
 
     public boolean isOnlineMode() {
         return onlineMode;
@@ -77,7 +89,10 @@ public class SweetPlayerMarket extends BukkitPlugin {
         return mPoints;
     }
     @Nullable
-    public IEconomy parseEconomy(String str) {
+    public IEconomy parseEconomy(@Nullable String str) {
+        if (str == null) {
+            return null;
+        }
         if (str.equals("Vault")) {
             return getVault();
         }
@@ -93,7 +108,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         return null;
     }
     @Nullable
-    public static String economyToString(IEconomy economy) {
+    public static String economyToString(@Nullable IEconomy economy) {
         if (economy instanceof VaultEconomy) {
             return "Vault";
         }
@@ -126,6 +141,13 @@ public class SweetPlayerMarket extends BukkitPlugin {
         );
 
         initEconomy();
+
+        for (IActionProvider provider : Lists.newArrayList(
+                ActionPage.PROVIDER, ActionRefresh.PROVIDER,
+                ActionSearchCurrency.PROVIDER, ActionSearchSort.PROVIDER, ActionSearchType.PROVIDER
+        )) {
+            ActionProviders.registerActionProvider(provider);
+        }
     }
 
     private void initEconomy() {
@@ -174,11 +196,40 @@ public class SweetPlayerMarket extends BukkitPlugin {
                 this.onlineMode = Bukkit.getServer().getOnlineMode();
                 break;
         }
+        try {
+            String string = config.getString("datetime.format", "yyyy-MM-dd HH:mm:ss");
+            datetimeFormatter = DateTimeFormatter.ofPattern(string);
+        } catch (DateTimeParseException e) {
+            datetimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            warn("加载 datetime.format 时发现格式错误，已切换回默认格式");
+        }
+        datetimeInfinite = config.getString("datetime.infinite", "无期限");
     }
 
     @Override
     protected void afterEnable() {
         getLogger().info("SweetPlayerMarket 加载完毕");
+    }
+
+    @NotNull
+    public String toString(@Nullable LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return datetimeInfinite;
+        } else {
+            return dateTime.format(datetimeFormatter);
+        }
+    }
+
+    public String getItemName(ItemStack item) {
+        String displayName = AdventureItemStack.getItemDisplayNameAsMiniMessage(item);
+        return displayName != null ? displayName : getTranslation(item);
+    }
+
+    public String getTranslation(ItemStack item) {
+        if (supportTranslatable) {
+            return "<lang:" + item.getTranslationKey() + ">";
+        }
+        return item.getType().name().toLowerCase().replace('_', ' ');
     }
 
     public String getKey(Player player) {

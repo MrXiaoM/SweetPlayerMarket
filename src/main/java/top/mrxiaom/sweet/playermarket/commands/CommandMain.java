@@ -5,12 +5,16 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
+import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +30,21 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args.length >= 1 && "open".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.open")) {
+            Player player;
+            if (args.length >= 2 && sender.hasPermission("sweet.playermarket.open.other")) {
+                player = Util.getOnlinePlayer(args[2]).orElse(null);
+                if (player == null) {
+                    return t(sender, "&e玩家不在线 (或不存在)");
+                }
+            } else if (sender instanceof Player) {
+                player = (Player) sender;
+            } else {
+                return t(sender, "只有玩家可以执行该命令");
+            }
+            GuiMarketplace.create(player, Searching.of(false)).open();
+            return true;
+        }
         if (args.length >= 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
             if (args.length == 2 && "database".equalsIgnoreCase(args[1])) {
                 plugin.options.database().reloadConfig();

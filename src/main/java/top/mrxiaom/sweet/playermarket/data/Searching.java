@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.data;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
@@ -12,11 +13,35 @@ public class Searching {
     private @Nullable String playerId;
     private @Nullable EnumMarketType type;
     private @Nullable String currency;
-    private @Nullable String orderColumn = "create_time";
-    private @Nullable EnumSort orderType = EnumSort.DESC;
+    private @NotNull String orderColumn = "create_time";
+    private @NotNull EnumSort orderType = EnumSort.DESC;
 
     private Searching(boolean outdated) {
         this.outdated = outdated;
+    }
+
+    public boolean outdated() {
+        return outdated;
+    }
+
+    public @Nullable String playerId() {
+        return playerId;
+    }
+
+    public @Nullable EnumMarketType type() {
+        return type;
+    }
+
+    public @Nullable String currency() {
+        return currency;
+    }
+
+    public @NotNull String orderColumn() {
+        return orderColumn;
+    }
+
+    public @NotNull EnumSort orderType() {
+        return orderType;
     }
 
     public Searching playerId(String playerId) {
@@ -34,7 +59,17 @@ public class Searching {
         return this;
     }
 
-    public Searching orderBy(String column, EnumSort sort) {
+    public Searching orderColumn(@NotNull String column) {
+        orderColumn = column;
+        return this;
+    }
+
+    public Searching orderType(@NotNull EnumSort sort) {
+        orderType = sort;
+        return this;
+    }
+
+    public Searching orderBy(@NotNull String column, @NotNull EnumSort sort) {
         orderColumn = column;
         orderType = sort;
         return this;
