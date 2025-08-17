@@ -27,10 +27,7 @@ import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @AutoRegister
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {
@@ -161,7 +158,8 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     .price(price)
                     .currency(currency)
                     .amount(marketAmount)
-                    .outdateTime(LocalDateTime.now().plusDays(5)) // TODO: 到期时间移到配置文件
+                    // TODO: 商品到期时间移到配置文件
+                    .outdateTime(LocalDateTime.now().plusDays(5))
                     .build();
 
             if (plugin.getMarketplace().putItem(marketItem)) {
@@ -183,19 +181,50 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         return true;
     }
 
-    private static final List<String> listArg0 = Lists.newArrayList(
-            "hello");
-    private static final List<String> listOpArg0 = Lists.newArrayList(
-            "reload");
+    private final List<String> arg1Create = new ArrayList<>();
+    {
+        for (EnumMarketType value : EnumMarketType.values()) {
+            arg1Create.add(value.name().toLowerCase());
+        }
+    }
+    private final List<String> arg3Create = Lists.newArrayList("Vault", "PlayerPoints", "MPoints:");
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return startsWith(sender.isOp() ? listOpArg0 : listArg0, args[0]);
+            List<String> list = new ArrayList<>();
+            add(sender, list, "sweet.playermarket.open", "open");
+            add(sender, list, "sweet.playermarket.create", "create");
+            if (sender.isOp()) {
+                list.add("reload");
+            }
+            return startsWith(list, args[0]);
+        }
+        if (args.length == 2) {
+            if (sender.isOp()) {
+                if ("reload".equalsIgnoreCase(args[0])) {
+                    if ("database".startsWith(args[0])) {
+                        return Collections.singletonList("database");
+                    }
+                    return Collections.emptyList();
+                }
+            }
+            if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
+                return startsWith(arg1Create, args[1]);
+            }
+        }
+        if (args.length == 4) {
+            if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
+                return startsWith(arg3Create, args[3]);
+            }
         }
         return Collections.emptyList();
     }
-
+    private void add(CommandSender sender, List<String> list, String permission, String... args) {
+        if (sender.hasPermission(permission)) {
+            list.addAll(Arrays.asList(args));
+        }
+    }
     public List<String> startsWith(Collection<String> list, String s) {
         return startsWith(null, list, s);
     }
