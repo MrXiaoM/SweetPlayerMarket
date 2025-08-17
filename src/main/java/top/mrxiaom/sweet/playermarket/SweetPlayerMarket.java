@@ -95,7 +95,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         if (str.equals("PlayerPoints")) {
             return getPlayerPoints();
         }
-        if (str.startsWith("MPoints:")) {
+        if (str.startsWith("MPoints:") && str.length() > 8) {
             IEconomyWithSign withSign = getMPoints();
             if (withSign != null) {
                 return withSign.of(str.substring(8));

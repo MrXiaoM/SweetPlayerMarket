@@ -9,7 +9,6 @@ import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.gui.Pageable;
-import top.mrxiaom.sweet.playermarket.gui.Refreshable;
 
 import java.util.List;
 
