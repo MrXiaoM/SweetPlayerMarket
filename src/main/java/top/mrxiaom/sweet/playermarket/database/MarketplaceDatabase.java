@@ -161,11 +161,13 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     /**
      * 添加商品到商店中
      */
-    public void putItem(MarketItem item) {
+    public boolean putItem(MarketItem item) {
         try (Connection conn = plugin.getConnection()) {
             putItem(conn, item);
+            return true;
         } catch (SQLException e) {
             warn(e);
+            return false;
         }
     }
 
