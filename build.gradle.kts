@@ -37,6 +37,7 @@ dependencies {
     library("net.kyori:adventure-api:4.22.0")
     library("net.kyori:adventure-platform-bukkit:4.4.0")
     library("net.kyori:adventure-text-minimessage:4.22.0")
+    library("net.kyori:adventure-text-serializer-plain:4.22.0")
     library("com.zaxxer:HikariCP:4.0.3")
     library("org.jetbrains:annotations:24.0.0")
 
