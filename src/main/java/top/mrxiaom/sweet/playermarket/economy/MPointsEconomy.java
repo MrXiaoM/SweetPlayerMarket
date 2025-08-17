@@ -2,7 +2,6 @@ package top.mrxiaom.sweet.playermarket.economy;
 
 import me.yic.mpoints.MPointsAPI;
 import org.bukkit.OfflinePlayer;
-import top.mrxiaom.pluginbase.economy.IEconomy;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -29,6 +28,11 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
         IEconomy economy = new MPointsEconomy(api, sign);
         caches.put(sign, economy);
         return economy;
+    }
+
+    @Override
+    public String id() {
+        return "MPoints:" + sign;
     }
 
     @Override

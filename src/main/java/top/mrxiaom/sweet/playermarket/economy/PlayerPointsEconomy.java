@@ -2,12 +2,16 @@ package top.mrxiaom.sweet.playermarket.economy;
 
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.OfflinePlayer;
-import top.mrxiaom.pluginbase.economy.IEconomy;
 
 public class PlayerPointsEconomy implements IEconomy {
     private final PlayerPointsAPI api;
     public PlayerPointsEconomy(PlayerPointsAPI api) {
         this.api = api;
+    }
+
+    @Override
+    public String id() {
+        return "PlayerPoints";
     }
 
     @Override

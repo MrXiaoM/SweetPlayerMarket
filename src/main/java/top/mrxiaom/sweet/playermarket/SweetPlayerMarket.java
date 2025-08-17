@@ -17,17 +17,13 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IActionProvider;
-import top.mrxiaom.pluginbase.economy.IEconomy;
-import top.mrxiaom.pluginbase.economy.VaultEconomy;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
-import top.mrxiaom.sweet.playermarket.economy.IEconomyWithSign;
-import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
-import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
+import top.mrxiaom.sweet.playermarket.economy.*;
 
 import java.io.File;
 import java.net.URL;

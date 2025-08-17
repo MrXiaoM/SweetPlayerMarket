@@ -7,8 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.economy.IEconomy;
-import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 
 import java.time.LocalDateTime;
 
@@ -164,9 +163,7 @@ public class MarketItemBuilder {
      * @see MarketItem#currency()
      */
     public MarketItemBuilder currency(IEconomy currency) {
-        String currencyName = SweetPlayerMarket.economyToString(currency);
-        if (currencyName == null) throw new IllegalArgumentException("Can't serialize 'currency' to string!");
-        this.currencyName = currencyName;
+        this.currencyName = currency.id();
         this.currency = currency;
         return this;
     }
