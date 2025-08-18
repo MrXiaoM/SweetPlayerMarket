@@ -77,6 +77,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                         "`currency` VARCHAR(48)," +            // 商品使用货币
                         "`price` VARCHAR(24)," +               // 商品价格
                         "`amount` INT," +                      // 商品数量
+                        "`notice_flag` INT," +                 // 提醒标记
                         "`tag` VARCHAR(48)," +                 // 商品标签
                         "`data` LONGTEXT" +                    // 商品数据，包括物品以及额外参数
                 ");"
@@ -121,11 +122,12 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             return null;
         }
         int amount = result.getInt("amount");
+        int noticeFlag = result.getInt("notice_flag");
         String tag = result.getString("tag");
         Reader reader = new StringReader(result.getString("data"));
         YamlConfiguration data = YamlConfiguration.loadConfiguration(reader);
         try {
-            return new MarketItem(shopId, playerId, type, createTime, outdate, currencyName, currency, price, amount, tag, data);
+            return new MarketItem(shopId, playerId, type, createTime, outdate, currencyName, currency, price, amount, noticeFlag, tag, data);
         } catch (Throwable t) {
             warn("商品 " + shopId + " 在读取时出现错误: " + t.getMessage());
             return null;
@@ -157,8 +159,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                     + "LIMIT " + startIndex + ", " + size + ";";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 searching.setValues(ps, 1);
-                List<MarketItem> items = queryAndLoadItems(ps);
-                return items;
+                return queryAndLoadItems(ps);
             }
         } catch (SQLException e) {
             warn(e);
@@ -210,13 +211,14 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     public boolean modifyItem(Connection conn, MarketItem item) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "UPDATE `" + TABLE_MARKETPLACE + "` "
-                        + "SET `currency`=?, `price`=?, `amount`=? "
+                        + "SET `currency`=?, `price`=?, `amount`=?, `notice_flag`=? "
                         + "WHERE `shop_id`=?;"
         )) {
             ps.setString(1, item.currencyName());
             ps.setString(2, String.format("%.2f", item.price()));
             ps.setInt(3, item.amount());
-            ps.setString(4, item.shopId());
+            ps.setInt(4, item.noticeFlag());
+            ps.setString(5, item.shopId());
             return ps.executeUpdate() != 0;
         }
     }
@@ -237,8 +239,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     private void putItem(Connection conn, MarketItem item) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO `" + TABLE_MARKETPLACE + "` "
-                + "(`shop_id`,`player`,`shop_type`,`create_time`,`outdate_time`,`currency`,`price`,`amount`,`tag`,`data`) "
-                + "VALUES(?,?,?,?,?,?,?,?,?,?);"
+                + "(`shop_id`,`player`,`shop_type`,`create_time`,`outdate_time`,`currency`,`price`,`amount`,`notice_flag`,`tag`,`data`) "
+                + "VALUES(?,?,?,?,?,?,?,?,?,?,?);"
         )) {
             ps.setString(1, item.shopId());
             ps.setString(2, item.playerId());
@@ -253,8 +255,9 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             ps.setString(6, item.currencyName());
             ps.setString(7, String.format("%.2f", item.price()));
             ps.setInt(8, item.amount());
-            ps.setString(9, item.tag());
-            ps.setString(10, item.data().saveToString());
+            ps.setInt(9, item.noticeFlag());
+            ps.setString(10, item.tag());
+            ps.setString(11, item.data().saveToString());
             ps.execute();
         }
     }

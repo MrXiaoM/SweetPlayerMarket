@@ -107,7 +107,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 }
                 Utils.takeItem(player, sample, totalCount);
 
-                // 添加物品到额外参数中
+                // 添加物品到额外参数中，让商家自行领取
                 ConfigurationSection params = marketItem.params();
                 List<ItemStack> itemList = new ArrayList<>();
                 for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {
@@ -122,24 +122,24 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
 
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
+                        .noticeFlag(1)
                         .amount(finalAmount)
                         .params(params)
-                        .build())) {
+                        .build()
+                )) {
                     Messages.Gui.buy__submit_failed.tm(player);
                     actionLock = false;
                     return;
                 }
             } catch (Throwable e) {
-                warn("玩家 " + player.getName() + " 在下单商品 " + marketItem.shopId() + " 时出现异常", e);
+                warn("玩家 " + player.getName() + " 在下单 " + marketItem.playerName() + " 的收购商品 " + marketItem.shopId() + " 时出现异常", e);
                 player.closeInventory();
                 Messages.Gui.buy__exception.tm(player);
                 return;
             }
-
             // 给予玩家的指定数量货币。由于卖家上架时已收取货币，不需要拿走卖家的货币
             currency.giveMoney(player, totalMoney);
-
-            // TODO: 提示玩家卖出成功
+            // TODO: 获取物品名，提示玩家卖出成功
             parent.doSearch(false);
             parent.open();
         }

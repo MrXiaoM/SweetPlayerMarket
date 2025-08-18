@@ -1,6 +1,6 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
-import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -55,7 +55,6 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
         ) {
             IEconomy currency;
             String currencyName;
-            OfflinePlayer owner;
             double totalMoney;
             actionLock = true;
             try (Connection conn = plugin.getConnection()) {
@@ -74,13 +73,6 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     actionLock = false;
                     return;
                 }
-                // TODO: 不立即给予卖家货币，而是存到参数里，让卖家自己领
-                owner = plugin.getPlayer(marketItem.playerId());
-                if (owner == null) {
-                    t(player, "&e店主的玩家数据在这个子服不存在，无法购买他的商品");
-                    actionLock = false;
-                    return;
-                }
                 int finalAmount = marketItem.amount() - count;
                 if (finalAmount < 0) {
                     Messages.Gui.sell__amount_not_enough.tm(player);
@@ -93,24 +85,31 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     actionLock = false;
                     return;
                 }
+
+                // 添加货币到额外参数中，让商家自行领取
+                ConfigurationSection params = marketItem.params();
+                double old = params.getDouble("sell.received-currency", 0.0);
+                params.set("sell.received-currency", old + totalMoney);
+
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
+                        .noticeFlag(1)
                         .amount(finalAmount)
-                        .build())) {
+                        .params(params)
+                        .build()
+                )) {
                     Messages.Gui.sell__submit_failed.tm(player);
                     actionLock = false;
                     return;
                 }
             } catch (Throwable e) {
-                warn("玩家 " + player.getName() + " 在下单商品 " + marketItem.shopId() + " 时出现异常", e);
+                warn("玩家 " + player.getName() + " 在下单 " + marketItem.playerName() + " 的出售商品 " + marketItem.shopId() + " 时出现异常", e);
                 player.closeInventory();
                 Messages.Gui.sell__exception.tm(player);
                 return;
             }
-            // 拿走玩家的指定数量货币
+            // 拿走玩家的指定数量货币。由于上方已添加货币到额外参数中，不需要给予卖家货币
             currency.takeMoney(player, totalMoney);
-            // 给予卖家货币
-            currency.giveMoney(owner, totalMoney);
             // 给予玩家物品
             for (int i = 0; i < count; i++) {
                 ItemStack item = marketItem.item();

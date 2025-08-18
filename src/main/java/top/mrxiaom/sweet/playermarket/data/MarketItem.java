@@ -26,6 +26,7 @@ public class MarketItem {
     private final @Nullable IEconomy currency;
     private final double price;
     private final int amount;
+    private final int noticeFlag;
     private final @NotNull String tag;
 
     private final @NotNull ItemStack item;
@@ -41,6 +42,7 @@ public class MarketItem {
             @Nullable IEconomy currency,
             double price,
             int amount,
+            int noticeFlag,
             @NotNull String tag,
             @NotNull YamlConfiguration data
     ) {
@@ -53,6 +55,7 @@ public class MarketItem {
         this.currency = currency;
         this.price = price;
         this.amount = amount;
+        this.noticeFlag = noticeFlag;
         this.tag = tag;
 
         ItemStack item = data.getItemStack("item");
@@ -138,6 +141,13 @@ public class MarketItem {
     }
 
     /**
+     * 提醒标记
+     */
+    public int noticeFlag() {
+        return noticeFlag;
+    }
+
+    /**
      * 商品标签
      */
     public @NotNull String tag() {
@@ -177,6 +187,7 @@ public class MarketItem {
                 .currency(currency, currencyName)
                 .price(price)
                 .amount(amount)
+                .noticeFlag(noticeFlag)
                 .tag(tag)
                 .item(item)
                 .params(params);

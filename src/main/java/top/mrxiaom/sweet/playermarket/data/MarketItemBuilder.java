@@ -26,6 +26,7 @@ public class MarketItemBuilder {
     private String currencyName;
     private Double price;
     private int amount = 1;
+    private int noticeFlag = 0;
     private @NotNull String tag = "default";
     private ItemStack item;
     private @NotNull ConfigurationSection params = new MemoryConfiguration();
@@ -104,6 +105,13 @@ public class MarketItemBuilder {
      */
     public int amount() {
         return amount;
+    }
+
+    /**
+     * @see MarketItem#noticeFlag()
+     */
+    public int noticeFlag() {
+        return noticeFlag;
     }
 
     /**
@@ -206,6 +214,14 @@ public class MarketItemBuilder {
     }
 
     /**
+     * @see MarketItem#noticeFlag()
+     */
+    public MarketItemBuilder noticeFlag(int noticeFlag) {
+        this.noticeFlag = noticeFlag;
+        return this;
+    }
+
+    /**
      * @see MarketItem#tag()
      */
     public MarketItemBuilder tag(@NotNull String tag) {
@@ -247,6 +263,6 @@ public class MarketItemBuilder {
         data.set("item", item);
         data.set("params", params);
 
-        return new MarketItem(shopId, playerId, type, createTime, outdateTime, currencyName, currency, price, amount, tag, data);
+        return new MarketItem(shopId, playerId, type, createTime, outdateTime, currencyName, currency, price, amount, noticeFlag, tag, data);
     }
 }
