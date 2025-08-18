@@ -59,8 +59,8 @@ public class MarketItem {
         if (item == null) throw new IllegalStateException("`item` not found!");
         this.item = item;
 
-        String playerName = data.getString("player-name");
-        if (playerName == null) throw new IllegalStateException("`player-name` not found!");
+        String playerName = data.getString("player.name");
+        if (playerName == null) throw new IllegalStateException("`player.name` not found!");
         this.playerName = playerName;
 
         ConfigurationSection params = data.getConfigurationSection("params");
