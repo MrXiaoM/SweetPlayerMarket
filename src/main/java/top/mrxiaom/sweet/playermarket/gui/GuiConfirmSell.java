@@ -251,6 +251,7 @@ public class GuiConfirmSell extends AbstractGuiModule {
                     MarketItem marketItem = db.getItem(conn, this.marketItem.shopId());
                     if (marketItem == null || marketItem.amount() == 0) {
                         t(player, "&e来晚了，该商品已下架");
+                        parent.doSearch(false);
                         parent.open();
                         return;
                     }
@@ -298,11 +299,13 @@ public class GuiConfirmSell extends AbstractGuiModule {
                     ItemStackUtil.giveItemToPlayer(player, item);
                 }
                 // TODO: 提示玩家购买成功
+                parent.doSearch(false);
                 parent.open();
                 return;
             }
             if (clickedId == '返') {
                 actionLock = true;
+                parent.doSearch(false);
                 parent.open();
                 return;
             }
