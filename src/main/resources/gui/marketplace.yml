@@ -51,7 +51,7 @@ other-icons:
       - '[search:type]buy'
     shift-left-click-commands:
       - '[search:type]none'
-  货:
+  币:
     material: GOLD_INGOT
     display: '&e&l筛选货币'
     lore:
