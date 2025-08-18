@@ -101,7 +101,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     return t(sender, "&e你没有使用该货币上架商品的权限");
                 }
             }
-            Integer itemAmount = args.length == 4
+            Integer itemAmount = args.length <= 4
                     ? Integer.valueOf(item.getAmount())
                     : Util.parseInt(args[4]).orElse(null);
             if (itemAmount == null) {
@@ -113,7 +113,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if (itemAmount > item.getAmount()) {
                 return t(sender, "&e请输入正确的单个商品的物品数量，你输入的数量超出了手持物品数量");
             }
-            Integer marketAmount = args.length == 5
+            Integer marketAmount = args.length <= 5
                     ? Integer.valueOf(1)
                     : Util.parseInt(args[5]).orElse(null);
             if (marketAmount == null || marketAmount < 1 || marketAmount > 64) {
@@ -213,9 +213,24 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return startsWith(arg1Create, args[1]);
             }
         }
+        if (args.length == 3) {
+            if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
+                return Collections.singletonList("<价格>");
+            }
+        }
         if (args.length == 4) {
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
                 return startsWith(arg3Create, args[3]);
+            }
+        }
+        if (args.length == 5) {
+            if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
+                return Collections.singletonList("[单份商品的物品数量]");
+            }
+        }
+        if (args.length == 6) {
+            if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
+                return Collections.singletonList("[总份数]");
             }
         }
         return Collections.emptyList();
