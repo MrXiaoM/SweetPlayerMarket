@@ -225,6 +225,10 @@ public class MarketItemBuilder {
         if (price == null) throw new IllegalArgumentException("'price' must be input!");
         if (item == null) throw new IllegalArgumentException("'item' must be input!");
 
+        if (!params.contains("original-amount")) {
+            params.set("original-amount", amount);
+        }
+
         YamlConfiguration data = new YamlConfiguration();
         data.set("player.name", playerName);
         data.set("item", item);

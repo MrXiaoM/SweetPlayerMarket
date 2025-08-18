@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.database;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.database.IDatabase;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -91,37 +92,44 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     private List<MarketItem> loadItemsFromResult(ResultSet result) throws SQLException {
         List<MarketItem> items = new ArrayList<>();
         while (result.next()) {
-            String shopId = result.getString("shop_id");
-            String playerId = result.getString("player");
-            int typeInt = result.getInt("shop_type");
-            EnumMarketType type = EnumMarketType.valueOf(typeInt);
-            if (type == null) {
-                warn("商品 " + shopId + " 的类型ID不正确 (" + typeInt + ")，请检查插件是否已更新到最新版本");
-                continue;
-            }
-            LocalDateTime createTime = result.getTimestamp("create_time").toLocalDateTime();
-            Timestamp outdateTimestamp = result.getTimestamp("outdate_time");
-            LocalDateTime outdate = outdateTimestamp == null ? null : outdateTimestamp.toLocalDateTime();
-            String currencyName = result.getString("currency");
-            IEconomy currency = plugin.parseEconomy(currencyName);
-            String priceStr = result.getString("price");
-            Double price = Util.parseDouble(priceStr).orElse(null);
-            if (price == null) {
-                warn("商品 " + shopId + " 的价格不正确 (" + priceStr + ")");
-                continue;
-            }
-            int amount = result.getInt("amount");
-            String tag = result.getString("tag");
-            Reader reader = new StringReader(result.getString("data"));
-            YamlConfiguration data = YamlConfiguration.loadConfiguration(reader);
-            try {
-                MarketItem marketItem = new MarketItem(shopId, playerId, type, createTime, outdate, currencyName, currency, price, amount, tag, data);
+            MarketItem marketItem = loadItemFromResult(result);
+            if (marketItem != null) {
                 items.add(marketItem);
-            } catch (Throwable t) {
-                warn("商品 " + shopId + " 在读取时出现错误: " + t.getMessage());
             }
         }
         return items;
+    }
+
+    private MarketItem loadItemFromResult(ResultSet result) throws SQLException {
+        String shopId = result.getString("shop_id");
+        String playerId = result.getString("player");
+        int typeInt = result.getInt("shop_type");
+        EnumMarketType type = EnumMarketType.valueOf(typeInt);
+        if (type == null) {
+            warn("商品 " + shopId + " 的类型ID不正确 (" + typeInt + ")，请检查插件是否已更新到最新版本");
+            return null;
+        }
+        LocalDateTime createTime = result.getTimestamp("create_time").toLocalDateTime();
+        Timestamp outdateTimestamp = result.getTimestamp("outdate_time");
+        LocalDateTime outdate = outdateTimestamp == null ? null : outdateTimestamp.toLocalDateTime();
+        String currencyName = result.getString("currency");
+        IEconomy currency = plugin.parseEconomy(currencyName);
+        String priceStr = result.getString("price");
+        Double price = Util.parseDouble(priceStr).orElse(null);
+        if (price == null) {
+            warn("商品 " + shopId + " 的价格不正确 (" + priceStr + ")");
+            return null;
+        }
+        int amount = result.getInt("amount");
+        String tag = result.getString("tag");
+        Reader reader = new StringReader(result.getString("data"));
+        YamlConfiguration data = YamlConfiguration.loadConfiguration(reader);
+        try {
+            return new MarketItem(shopId, playerId, type, createTime, outdate, currencyName, currency, price, amount, tag, data);
+        } catch (Throwable t) {
+            warn("商品 " + shopId + " 在读取时出现错误: " + t.getMessage());
+            return null;
+        }
     }
 
     public SearchHolder queryItems(int page, int size) {
@@ -155,6 +163,61 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         } catch (SQLException e) {
             warn(e);
             return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 获取指定商品信息
+     * @param shopId 商品ID
+     */
+    @Nullable
+    public MarketItem getItem(String shopId) {
+        try (Connection conn = plugin.getConnection()) {
+            return getItem(conn, shopId);
+        } catch (SQLException e) {
+            warn(e);
+        }
+        return null;
+    }
+
+    public MarketItem getItem(Connection conn, String shopId) throws SQLException {
+        String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? AND `amount`>0 LIMIT 1;";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, shopId);
+            try (ResultSet resultSet = ps.executeQuery()) {
+                if (resultSet.next()) {
+                    return loadItemFromResult(resultSet);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 提交商品的 货币、价格、数量 修改
+     * @param item 商品
+     * @return 修改是否提交成功
+     */
+    public boolean modifyItem(MarketItem item) {
+        try (Connection conn = plugin.getConnection()) {
+            return modifyItem(conn, item);
+        } catch (SQLException e) {
+            warn(e);
+        }
+        return false;
+    }
+
+    public boolean modifyItem(Connection conn, MarketItem item) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE `" + TABLE_MARKETPLACE + "` "
+                        + "SET `currency`=?, `price`=?, `amount`=? "
+                        + "WHERE `shop_id`=?;"
+        )) {
+            ps.setString(1, item.currencyName());
+            ps.setString(2, String.format("%.2f", item.price()));
+            ps.setInt(3, item.amount());
+            ps.setString(4, item.shopId());
+            return ps.executeUpdate() != 0;
         }
     }
 

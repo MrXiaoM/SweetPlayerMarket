@@ -29,6 +29,7 @@ import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.economy.IEconomyWithSign;
 import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
@@ -68,7 +69,20 @@ public class GuiMarketplace extends AbstractGuiModule {
 
     @NotNull
     public String getCurrencyName(@Nullable String currency) {
-        return getCurrencyName(plugin.parseEconomy(currency));
+        if (currency == null) {
+            return currencyAll;
+        }
+        if (currency.equals("Vault")) {
+            return currencyVault;
+        }
+        if (currency.equals("PlayerPoints")) {
+            return currencyPlayerPoints;
+        }
+        if (currency.startsWith("MPoints:") && currency.length() > 8) {
+            String sign = currency.substring(8);
+            return currencyMPoints.getOrDefault(sign, sign);
+        }
+        return currency;
     }
 
     @NotNull
@@ -244,6 +258,10 @@ public class GuiMarketplace extends AbstractGuiModule {
             this.doSearch(false);
         }
 
+        public GuiMarketplace getModel() {
+            return GuiMarketplace.this;
+        }
+
         @Nullable
         public MarketItem getItem(int index) {
             return index < 0 || index >= items.size() ? null : items.get(index);
@@ -342,16 +360,33 @@ public class GuiMarketplace extends AbstractGuiModule {
             Character clickedId = getClickedId(slot);
             if (clickedId == null) return;
             if (clickedId == '物') {
+                actionLock = true;
                 int i = getAppearTimes(clickedId, slot) - 1;
                 MarketItem item = getItem(i);
-                if (item == null) return;
+                if (item == null) {
+                    actionLock = false;
+                    return;
+                }
                 if (click.isLeftClick()) {
+                    MarketItem marketItem = refreshItem(item);
+                    if (marketItem == null || marketItem.amount() == 0) {
+                        actionLock = false;
+                        // TODO: 物品已下架
+                        return;
+                    }
+                    if (item.type().equals(EnumMarketType.SELL)) {
+                        GuiConfirmSell.create(player, this, marketItem).open();
+                        return;
+                    }
                     // TODO: 转跳到下单结算菜单
                     return;
                 }
                 return;
             }
             handleOtherClick(click, clickedId);
+        }
+        private MarketItem refreshItem(MarketItem item) {
+            return plugin.getMarketplace().getItem(item.shopId());
         }
     }
 }

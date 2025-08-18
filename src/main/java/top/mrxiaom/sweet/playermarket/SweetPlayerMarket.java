@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.UUID;
 
 public class SweetPlayerMarket extends BukkitPlugin {
     public static SweetPlayerMarket getInstance() {
@@ -140,7 +141,8 @@ public class SweetPlayerMarket extends BukkitPlugin {
 
         for (IActionProvider provider : Lists.newArrayList(
                 ActionPage.PROVIDER, ActionRefresh.PROVIDER,
-                ActionSearchCurrency.PROVIDER, ActionSearchSort.PROVIDER, ActionSearchType.PROVIDER
+                ActionSearchCurrency.PROVIDER, ActionSearchSort.PROVIDER, ActionSearchType.PROVIDER,
+                ActionConfirmCount.PROVIDER
         )) {
             ActionProviders.registerActionProvider(provider);
         }
@@ -242,6 +244,20 @@ public class SweetPlayerMarket extends BukkitPlugin {
             return player.getUniqueId().toString();
         } else {
             return player.getName();
+        }
+    }
+
+    public OfflinePlayer getPlayer(String key) {
+        if (onlineMode) {
+            UUID uuid;
+            try {
+                uuid = UUID.fromString(key);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+            return Util.getOfflinePlayer(uuid).orElse(null);
+        } else {
+            return Util.getOfflinePlayer(key).orElse(null);
         }
     }
 }

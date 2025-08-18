@@ -14,7 +14,7 @@ main-icons:
       - ''
       - '  &f商家: &e%player%'
       - '  &f类型: &e%type% x %amount%  '
-      - '  &f价格: &e%price% %currency%  '
+      - '  &f单价: &e%price% %currency%  '
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
       - ''

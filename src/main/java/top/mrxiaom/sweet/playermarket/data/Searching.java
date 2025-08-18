@@ -15,6 +15,7 @@ public class Searching {
     private @Nullable String currency;
     private @NotNull String orderColumn = "create_time";
     private @NotNull EnumSort orderType = EnumSort.DESC;
+    private boolean onlyOutOfStock = false;
 
     private Searching(boolean outdated) {
         this.outdated = outdated;
@@ -42,6 +43,10 @@ public class Searching {
 
     public @NotNull EnumSort orderType() {
         return orderType;
+    }
+
+    public boolean onlyOutOfStock() {
+        return onlyOutOfStock;
     }
 
     public Searching playerId(String playerId) {
@@ -75,12 +80,17 @@ public class Searching {
         return this;
     }
 
+    public Searching onlyOutOfStock(boolean onlyOutOfStock) {
+        this.onlyOutOfStock = onlyOutOfStock;
+        return this;
+    }
+
     public String generateConditions() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(onlyOutOfStock ? "`amount`=0 " : "`amount`>0 ");
         if (outdated) {
-            sb.append("(`outdate_time` IS NULL OR `outdate_time` >= ?) ");
+            sb.append("AND (`outdate_time` IS NULL OR `outdate_time` >= ?) ");
         } else {
-            sb.append("(`outdate_time` IS NOT NULL AND `outdate_time` < ?) ");
+            sb.append("AND (`outdate_time` IS NOT NULL AND `outdate_time` < ?) ");
         }
         if (type != null) sb.append("AND `type`=? ");
         if (currency != null) sb.append("AND `currency`=? ");
