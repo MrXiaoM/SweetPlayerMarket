@@ -22,6 +22,7 @@ import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.playermarket.actions.*;
+import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.*;
 
@@ -66,6 +67,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private IEconomy playerPoints;
     private IEconomyWithSign mPoints;
     private MarketplaceDatabase marketplaceDatabase;
+    private DisplayNames displayNames;
     private DateTimeFormatter datetimeFormatter;
     private String datetimeInfinite;
 
@@ -104,18 +106,9 @@ public class SweetPlayerMarket extends BukkitPlugin {
         }
         return null;
     }
-    @Nullable
-    public static String economyToString(@Nullable IEconomy economy) {
-        if (economy instanceof VaultEconomy) {
-            return "Vault";
-        }
-        if (economy instanceof PlayerPointsEconomy) {
-            return "PlayerPoints";
-        }
-        if (economy instanceof MPointsEconomy) {
-            return "MPoints:" + ((MPointsEconomy) economy).sign();
-        }
-        return null;
+
+    public DisplayNames displayNames() {
+        return displayNames;
     }
 
     @NotNull
@@ -181,6 +174,9 @@ public class SweetPlayerMarket extends BukkitPlugin {
 
     @Override
     protected void beforeReloadConfig(FileConfiguration config) {
+        if (displayNames == null) {
+            displayNames = DisplayNames.inst();
+        }
         String onlineMode = config.getString("online-mode", "auto").toLowerCase();
         switch (onlineMode) {
             case "true":

@@ -14,7 +14,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.economy.VaultEconomy;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
@@ -28,26 +27,14 @@ import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
-import top.mrxiaom.sweet.playermarket.economy.IEconomy;
-import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
-import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
 @AutoRegister
 public class GuiMarketplace extends AbstractGuiModule {
-    private final Map<EnumMarketType, String> marketTypeNames = new HashMap<>();
-    private final Map<EnumSort, String> sortNames = new HashMap<>();
-    private final Map<String, String> currencyMPoints = new HashMap<>();
-    private final Map<String, String> columnNames = new HashMap<>();
-    private final List<String> columnList = new ArrayList<>();
-    private String currencyVault, currencyPlayerPoints, currencyAll, marketTypeAll;
-
     public GuiMarketplace(SweetPlayerMarket plugin) {
         super(plugin, plugin.resolve("./gui/marketplace.yml"));
     }
@@ -57,105 +44,8 @@ public class GuiMarketplace extends AbstractGuiModule {
         return "[gui/marketplace.yml]";
     }
 
-    @NotNull
-    public String getMarketTypeName(@Nullable EnumMarketType type) {
-        if (type == null) {
-            return marketTypeAll;
-        }
-        String s = marketTypeNames.get(type);
-        return s != null ? s : type.name();
-    }
-
-    @NotNull
-    public String getCurrencyName(@Nullable String currency) {
-        if (currency == null) {
-            return currencyAll;
-        }
-        if (currency.equals("Vault")) {
-            return currencyVault;
-        }
-        if (currency.equals("PlayerPoints")) {
-            return currencyPlayerPoints;
-        }
-        if (currency.startsWith("MPoints:") && currency.length() > 8) {
-            String sign = currency.substring(8);
-            return currencyMPoints.getOrDefault(sign, sign);
-        }
-        return currency;
-    }
-
-    @NotNull
-    public String getCurrencyName(@Nullable IEconomy currency) {
-        if (currency == null) {
-            return currencyAll;
-        }
-        if (currency instanceof VaultEconomy) {
-            return currencyVault;
-        }
-        if (currency instanceof PlayerPointsEconomy) {
-            return currencyPlayerPoints;
-        }
-        if (currency instanceof MPointsEconomy) {
-            String sign = ((MPointsEconomy) currency).sign();
-            return currencyMPoints.getOrDefault(sign, sign);
-        }
-        return currency.getName();
-    }
-
-    @NotNull
-    public String getColumnName(@NotNull String column) {
-        return columnNames.getOrDefault(column, column);
-    }
-
-    @NotNull
-    public String getSortName(@NotNull EnumSort sort) {
-        String s = sortNames.get(sort);
-        return s != null ? s : sort.name();
-    }
-
     @Override
     public void reloadConfig(MemoryConfiguration cfg) {
-        ConfigurationSection section;
-
-        marketTypeNames.clear();
-        marketTypeAll = "";
-        section = cfg.getConfigurationSection("display-names.market-types");
-        if (section != null) for (String key : section.getKeys(false)) {
-            if (key.equals("all")) {
-                marketTypeAll = section.getString(key);
-                continue;
-            }
-            EnumMarketType type = Util.valueOr(EnumMarketType.class, key, null);
-            if (type != null) {
-                marketTypeNames.put(type, section.getString(key));
-            }
-        }
-        currencyAll = cfg.getString("display-names.currency-types.all");
-        currencyVault = cfg.getString("display-names.currency-types.vault");
-        currencyPlayerPoints = cfg.getString("display-names.currency-types.points");
-        currencyMPoints.clear();
-        section = cfg.getConfigurationSection("display-names.currency-types.m-points");
-        if (section != null) for (String key : section.getKeys(false)) {
-            currencyMPoints.put(key, section.getString(key));
-        }
-
-        columnNames.clear();
-        columnList.clear();
-        section = cfg.getConfigurationSection("display-names.columns");
-        if (section != null) for (String key : section.getKeys(false)) {
-            columnNames.put(key, section.getString(key));
-            columnList.add(key);
-        }
-
-        sortNames.clear();
-        section = cfg.getConfigurationSection("display-names.sort");
-        if (section != null) for (String key : section.getKeys(false)) {
-            EnumSort sort = Util.valueOr(EnumSort.class, key, null);
-            if (sort != null) {
-                sortNames.put(sort, section.getString(key));
-            }
-        }
-
         if (!file.exists()) {
             plugin.saveResource("gui/marketplace.yml", file);
         }
@@ -198,10 +88,10 @@ public class GuiMarketplace extends AbstractGuiModule {
                 r.addAll(gui.commonReplacements);
                 r.add("%display%", itemName);
                 r.add("%player%", item.playerName());
-                r.add("%type%", getMarketTypeName(item.type()));
+                r.add("%type%", plugin.displayNames().getMarketTypeName(item.type()));
                 r.add("%amount%", item.amount());
                 r.add("%price%", item.price());
-                r.add("%currency%", getCurrencyName(item.currencyName()));
+                r.add("%currency%", plugin.displayNames().getCurrencyName(item.currencyName()));
                 r.add("%create_time%", plugin.toString(item.createTime()));
                 r.add("%outdate_time%", plugin.toString(item.outdateTime()));
 
@@ -257,6 +147,7 @@ public class GuiMarketplace extends AbstractGuiModule {
             }
             this.slotsSize = itemsSize;
             this.searching = searching;
+            List<String> columnList = plugin.displayNames().columnList();
             for (int i = 0; i < columnList.size(); i++) {
                 if (columnList.get(i).equals("create_time")) {
                     columnIndex = i;
@@ -321,6 +212,7 @@ public class GuiMarketplace extends AbstractGuiModule {
 
         public void switchOrderColumn() {
             int i = ++columnIndex;
+            List<String> columnList = plugin.displayNames().columnList();
             if (i >= columnList.size()) {
                 i = columnIndex = 0;
             }
@@ -344,10 +236,10 @@ public class GuiMarketplace extends AbstractGuiModule {
         public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
             ListPair<String, Object> r = commonReplacements;
             r.clear();
-            r.add("%search_type%", getMarketTypeName(searching.type()));
-            r.add("%search_currency%", getCurrencyName(searching.currency()));
-            r.add("%search_sort_column%", getColumnName(searching.orderColumn()));
-            r.add("%search_sort_type%", getSortName(searching.orderType()));
+            r.add("%search_type%", plugin.displayNames().getMarketTypeName(searching.type()));
+            r.add("%search_currency%", plugin.displayNames().getCurrencyName(searching.currency()));
+            r.add("%search_sort_column%", plugin.displayNames().getColumnName(searching.orderColumn()));
+            r.add("%search_sort_type%", plugin.displayNames().getSortName(searching.orderType()));
 
             super.updateInventory(setItem);
             actionLock = false;

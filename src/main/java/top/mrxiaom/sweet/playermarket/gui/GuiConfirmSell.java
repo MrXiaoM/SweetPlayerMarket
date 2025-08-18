@@ -133,10 +133,10 @@ public class GuiConfirmSell extends AbstractGuiModule {
             r.add("%player%", marketItem.playerName());
             r.add("%display%", itemName);
             r.add("%player%", marketItem.playerName());
-            r.add("%type%", parent.getModel().getMarketTypeName(marketItem.type()));
+            r.add("%type%", plugin.displayNames().getMarketTypeName(marketItem.type()));
             r.add("%amount%", marketItem.amount());
             r.add("%price%", marketItem.price());
-            r.add("%currency%", parent.getModel().getCurrencyName(marketItem.currencyName()));
+            r.add("%currency%", plugin.displayNames().getCurrencyName(marketItem.currencyName()));
             r.add("%create_time%", plugin.toString(marketItem.createTime()));
             r.add("%outdate_time%", plugin.toString(marketItem.outdateTime()));
         }
@@ -256,7 +256,7 @@ public class GuiConfirmSell extends AbstractGuiModule {
                         return;
                     }
                     currency = marketItem.currency();
-                    currencyName = parent.getModel().getCurrencyName(marketItem.currencyName());
+                    currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
                     if (currency == null) {
                         t(player, "&e在该子服不支持使用" + currencyName + "货币");
                         return;
