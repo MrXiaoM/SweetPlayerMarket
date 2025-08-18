@@ -162,7 +162,20 @@ public class MarketItemBuilder {
     /**
      * @see MarketItem#currency()
      */
-    public MarketItemBuilder currency(IEconomy currency) {
+    public MarketItemBuilder currency(@Nullable IEconomy currency, @NotNull String currencyName) {
+        if (currency == null) {
+            this.currencyName = currencyName;
+        } else {
+            this.currencyName = currency.id();
+            this.currency = currency;
+        }
+        return this;
+    }
+
+    /**
+     * @see MarketItem#currency()
+     */
+    public MarketItemBuilder currency(@NotNull IEconomy currency) {
         this.currencyName = currency.id();
         this.currency = currency;
         return this;
@@ -171,7 +184,7 @@ public class MarketItemBuilder {
     /**
      * @see MarketItem#currencyName()
      */
-    public MarketItemBuilder currencyName(String currencyName) {
+    public MarketItemBuilder currencyName(@NotNull String currencyName) {
         this.currencyName = currencyName;
         return this;
     }
@@ -221,7 +234,7 @@ public class MarketItemBuilder {
      */
     public MarketItem build() {
         if (type == null) throw new IllegalArgumentException("'type' must be input!");
-        if (currency == null) throw new IllegalArgumentException("'currency' must be input!");
+        if (currencyName == null) throw new IllegalArgumentException("'currencyName' must be input!");
         if (price == null) throw new IllegalArgumentException("'price' must be input!");
         if (item == null) throw new IllegalArgumentException("'item' must be input!");
 

@@ -174,7 +174,7 @@ public class MarketItem {
                 .type(type)
                 .createTime(createTime)
                 .outdateTime(outdateTime)
-                .currencyName(currencyName)
+                .currency(currency, currencyName)
                 .price(price)
                 .amount(amount)
                 .tag(tag)

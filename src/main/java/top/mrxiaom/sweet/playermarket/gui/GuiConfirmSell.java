@@ -241,12 +241,8 @@ public class GuiConfirmSell extends AbstractGuiModule {
             if (clickedId == null) return;
             if (clickedId == '物') return;
             if (clickedId == '确') {
-                IEconomy currency = marketItem.currency();
-                String currencyName = parent.getModel().getCurrencyName(marketItem.currencyName());
-                if (currency == null) {
-                    t(player, "&e在该子服不支持使用" + currencyName + "货币");
-                    return;
-                }
+                IEconomy currency;
+                String currencyName;
                 OfflinePlayer owner;
                 double totalMoney;
                 actionLock = true;
@@ -256,6 +252,12 @@ public class GuiConfirmSell extends AbstractGuiModule {
                     if (marketItem == null || marketItem.amount() == 0) {
                         t(player, "&e来晚了，该商品已下架");
                         parent.open();
+                        return;
+                    }
+                    currency = marketItem.currency();
+                    currencyName = parent.getModel().getCurrencyName(marketItem.currencyName());
+                    if (currency == null) {
+                        t(player, "&e在该子服不支持使用" + currencyName + "货币");
                         return;
                     }
                     owner = plugin.getPlayer(marketItem.playerId());
