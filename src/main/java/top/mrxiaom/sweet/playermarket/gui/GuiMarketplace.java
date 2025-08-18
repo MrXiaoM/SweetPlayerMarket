@@ -190,6 +190,7 @@ public class GuiMarketplace extends AbstractGuiModule {
                 return iconEmpty.generateIcon(player);
             } else {
                 ItemStack baseItem = item.item();
+                int displayAmount = baseItem.getAmount();
                 String itemName = plugin.getItemName(baseItem);
                 List<String> itemLore = AdventureItemStack.getItemLoreAsMiniMessage(baseItem);
 
@@ -217,7 +218,7 @@ public class GuiMarketplace extends AbstractGuiModule {
                     return lore;
                 };
                 ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreModifier);
-                icon.setAmount(baseItem.getAmount());
+                icon.setAmount(displayAmount);
                 return icon;
             }
         }

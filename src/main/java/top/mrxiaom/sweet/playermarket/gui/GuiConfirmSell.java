@@ -75,6 +75,7 @@ public class GuiConfirmSell extends AbstractGuiModule {
             MarketItem item = gui.marketItem;
 
             ItemStack baseItem = item.item();
+            int displayAmount = baseItem.getAmount();
             List<String> itemLore = AdventureItemStack.getItemLoreAsMiniMessage(baseItem);
 
             IModifier<List<String>> loreMod = oldLore -> {
@@ -89,7 +90,7 @@ public class GuiConfirmSell extends AbstractGuiModule {
                 return lore;
             };
             ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreMod);
-            icon.setAmount(baseItem.getAmount());
+            icon.setAmount(displayAmount);
             return icon;
         }
         if (id == '确') {
