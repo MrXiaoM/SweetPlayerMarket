@@ -83,7 +83,7 @@ public class GuiMarketplace extends AbstractGuiSearch {
                     return;
                 }
                 if (item.type().equals(EnumMarketType.BUY)) {
-                    // TODO: 转跳到下单结算菜单
+                    GuiConfirmBuy.create(player, this, marketItem).open();
                     return;
                 }
             }

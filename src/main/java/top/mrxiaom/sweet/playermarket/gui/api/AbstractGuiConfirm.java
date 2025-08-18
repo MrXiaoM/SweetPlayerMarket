@@ -143,10 +143,12 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             this.count = count;
         }
 
+        public abstract int getMaxCount();
+
         @Override
         public void countAdd(int count) {
             int target = count() + count;
-            if (target > marketItem.amount()) {
+            if (target > getMaxCount()) {
                 countAddMax();
                 return;
             }
@@ -156,8 +158,8 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
 
         @Override
         public void countAddMax() {
-            if (count() == marketItem.amount()) return;
-            count(marketItem.amount());
+            if (count() == getMaxCount()) return;
+            count(getMaxCount());
             refreshGui();
         }
 
@@ -186,7 +188,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
                 countMinusMax();
                 return;
             }
-            if (count > marketItem.amount()) {
+            if (count > getMaxCount()) {
                 countAddMax();
                 return;
             }

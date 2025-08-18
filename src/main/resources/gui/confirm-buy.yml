@@ -1,0 +1,82 @@
+title: '收购商店 卖出确认'
+inventory:
+  - '框框框框框框框框框'
+  - '框增增　物　减减框'
+  - '框框框确框返框框框'
+main-icons:
+  物:
+    display: '&e&l%display%'
+    lore:
+      - item lore
+      - ''
+      - '  &f商家: &e%player%'
+      - '  &f类型: &e%type% x %amount%  '
+      - '  &f单价: &e%price% %currency%  '
+      - '  &f上架时间: &e%create_time%  '
+      - '  &f过期时间: &e%outdate_time%  '
+      - ''
+  确:
+    material: SLIME_BALL
+    display: '&e&l确认'
+    lore:
+      - ''
+      - '  &f单价: &e%price% %currency%  '
+      - '  &f卖出: &e%count% 件&7 (共 %total_count% 个物品)  '
+      - '  &f获得: &e%total_money% %currency%  '
+      - ''
+      - '&a左键 &7| &f确认付款'
+  返:
+    material: MAGMA_CREAM
+    display: '&e&l取消'
+    lore:
+      - ''
+      - '&a左键 &7 &f返回全球市场'
+other-icons:
+  框:
+    material: WHITE_STAINED_GLASS_PANE
+    display: '&f'
+    lore:
+      - '&7建议尽快确认付款，商品'
+      - '&7可能会因为他人购买而断货'
+  增:
+    material: GLOWSTONE_DUST
+    display: '&a增加'
+    lore:
+      - ''
+      - '  &f单价: &e%price% %currency%  '
+      - '  &f卖出: &e%count% 件&7 (共 %total_count% 个物品)  '
+      - '  &f获得: &e%total_money% %currency%  '
+      - ''
+      - '&a左键 &7| &f增加1件'
+      - '&b右键 &7| &f增加5件'
+      - '&eShift+左键 &7| &f增加10件'
+      - '&dShift+右键 &7| &f增加到%amount_can_sell%件'
+    left-click-commands:
+      - '[count]+1'
+    right-click-commands:
+      - '[count]+5'
+    shift-left-click-commands:
+      - '[count]+10'
+    shift-right-click-commands:
+      - '[count]+max'
+  减:
+    material: REDSTONE
+    display: '&b减少'
+    lore:
+      - ''
+      - '  &f单价: &e%price% %currency%  '
+      - '  &f购买: &e%count% 件&7 (共 %total_count% 个物品)  '
+      - '  &f花费: &e%total_money% %currency%  '
+      - ''
+      - '&a左键 &7| &f减少1件'
+      - '&b右键 &7| &f减少5件'
+      - '&eShift+左键 &7| &f减少10件'
+      - '&dShift+右键 &7| &f减少到1件'
+    left-click-commands:
+      - '[count]-1'
+    right-click-commands:
+      - '[count]-5'
+    shift-left-click-commands:
+      - '[count]-10'
+    shift-right-click-commands:
+      - '[count]-max'

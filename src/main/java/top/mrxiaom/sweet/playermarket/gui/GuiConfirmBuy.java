@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -8,33 +9,37 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import top.mrxiaom.pluginbase.func.AutoRegister;
-import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiConfirm;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 @AutoRegister
-public class GuiConfirmSell extends AbstractGuiConfirm {
-    public GuiConfirmSell(SweetPlayerMarket plugin) {
-        super(plugin, "gui/confirm-sell.yml");
+public class GuiConfirmBuy extends AbstractGuiConfirm {
+    public GuiConfirmBuy(SweetPlayerMarket plugin) {
+        super(plugin, "gui/confirm-buy.yml");
     }
 
-    public static GuiConfirmSell inst() {
-        return instanceOf(GuiConfirmSell.class);
+    public static GuiConfirmBuy inst() {
+        return instanceOf(GuiConfirmBuy.class);
     }
 
     public static Impl create(Player player, GuiMarketplace.Impl parent, MarketItem marketItem) {
-        GuiConfirmSell self = inst();
+        GuiConfirmBuy self = inst();
         return self.new Impl(player, parent, marketItem);
     }
 
     public class Impl extends ConfirmGui {
         private final GuiMarketplace.Impl parent;
+        private int amountCanSell;
         protected Impl(Player player, GuiMarketplace.Impl parent, MarketItem marketItem) {
             super(player, marketItem);
             this.parent = parent;
@@ -42,7 +47,16 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
 
         @Override
         public int getMaxCount() {
-            return marketItem.amount();
+            return amountCanSell;
+        }
+
+        @Override
+        protected void updateReplacements() {
+            super.updateReplacements();
+            ItemStack sample = marketItem.item();
+            double invAmount = (double) getInvCount(sample) / sample.getAmount();
+            amountCanSell = Math.min(marketItem.amount(), (int) Math.floor(invAmount));
+            commonReplacements.add("%amount_can_sell%", amountCanSell);
         }
 
         @Override
@@ -55,6 +69,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             String currencyName;
             OfflinePlayer owner;
             double totalMoney;
+            int totalCount;
             actionLock = true;
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
@@ -80,19 +95,41 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 }
                 int finalAmount = marketItem.amount() - count;
                 if (finalAmount < 0) {
-                    t(player, "&e商品库存不足，减少一点购买数量吧~");
+                    t(player, "&e商品库存不足，减少一点卖出数量吧~");
                     actionLock = false;
                     return;
                 }
+                ItemStack sample = marketItem.item();
+
                 totalMoney = count * marketItem.price();
-                if (!currency.has(player, totalMoney)) {
-                    t(player, "&e你没有足够的" + currencyName);
+                totalCount = count * sample.getAmount();
+
+                // 检查玩家背包是否有足够的物品，并取走
+                int invCount = getInvCount(sample);
+                if (invCount < totalCount) {
+                    t(player, "&e你没有足够的物品来卖出");
                     actionLock = false;
                     return;
                 }
+                Utils.takeItem(player, sample, totalCount);
+
+                // 添加物品到额外参数中
+                ConfigurationSection params = marketItem.params();
+                List<ItemStack> itemList = new ArrayList<>();
+                for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {
+                    if (obj instanceof ItemStack) {
+                        itemList.add((ItemStack) obj);
+                    }
+                }
+                for (int i = 0; i < count; i++) {
+                    itemList.add(marketItem.item());
+                }
+                params.set("buy.received-items", itemList);
+
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
                         .amount(finalAmount)
+                        .params(params)
                         .build())) {
                     t(player, "&e数据库更改提交失败，可能该商品已下架");
                     actionLock = false;
@@ -104,16 +141,11 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 t(player, "&e出现错误，已打印日志到控制台，请联系服务器管理员");
                 return;
             }
-            // 拿走玩家的指定数量货币
-            currency.takeMoney(player, totalMoney);
-            // 给予卖家货币
-            currency.giveMoney(owner, totalMoney);
-            // 给予玩家物品
-            for (int i = 0; i < count; i++) {
-                ItemStack item = marketItem.item();
-                ItemStackUtil.giveItemToPlayer(player, item);
-            }
-            // TODO: 提示玩家购买成功
+
+            // 给予玩家的指定数量货币。由于卖家上架时已收取货币，不需要拿走卖家的货币
+            currency.giveMoney(player, totalMoney);
+
+            // TODO: 提示玩家卖出成功
             parent.doSearch(false);
             parent.open();
         }
@@ -127,6 +159,18 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             actionLock = true;
             parent.doSearch(false);
             parent.open();
+        }
+
+        private int getInvCount(ItemStack sample) {
+            int invAmount = 0;
+            PlayerInventory inventory = player.getInventory();
+            ItemStack[] contents = inventory.getContents();
+            for (ItemStack content : contents) {
+                if (content != null && content.isSimilar(sample)) {
+                    invAmount += content.getAmount();
+                }
+            }
+            return invAmount;
         }
     }
 }
