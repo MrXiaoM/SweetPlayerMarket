@@ -200,9 +200,9 @@ public class GuiMarketplace extends AbstractGuiModule {
                 r.add("%type%", getMarketTypeName(item.type()));
                 r.add("%amount%", item.amount());
                 r.add("%price%", item.price());
-                r.add("%currency%", getCurrencyName(item.currency()));
+                r.add("%currency%", getCurrencyName(item.currencyName()));
                 r.add("%create_time%", plugin.toString(item.createTime()));
-                r.add("%create_time%", plugin.toString(item.outdateTime()));
+                r.add("%outdate_time%", plugin.toString(item.outdateTime()));
 
                 IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
                 IModifier<List<String>> loreModifier = oldLore -> {

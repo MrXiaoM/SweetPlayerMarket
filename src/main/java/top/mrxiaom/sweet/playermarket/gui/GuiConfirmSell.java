@@ -117,7 +117,7 @@ public class GuiConfirmSell extends AbstractGuiModule {
         private final MarketItem marketItem;
         private Inventory inventory;
         private final ListPair<String, Object> commonReplacements = new ListPair<>(), baseReplacements = new ListPair<>();
-        private int count;
+        private int count = 1;
         private boolean actionLock = false;
         protected Impl(Player player, GuiMarketplace.Impl parent, MarketItem marketItem) {
             super(player, guiTitle, guiInventory);
@@ -134,9 +134,9 @@ public class GuiConfirmSell extends AbstractGuiModule {
             r.add("%type%", parent.getModel().getMarketTypeName(marketItem.type()));
             r.add("%amount%", marketItem.amount());
             r.add("%price%", marketItem.price());
-            r.add("%currency%", parent.getModel().getCurrencyName(marketItem.currency()));
+            r.add("%currency%", parent.getModel().getCurrencyName(marketItem.currencyName()));
             r.add("%create_time%", plugin.toString(marketItem.createTime()));
-            r.add("%create_time%", plugin.toString(marketItem.outdateTime()));
+            r.add("%outdate_time%", plugin.toString(marketItem.outdateTime()));
         }
 
         public int count() {
@@ -149,7 +149,7 @@ public class GuiConfirmSell extends AbstractGuiModule {
 
         @Override
         public void countAdd(int count) {
-            int target = this.count + count;
+            int target = count() + count;
             if (target > marketItem.amount()) {
                 countAddMax();
                 return;
@@ -160,14 +160,14 @@ public class GuiConfirmSell extends AbstractGuiModule {
 
         @Override
         public void countAddMax() {
-            if (this.count == marketItem.amount()) return;
+            if (count() == marketItem.amount()) return;
             count(marketItem.amount());
             refreshGui();
         }
 
         @Override
         public void countMinus(int count) {
-            int target = this.count - count;
+            int target = count() - count;
             if (target < 1) {
                 countMinusMax();
                 return;
@@ -178,14 +178,14 @@ public class GuiConfirmSell extends AbstractGuiModule {
 
         @Override
         public void countMinusMax() {
-            if (this.count == 1) return;
+            if (count() == 1) return;
             count(1);
             refreshGui();
         }
 
         @Override
         public void countSet(int count) {
-            if (this.count == count) return;
+            if (count() == count) return;
             if (count < 1) {
                 countMinusMax();
                 return;
