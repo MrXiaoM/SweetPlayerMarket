@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -31,9 +32,15 @@ import java.util.*;
 
 @AutoRegister
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {
+    private String defaultCurrency;
     public CommandMain(SweetPlayerMarket plugin) {
         super(plugin);
         registerCommand("sweetplayermarket", this);
+    }
+
+    @Override
+    public void reloadConfig(MemoryConfiguration config) {
+        defaultCurrency = config.getString("default.currency", "Vault");
     }
 
     @Override
@@ -78,7 +85,10 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             IEconomy currency;
             if (args.length == 3) {
-                currency = plugin.getVault();
+                currency = plugin.parseEconomy(defaultCurrency);
+                if (currency == null) {
+                    return t(sender, "&e找不到默认货币类型，请联系服务器管理员");
+                }
             } else {
                 currency = plugin.parseEconomy(args[3]);
                 if (currency == null) {

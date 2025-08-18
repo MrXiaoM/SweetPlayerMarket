@@ -15,6 +15,11 @@ datetime:
   format: 'yyyy-MM-dd HH:mm:ss'
   infinite: 无期限
 
+# 默认参数
+default:
+  # 上架默认使用货币
+  currency: Vault
+
 # 商品数据的显示名称
 display-names:
   # 商店类型名称
