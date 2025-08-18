@@ -140,12 +140,12 @@ public class GuiMarketplace extends AbstractGuiModule {
         }
 
         columnNames.clear();
+        columnList.clear();
         section = cfg.getConfigurationSection("display-names.columns");
         if (section != null) for (String key : section.getKeys(false)) {
             columnNames.put(key, section.getString(key));
+            columnList.add(key);
         }
-        columnList.clear();
-        columnList.addAll(columnNames.keySet());
 
         sortNames.clear();
         section = cfg.getConfigurationSection("display-names.sort");
