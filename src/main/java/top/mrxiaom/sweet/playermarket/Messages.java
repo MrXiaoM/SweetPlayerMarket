@@ -1,0 +1,60 @@
+package top.mrxiaom.sweet.playermarket;
+
+import top.mrxiaom.pluginbase.func.language.Language;
+import top.mrxiaom.pluginbase.func.language.Message;
+
+import static top.mrxiaom.pluginbase.func.language.LanguageFieldAutoHolder.field;
+
+@Language(prefix="messages.")
+public class Messages {
+
+    public static final Message player__not_online = field("&e玩家不在线 (或不存在)");
+    public static final Message player__only = field("只有玩家可以执行该命令");
+
+    @Language(prefix="messages.command.")
+    public static class Command {
+        public static final Message create__no_item = field("&e请手持你要上架的物品");
+        public static final Message create__no_type_input = field("&e请输入商店类型");
+        public static final Message create__no_type_found = field("&e请输入正确的商品类型");
+        public static final Message create__no_price_input = field("&e请输入价格");
+        public static final Message create__no_price_valid = field("&e请输入正确的价格");
+        public static final Message create__no_currency_default = field("&e找不到默认货币类型，请联系服务器管理员");
+        public static final Message create__no_currency_found = field("&e请输入正确的货币类型");
+        public static final Message create__no_currency_permission = field("&e你没有使用该货币上架商品的权限");
+        public static final Message create__no_item_count_valid = field("&e请输入正确的单个商品的物品数量");
+        public static final Message create__no_item_count_valid_stack = field("&e请输入正确的单个商品的物品数量，你输入的数量超出了堆叠限制");
+        public static final Message create__no_item_count_valid_held = field("&e请输入正确的单个商品的物品数量，你输入的数量超出了手持物品数量");
+        public static final Message create__no_amount_valid = field("&e请输入正确的商品总份数");
+        public static final Message create__sell__no_enough_items = field("&e你没有足够的物品来上架商品");
+        public static final Message create__buy__no_enough_currency = field("&e你没有足够的货币来上架商品");
+        public static final Message create__success = field("&a你的商品已成功上架到全球市场!");
+        public static final Message create__failed = field("&e商品上架失败，请联系服务器管理员");
+
+        public static final Message reload__database = field("&a已重载 database.yml 并重新连接数据库");
+        public static final Message reload__success = field("&a配置文件已重载");
+    }
+
+    @Language(prefix="messages.tab-complete.")
+    public static class TabComplete {
+        public static final Message create__price = field("<价格>");
+        public static final Message create__item_count = field("[单份商品的物品数量]");
+        public static final Message create__amount = field("[总份数]");
+    }
+
+    @Language(prefix="messages.gui.")
+    public static class Gui {
+        public static final Message common__item_not_found = field("&e来晚了，该商品已下架");
+        public static final Message common__currency_not_found = field("&e在该子服不支持使用%currency%货币");
+
+        public static final Message sell__amount_not_enough = field("&e商品库存不足，减少一点购买数量吧~");
+        public static final Message sell__currency_not_enough = field("&e你没有足够的%currency%");
+        public static final Message sell__submit_failed = field("&e数据库更改提交失败，可能该商品已下架");
+        public static final Message sell__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
+
+        public static final Message buy__amount_not_enough = field("&e商品库存空间不足，减少一点卖出数量吧~");
+        public static final Message buy__item_not_enough = field("&e你没有足够的物品来卖出");
+        public static final Message buy__submit_failed = field("&e数据库更改提交失败，可能该商品已下架");
+        public static final Message buy__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
+    }
+
+}

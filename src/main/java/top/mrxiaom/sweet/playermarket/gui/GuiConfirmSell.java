@@ -10,6 +10,8 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.ItemStackUtil;
+import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
@@ -60,7 +62,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 MarketplaceDatabase db = plugin.getMarketplace();
                 MarketItem marketItem = db.getItem(conn, this.marketItem.shopId());
                 if (marketItem == null || marketItem.amount() == 0) {
-                    t(player, "&e来晚了，该商品已下架");
+                    Messages.Gui.common__item_not_found.tm(player);
                     parent.doSearch(false);
                     parent.open();
                     return;
@@ -68,10 +70,11 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 currency = marketItem.currency();
                 currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
                 if (currency == null) {
-                    t(player, "&e在该子服不支持使用" + currencyName + "货币");
+                    Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
                     actionLock = false;
                     return;
                 }
+                // TODO: 不立即给予卖家货币，而是存到参数里，让卖家自己领
                 owner = plugin.getPlayer(marketItem.playerId());
                 if (owner == null) {
                     t(player, "&e店主的玩家数据在这个子服不存在，无法购买他的商品");
@@ -80,13 +83,13 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 }
                 int finalAmount = marketItem.amount() - count;
                 if (finalAmount < 0) {
-                    t(player, "&e商品库存不足，减少一点购买数量吧~");
+                    Messages.Gui.sell__amount_not_enough.tm(player);
                     actionLock = false;
                     return;
                 }
                 totalMoney = count * marketItem.price();
                 if (!currency.has(player, totalMoney)) {
-                    t(player, "&e你没有足够的" + currencyName);
+                    Messages.Gui.sell__currency_not_enough.tm(player, Pair.of("%currency%", currencyName));
                     actionLock = false;
                     return;
                 }
@@ -94,14 +97,14 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 if (!db.modifyItem(conn, marketItem.toBuilder()
                         .amount(finalAmount)
                         .build())) {
-                    t(player, "&e数据库更改提交失败，可能该商品已下架");
+                    Messages.Gui.sell__submit_failed.tm(player);
                     actionLock = false;
                     return;
                 }
             } catch (Throwable e) {
                 warn("玩家 " + player.getName() + " 在下单商品 " + marketItem.shopId() + " 时出现异常", e);
                 player.closeInventory();
-                t(player, "&e出现错误，已打印日志到控制台，请联系服务器管理员");
+                Messages.Gui.sell__exception.tm(player);
                 return;
             }
             // 拿走玩家的指定数量货币
@@ -113,7 +116,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 ItemStack item = marketItem.item();
                 ItemStackUtil.giveItemToPlayer(player, item);
             }
-            // TODO: 提示玩家购买成功
+            // TODO: 获取物品名，提示玩家购买成功
             parent.doSearch(false);
             parent.open();
         }

@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IActionProvider;
+import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
@@ -136,6 +137,13 @@ public class SweetPlayerMarket extends BukkitPlugin {
         options.registerDatabase(
                 this.marketplaceDatabase = new MarketplaceDatabase(this)
         );
+
+        LanguageManager.inst()
+                .setLangFile("messages.yml")
+                .register(Messages.class)
+                .register(Messages.Command.class)
+                .register(Messages.TabComplete.class)
+                .register(Messages.Gui.class);
 
         initEconomy();
 

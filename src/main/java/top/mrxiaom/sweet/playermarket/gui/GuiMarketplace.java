@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.EnumSort;
@@ -67,7 +68,7 @@ public class GuiMarketplace extends AbstractGuiSearch {
         protected void onClickMarketItem(InventoryAction action, ClickType click, InventoryType.SlotType slotType, int slot, MarketItem item, int i, InventoryView view, InventoryClickEvent event) {
             if (item.amount() == 0) {
                 actionLock = false;
-                t(player, "&e来晚了，该商品已下架");
+                Messages.Gui.common__item_not_found.tm(player);
                 return;
             }
             if (click.isLeftClick()) {
@@ -75,7 +76,7 @@ public class GuiMarketplace extends AbstractGuiSearch {
                 if (marketItem == null || marketItem.amount() == 0) {
                     items.set(i, item.toBuilder().amount(0).build());
                     actionLock = false;
-                    t(player, "&e来晚了，该商品已下架");
+                    Messages.Gui.common__item_not_found.tm(player);
                     return;
                 }
                 if (item.type().equals(EnumMarketType.SELL)) {
