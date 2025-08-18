@@ -28,7 +28,6 @@ import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -281,10 +280,10 @@ public class GuiConfirmSell extends AbstractGuiModule {
                         t(player, "&e数据库更改提交失败，可能该商品已下架");
                         return;
                     }
-                } catch (SQLException e) {
-                    warn(e);
+                } catch (Throwable e) {
+                    warn("玩家 " + player.getName() + " 在下单商品 " + marketItem.shopId() + " 时出现异常", e);
                     player.closeInventory();
-                    t(player, "&e出现数据库错误，已打印日志到控制台，请联系服务器管理员");
+                    t(player, "&e出现错误，已打印日志到控制台，请联系服务器管理员");
                     return;
                 }
                 // 拿走玩家的指定数量货币
