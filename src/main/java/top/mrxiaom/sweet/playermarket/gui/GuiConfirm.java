@@ -1,6 +1,6 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
-public interface ConfirmGUI {
+public interface GuiConfirm {
     void countAdd(int count);
     void countAddMax();
     void countMinus(int count);
