@@ -1,4 +1,4 @@
-package top.mrxiaom.sweet.playermarket.gui;
+package top.mrxiaom.sweet.playermarket.gui.api;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -120,7 +120,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         return icon.generateIcon(player, displayModifier, loreModifier);
     }
 
-    public abstract class SearchGui extends Gui implements InventoryHolder, Refreshable, Pageable {
+    public abstract class SearchGui extends Gui implements InventoryHolder, IGuiRefreshable, IGuiPageable {
         protected final List<MarketItem> items = new ArrayList<>();
         protected final int slotsSize;
         protected Inventory inventory;

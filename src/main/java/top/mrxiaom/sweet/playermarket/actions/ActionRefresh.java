@@ -7,7 +7,7 @@ import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.sweet.playermarket.gui.Refreshable;
+import top.mrxiaom.sweet.playermarket.gui.api.IGuiRefreshable;
 
 import java.util.List;
 
@@ -22,8 +22,8 @@ public class ActionRefresh implements IAction {
     public void run(Player player, @Nullable List<Pair<String, Object>> replacements) {
         if (player != null) {
             IGui gui = GuiManager.inst().getOpeningGui(player);
-            if (gui instanceof Refreshable) {
-                ((Refreshable) gui).refreshGui();
+            if (gui instanceof IGuiRefreshable) {
+                ((IGuiRefreshable) gui).refreshGui();
             }
         }
     }

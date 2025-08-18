@@ -8,7 +8,7 @@ import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
-import top.mrxiaom.sweet.playermarket.gui.GuiConfirm;
+import top.mrxiaom.sweet.playermarket.gui.api.IGuiConfirm;
 
 import java.util.List;
 
@@ -62,8 +62,8 @@ public class ActionConfirmCount implements IAction {
     public void run(Player player, @Nullable List<Pair<String, Object>> replacements) {
         if (player != null) {
             IGui gui = GuiManager.inst().getOpeningGui(player);
-            if (gui instanceof GuiConfirm) {
-                GuiConfirm confirm = (GuiConfirm) gui;
+            if (gui instanceof IGuiConfirm) {
+                IGuiConfirm confirm = (IGuiConfirm) gui;
                 switch (operator) {
                     case SET:
                         confirm.countSet(count);

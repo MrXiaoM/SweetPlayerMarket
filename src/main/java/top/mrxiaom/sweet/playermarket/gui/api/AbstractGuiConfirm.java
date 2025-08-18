@@ -1,4 +1,4 @@
-package top.mrxiaom.sweet.playermarket.gui;
+package top.mrxiaom.sweet.playermarket.gui.api;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -105,7 +105,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
         return icon.generateIcon(player, displayModifier, loreModifier);
     }
 
-    public abstract class ConfirmGui extends Gui implements InventoryHolder, GuiConfirm, Refreshable {
+    public abstract class ConfirmGui extends Gui implements InventoryHolder, IGuiConfirm, IGuiRefreshable {
         protected final MarketItem marketItem;
         protected Inventory inventory;
         protected final ListPair<String, Object> commonReplacements = new ListPair<>(), baseReplacements = new ListPair<>();

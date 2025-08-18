@@ -8,7 +8,7 @@ import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
-import top.mrxiaom.sweet.playermarket.gui.Pageable;
+import top.mrxiaom.sweet.playermarket.gui.api.IGuiPageable;
 
 import java.util.List;
 
@@ -37,8 +37,8 @@ public class ActionPage implements IAction {
     public void run(Player player, @Nullable List<Pair<String, Object>> replacements) {
         if (player != null) {
             IGui gui = GuiManager.inst().getOpeningGui(player);
-            if (gui instanceof Pageable) {
-                Pageable p = (Pageable) gui;
+            if (gui instanceof IGuiPageable) {
+                IGuiPageable p = (IGuiPageable) gui;
                 if (pages > 0) p.turnPageDown(pages);
                 else p.turnPageUp(-pages);
             }
