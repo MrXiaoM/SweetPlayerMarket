@@ -17,9 +17,11 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IActionProvider;
+import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.item.ItemEditor;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.data.DisplayNames;
@@ -114,6 +116,11 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @NotNull
     public MarketplaceDatabase getMarketplace() {
         return marketplaceDatabase;
+    }
+
+    @Override
+    public @NotNull ItemEditor initItemEditor() {
+        return PaperFactory.createItemEditor();
     }
 
     @Override

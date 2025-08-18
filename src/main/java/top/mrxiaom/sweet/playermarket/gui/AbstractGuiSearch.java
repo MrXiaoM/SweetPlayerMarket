@@ -109,13 +109,15 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                 return icon;
             }
         }
+        return null;
+    }
+
+    @Override
+    protected @Nullable ItemStack applyOtherIcon(IGui instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
+        SearchGui gui = (SearchGui) instance;
         IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
         IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
-        LoadedIcon icon = otherIcons.get(id);
-        if (icon != null) {
-            return icon.generateIcon(player, displayModifier, loreModifier);
-        }
-        return null;
+        return icon.generateIcon(player, displayModifier, loreModifier);
     }
 
     public abstract class SearchGui extends Gui implements InventoryHolder, Refreshable, Pageable {

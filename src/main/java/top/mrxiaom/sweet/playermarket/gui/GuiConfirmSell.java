@@ -13,6 +13,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
@@ -98,11 +99,15 @@ public class GuiConfirmSell extends AbstractGuiModule {
         if (id == '返') {
             return iconBack.generateIcon(player, displayModifier, loreModifier);
         }
-        LoadedIcon icon = otherIcons.get(id);
-        if (icon != null) {
-            return icon.generateIcon(player, displayModifier, loreModifier);
-        }
         return null;
+    }
+
+    @Override
+    protected @Nullable ItemStack applyOtherIcon(IGui instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
+        AbstractGuiSearch.SearchGui gui = (AbstractGuiSearch.SearchGui) instance;
+        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
+        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
+        return icon.generateIcon(player, displayModifier, loreModifier);
     }
 
     public static GuiConfirmSell inst() {

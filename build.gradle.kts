@@ -43,8 +43,9 @@ dependencies {
 
     implementation("de.tr7zw:item-nbt-api:2.15.2-SNAPSHOT")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
-    implementation("top.mrxiaom:PluginBase:1.5.8")
-    implementation("top.mrxiaom:LibrariesResolver:1.5.8:all")
+    implementation("top.mrxiaom:PluginBase:1.5.9")
+    implementation("top.mrxiaom:PluginBase-Paper:1.5.9")
+    implementation("top.mrxiaom:LibrariesResolver:1.5.9:all")
 }
 buildConfig {
     className("BuildConstants")
