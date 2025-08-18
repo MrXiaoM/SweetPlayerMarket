@@ -88,7 +88,9 @@ public class GuiConfirmSell extends AbstractGuiModule {
                 }
                 return lore;
             };
-            return iconItem.generateIcon(baseItem, player, displayModifier, loreMod);
+            ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreMod);
+            icon.setAmount(baseItem.getAmount());
+            return icon;
         }
         if (id == '确') {
             return iconConfirm.generateIcon(player, displayModifier, loreModifier);

@@ -216,7 +216,9 @@ public class GuiMarketplace extends AbstractGuiModule {
                     }
                     return lore;
                 };
-                return iconItem.generateIcon(baseItem, player, displayModifier, loreModifier);
+                ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreModifier);
+                icon.setAmount(baseItem.getAmount());
+                return icon;
             }
         }
         IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
