@@ -29,7 +29,6 @@ import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
-import top.mrxiaom.sweet.playermarket.economy.IEconomyWithSign;
 import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
@@ -275,13 +274,15 @@ public class GuiMarketplace extends AbstractGuiModule {
             items.clear();
             items.addAll(plugin.getMarketplace().getItems(pages, slotsSize, searching));
             if (refreshInv) {
-                updateInventory(inventory);
+                open();
             }
         }
 
         @Override
         public void refreshGui() {
-            doSearch(true);
+            doSearch(false);
+            updateInventory(inventory);
+            Util.submitInvUpdate(player);
         }
 
         @Override
@@ -298,7 +299,7 @@ public class GuiMarketplace extends AbstractGuiModule {
             this.pages += pages;
             this.items.clear();
             this.items.addAll(items);
-            updateInventory(inventory);
+            open();
         }
 
         public Searching searching() {
@@ -327,7 +328,7 @@ public class GuiMarketplace extends AbstractGuiModule {
 
         @Override
         protected Inventory create(InventoryHolder holder, int size, String title) {
-            return this.inventory = super.create(this, size, title);
+            return this.inventory = super.create(this, size, title.replace("%page%", String.valueOf(pages)));
         }
 
         @Override
@@ -367,18 +368,27 @@ public class GuiMarketplace extends AbstractGuiModule {
                     actionLock = false;
                     return;
                 }
+                if (item.amount() == 0) {
+                    actionLock = false;
+                    t(player, "&e来晚了，该商品已下架");
+                    return;
+                }
                 if (click.isLeftClick()) {
                     MarketItem marketItem = refreshItem(item);
                     if (marketItem == null || marketItem.amount() == 0) {
+                        items.set(i, item.toBuilder().amount(0).build());
                         actionLock = false;
-                        // TODO: 物品已下架
+                        t(player, "&e来晚了，该商品已下架");
                         return;
                     }
                     if (item.type().equals(EnumMarketType.SELL)) {
                         GuiConfirmSell.create(player, this, marketItem).open();
                         return;
                     }
-                    // TODO: 转跳到下单结算菜单
+                    if (item.type().equals(EnumMarketType.BUY)) {
+                        // TODO: 转跳到下单结算菜单
+                        return;
+                    }
                     return;
                 }
                 return;
