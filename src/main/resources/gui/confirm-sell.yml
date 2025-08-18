@@ -39,7 +39,7 @@ other-icons:
       - '&7建议尽快确认付款，商品'
       - '&7可能会因为他人购买而断货'
   增:
-    material: PAPER
+    material: GLOWSTONE_DUST
     display: '&a增加'
     lore:
       - ''
@@ -60,7 +60,7 @@ other-icons:
     shift-right-click-commands:
       - '[count]+max'
   减:
-    material: PAPER
+    material: REDSTONE
     display: '&b减少'
     lore:
       - ''

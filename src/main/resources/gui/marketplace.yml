@@ -52,7 +52,7 @@ other-icons:
     shift-left-click-commands:
       - '[search:type]none'
   货:
-    material: DIAMOND
+    material: GOLD_INGOT
     display: '&e&l筛选货币'
     lore:
       - ''
@@ -65,7 +65,7 @@ other-icons:
       #- '[search:currency]PlayerPoints'
       #- '[search:currency]MPoints:sign'
   刷:
-    material: DIAMOND
+    material: SNOWBALL
     display: '&e&l刷新'
     lore:
       - ''
@@ -73,7 +73,7 @@ other-icons:
     left-click-commands:
       - '[refresh]'
   序:
-    material: DIAMOND
+    material: COMPASS
     display: '&e&l排序'
     lore:
       - ''
