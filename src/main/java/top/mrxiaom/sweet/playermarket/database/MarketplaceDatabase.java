@@ -158,8 +158,6 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 searching.setValues(ps, 1);
                 List<MarketItem> items = queryAndLoadItems(ps);
-                info("执行 " + sql);
-                info("返回了 " + items.size() + " 个结果");
                 return items;
             }
         } catch (SQLException e) {
