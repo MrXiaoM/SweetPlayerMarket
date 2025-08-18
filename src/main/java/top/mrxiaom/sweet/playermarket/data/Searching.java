@@ -92,7 +92,7 @@ public class Searching {
         } else {
             sb.append("AND (`outdate_time` IS NOT NULL AND `outdate_time` < ?) ");
         }
-        if (type != null) sb.append("AND `type`=? ");
+        if (type != null) sb.append("AND `shop_type`=? ");
         if (currency != null) sb.append("AND `currency`=? ");
         if (playerId != null) sb.append("AND `player`=? ");
         return sb.toString();

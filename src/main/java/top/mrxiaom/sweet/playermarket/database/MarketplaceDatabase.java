@@ -77,7 +77,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                         "`currency` VARCHAR(48)," +            // 商品使用货币
                         "`price` VARCHAR(24)," +               // 商品价格
                         "`amount` INT," +                      // 商品数量
-                        "`tag` VARCHAR(48)" +                  // 商品标签
+                        "`tag` VARCHAR(48)," +                 // 商品标签
                         "`data` LONGTEXT" +                    // 商品数据，包括物品以及额外参数
                 ");"
         )) { ps.execute(); }
