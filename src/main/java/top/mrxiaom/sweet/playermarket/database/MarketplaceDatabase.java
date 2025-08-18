@@ -152,13 +152,15 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             String conditions = searching.generateConditions();
             String order = searching.generateOrder();
             int startIndex = (page - 1) * size;
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
-                            + "WHERE " + conditions + order
-                            + "LIMIT " + startIndex + ", " + size + ";"
-            )) {
+            String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
+                    + "WHERE " + conditions + order
+                    + "LIMIT " + startIndex + ", " + size + ";";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 searching.setValues(ps, 1);
-                return queryAndLoadItems(ps);
+                List<MarketItem> items = queryAndLoadItems(ps);
+                info("执行 " + sql);
+                info("返回了 " + items.size() + " 个结果");
+                return items;
             }
         } catch (SQLException e) {
             warn(e);
@@ -243,12 +245,12 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             ps.setString(1, item.shopId());
             ps.setString(2, item.playerId());
             ps.setInt(3, item.type().value());
-            ps.setTimestamp(4, Timestamp.valueOf(item.createTime()));
+            ps.setObject(4, Searching.format(item.createTime()));
             LocalDateTime outdateTime = item.outdateTime();
             if (outdateTime == null) {
                 ps.setNull(5, Types.TIMESTAMP);
             } else {
-                ps.setTimestamp(5, Timestamp.valueOf(outdateTime));
+                ps.setObject(5, Searching.format(outdateTime));
             }
             ps.setString(6, item.currencyName());
             ps.setString(7, String.format("%.2f", item.price()));

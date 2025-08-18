@@ -5,10 +5,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Searching {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final boolean outdated;
     private @Nullable String playerId;
     private @Nullable EnumMarketType type;
@@ -87,10 +88,13 @@ public class Searching {
 
     public String generateConditions() {
         StringBuilder sb = new StringBuilder(onlyOutOfStock ? "`amount`=0 " : "`amount`>0 ");
+        String now = LocalDateTime.now().format(formatter);
         if (outdated) {
-            sb.append("AND (`outdate_time` IS NULL OR `outdate_time` >= ?) ");
+            // 获取过时商品，应该筛选 outdate_time 不为 NULL 且 outdate_time 小于现在的商品
+            sb.append("AND (`outdate_time` IS NOT NULL AND `outdate_time` < '").append(now).append("') ");
         } else {
-            sb.append("AND (`outdate_time` IS NOT NULL AND `outdate_time` < ?) ");
+            // 获取未过时商品，应该筛选 outdate_time 为 NULL (无期限) 或者 outdate_time 大于现在的商品
+            sb.append("AND (`outdate_time` IS NULL OR `outdate_time` >= '").append(now).append("') ");
         }
         if (type != null) sb.append("AND `shop_type`=? ");
         if (currency != null) sb.append("AND `currency`=? ");
@@ -106,8 +110,8 @@ public class Searching {
     }
 
     public void setValues(PreparedStatement ps, int parameterIndex) throws SQLException {
-        int i = parameterIndex;
-        ps.setTimestamp(i, Timestamp.from(Instant.now()));
+        int i = parameterIndex - 1;
+        //ps.setTimestamp(i, Timestamp.from(Instant.now()));
         if (type != null) ps.setInt(++i, type.value());
         if (currency != null) ps.setString(++i, currency);
         if (playerId != null) ps.setString(++i, playerId);
@@ -115,5 +119,9 @@ public class Searching {
 
     public static Searching of(boolean outdated) {
         return new Searching(outdated);
+    }
+
+    public static String format(LocalDateTime dateTime) {
+        return dateTime.format(formatter);
     }
 }
