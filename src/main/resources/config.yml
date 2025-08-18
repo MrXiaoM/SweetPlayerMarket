@@ -19,25 +19,25 @@ datetime:
 display-names:
   # 商店类型名称
   market-types:
-    all: 所有
-    buy: 收购
-    sell: 出售
+    all: '&e所有'
+    buy: '&a收购'
+    sell: '&b出售'
 
   # 货币类型名称
   currency-types:
-    all: 所有
+    all: '&a所有'
     # Vault 货币
-    vault: 金币
+    vault: '&e金币'
     # PlayerPoints 货币
-    points: 点券
+    points: '&d点券'
     # MPoints 货币
     m-points:
-      sign: '点数'
+      sign: '&b点数'
   columns:
-    create_time: '创建时间'
-    outdate_time: '到期时间'
-    price: '价格'
-    amount: '数量'
+    create_time: '&a创建时间'
+    outdate_time: '&b到期时间'
+    price: '&6价格'
+    amount: '&3数量'
   sort:
-    asc: '升序 (从小到大)'
-    desc: '降序 (从大到小)'
+    asc: '&a升序 &7(从&f小&7到&e大&7)'
+    desc: '&b降序 &7(从&e大&7到&f小&7)'

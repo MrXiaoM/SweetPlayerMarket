@@ -254,6 +254,12 @@ public class GuiMarketplace extends AbstractGuiModule {
             }
             this.slotsSize = itemsSize;
             this.searching = searching;
+            for (int i = 0; i < columnList.size(); i++) {
+                if (columnList.get(i).equals("create_time")) {
+                    columnIndex = i;
+                    break;
+                }
+            }
             this.doSearch(false);
         }
 
