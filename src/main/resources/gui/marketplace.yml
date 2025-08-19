@@ -58,7 +58,7 @@ other-icons:
       - ''
       - '  &f当前筛选货币: &e%search_currency%  '
       - ''
-      - '&a左键 &7| 切换筛选货币'
+      - '&a左键 &7| &f切换筛选货币'
     left-click-commands:
       - '[search:currency]next'
       #- '[search:currency]Vault'
