@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -216,6 +217,13 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             updateReplacements();
             super.updateInventory(setItem);
             actionLock = false;
+        }
+
+        @Override
+        protected Inventory create(int size, String title) {
+            return super.create(size, Pair.replace0(title,
+                    Pair.of("%page%", pages)
+            ));
         }
 
         protected void updateReplacements() {
