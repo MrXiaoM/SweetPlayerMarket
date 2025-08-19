@@ -13,6 +13,8 @@ public class Messages {
 
     @Language(prefix="messages.command.")
     public static class Command {
+        public static final Message no_permission = field("&c你没有执行该命令的权限");
+
         public static final Message create__no_item = field("&e请手持你要上架的物品");
         public static final Message create__no_type_input = field("&e请输入商店类型");
         public static final Message create__no_type_found = field("&e请输入正确的商品类型");
