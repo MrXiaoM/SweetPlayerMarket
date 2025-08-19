@@ -48,7 +48,10 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
     private boolean runOpen(CommandSender sender, String[] args) {
         Player player;
-        if (args.length >= 2 && sender.hasPermission("sweet.playermarket.open.other")) {
+        if (args.length >= 2 && !args[2].startsWith("-")) {
+            if (!sender.hasPermission("sweet.playermarket.open.other")) {
+                return Messages.Command.no_permission.tm(sender);
+            }
             player = Util.getOnlinePlayer(args[2]).orElse(null);
             if (player == null) {
                 return Messages.player__not_online.tm(sender);
@@ -64,7 +67,10 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
     private boolean runMe(CommandSender sender, String[] args) {
         Player player;
-        if (args.length >= 2 && sender.hasPermission("sweet.playermarket.me.other")) {
+        if (args.length >= 2 && !args[2].startsWith("-")) {
+            if (!sender.hasPermission("sweet.playermarket.me.other")) {
+                return Messages.Command.no_permission.tm(sender);
+            }
             player = Util.getOnlinePlayer(args[2]).orElse(null);
             if (player == null) {
                 return Messages.player__not_online.tm(sender);
@@ -74,8 +80,20 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         } else {
             return Messages.player__only.tm(sender);
         }
+        Integer notice = null;
+        boolean onlyOutOfStock = false;
+        for (String s : args) {
+            if (s.equals("-n") || s.equals("--notice")) {
+                notice = 1;
+            }
+            if (s.equals("-o") || s.equals("--only-out-of-stock")) {
+                onlyOutOfStock = true;
+            }
+        }
         GuiMyItems.create(player, Searching.of(false)
-                .playerId(plugin.getKey(player))).open();
+                .playerId(plugin.getKey(player))
+                .notice(notice)
+                .onlyOutOfStock(onlyOutOfStock)).open();
         return true;
     }
 

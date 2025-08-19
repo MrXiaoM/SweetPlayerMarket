@@ -46,3 +46,10 @@ display-names:
   sort:
     asc: '&a升序 &7(从&f小&7到&e大&7)'
     desc: '&b降序 &7(从&e大&7到&f小&7)'
+
+notice:
+  on-join:
+    text: '&7[&e&l全球市场&r&7]&a 你有未领取的商品，点击此处前往领取'
+    hover:
+      - '&e点击打开个人商品菜单'
+    click: '/playermarket me --notice'

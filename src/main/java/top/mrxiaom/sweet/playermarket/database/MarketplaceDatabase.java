@@ -55,6 +55,16 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             return this;
         }
 
+        public SearchHolder onlyOutOfStock(boolean onlyOutOfStock) {
+            searching.onlyOutOfStock(onlyOutOfStock);
+            return this;
+        }
+
+        public SearchHolder notice(@Nullable Integer notice) {
+            searching.notice(notice);
+            return this;
+        }
+
         public List<MarketItem> search() {
             return getItems(page, size, searching);
         }
