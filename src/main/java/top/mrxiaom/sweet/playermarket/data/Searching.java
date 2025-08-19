@@ -115,7 +115,7 @@ public class Searching {
         if (type != null) sb.append("AND `shop_type`=? ");
         if (currency != null) sb.append("AND `currency`=? ");
         if (playerId != null) sb.append("AND `player`=? ");
-        if (notice != null) sb.append("AND `notice`=? ");
+        if (notice != null) sb.append("AND `notice_flag`=? ");
         return sb.toString();
     }
 
