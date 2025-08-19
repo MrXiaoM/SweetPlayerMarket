@@ -180,7 +180,8 @@ public class GuiMyItems extends AbstractGuiSearch {
                     return;
                 }
                 successAction.run();
-                doSearch(true);
+                doSearch();
+                open();
                 return;
             }
             actionLock = false;

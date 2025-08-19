@@ -143,7 +143,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         }
 
         protected void postInit() {
-            doSearch(false);
+            doSearch();
         }
 
         @Nullable
@@ -155,17 +155,14 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             return items.size();
         }
 
-        public void doSearch(boolean refreshInv) {
+        public void doSearch() {
             items.clear();
             items.addAll(plugin.getMarketplace().getItems(pages, slotsSize, searching));
-            if (refreshInv) {
-                open();
-            }
         }
 
         @Override
         public void refreshGui() {
-            doSearch(false);
+            doSearch();
             updateInventory(getInventory());
             Util.submitInvUpdate(player);
         }
@@ -174,7 +171,8 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         public void turnPageUp(int pages) {
             if (this.pages - pages < 1) return;
             this.pages -= pages;
-            doSearch(true);
+            doSearch();
+            open();
         }
 
         @Override

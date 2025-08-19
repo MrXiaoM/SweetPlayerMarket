@@ -76,7 +76,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 MarketItem marketItem = db.getItem(conn, this.marketItem.shopId());
                 if (marketItem == null || marketItem.amount() == 0) {
                     Messages.Gui.common__item_not_found.tm(player);
-                    parent.doSearch(false);
+                    parent.doSearch();
                     parent.open();
                     return;
                 }
@@ -145,7 +145,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                     Pair.of("%total_count%", totalCount),
                     Pair.of("%money%", String.format("%.2f", totalMoney).replace(".00", "")),
                     Pair.of("%currency%", currencyName));
-            parent.doSearch(false);
+            parent.doSearch();
             parent.open();
         }
 
@@ -156,7 +156,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 InventoryView view, InventoryClickEvent event
         ) {
             actionLock = true;
-            parent.doSearch(false);
+            parent.doSearch();
             parent.open();
         }
 
