@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.GuiManager;
-import top.mrxiaom.pluginbase.gui.IGui;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.gui.api.IGuiConfirm;
@@ -61,7 +61,7 @@ public class ActionConfirmCount implements IAction {
     @Override
     public void run(Player player, @Nullable List<Pair<String, Object>> replacements) {
         if (player != null) {
-            IGui gui = GuiManager.inst().getOpeningGui(player);
+            IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
             if (gui instanceof IGuiConfirm) {
                 IGuiConfirm confirm = (IGuiConfirm) gui;
                 switch (operator) {

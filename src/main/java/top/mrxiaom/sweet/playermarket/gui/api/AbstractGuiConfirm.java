@@ -7,15 +7,12 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
-import top.mrxiaom.pluginbase.gui.IGui;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
@@ -62,7 +59,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
     }
 
     @Override
-    protected ItemStack applyMainIcon(IGui instance, Player player, char id, int index, int appearTimes) {
+    protected ItemStack applyMainIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes) {
         ConfirmGui gui = (ConfirmGui) instance;
         IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
         IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
@@ -98,16 +95,15 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
     }
 
     @Override
-    protected @Nullable ItemStack applyOtherIcon(IGui instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
+    protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
         AbstractGuiSearch.SearchGui gui = (AbstractGuiSearch.SearchGui) instance;
         IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
         IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
         return icon.generateIcon(player, displayModifier, loreModifier);
     }
 
-    public abstract class ConfirmGui extends Gui implements InventoryHolder, IGuiConfirm, IGuiRefreshable {
+    public abstract class ConfirmGui extends Gui implements IGuiConfirm, IGuiRefreshable {
         protected final MarketItem marketItem;
-        protected Inventory inventory;
         protected final ListPair<String, Object> commonReplacements = new ListPair<>(), baseReplacements = new ListPair<>();
         protected int count = 1;
         protected boolean actionLock = false;
@@ -198,17 +194,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
 
         @Override
         public void refreshGui() {
-            updateInventory(inventory);
-        }
-
-        @Override
-        public @NotNull Inventory getInventory() {
-            return inventory;
-        }
-
-        @Override
-        protected Inventory create(InventoryHolder holder, int size, String title) {
-            return inventory = super.create(this, size, title);
+            updateInventory(getInventory());
         }
 
         @Override

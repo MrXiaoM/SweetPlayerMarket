@@ -8,15 +8,12 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
-import top.mrxiaom.pluginbase.gui.IGui;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
@@ -73,7 +70,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
     }
 
     @Override
-    protected ItemStack applyMainIcon(IGui instance, Player player, char id, int index, int appearTimes) {
+    protected ItemStack applyMainIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes) {
         SearchGui gui = (SearchGui) instance;
         if (id == '物') {
             int i = appearTimes - 1;
@@ -119,17 +116,16 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
     }
 
     @Override
-    protected @Nullable ItemStack applyOtherIcon(IGui instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
+    protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
         SearchGui gui = (SearchGui) instance;
         IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
         IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
         return icon.generateIcon(player, displayModifier, loreModifier);
     }
 
-    public abstract class SearchGui extends Gui implements InventoryHolder, IGuiRefreshable, IGuiPageable {
+    public abstract class SearchGui extends Gui implements IGuiRefreshable, IGuiPageable {
         protected final List<MarketItem> items = new ArrayList<>();
         protected final int slotsSize;
-        protected Inventory inventory;
         protected Searching searching;
         protected int pages = 1;
         protected boolean actionLock = false;
@@ -169,7 +165,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         @Override
         public void refreshGui() {
             doSearch(false);
-            updateInventory(inventory);
+            updateInventory(getInventory());
             Util.submitInvUpdate(player);
         }
 
@@ -216,11 +212,6 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         }
 
         @Override
-        protected Inventory create(InventoryHolder holder, int size, String title) {
-            return this.inventory = super.create(this, size, title.replace("%page%", String.valueOf(pages)));
-        }
-
-        @Override
         public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
             updateReplacements();
             super.updateInventory(setItem);
@@ -234,11 +225,6 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             r.add("%search_currency%", plugin.displayNames().getCurrencyName(searching.currency()));
             r.add("%search_sort_column%", plugin.displayNames().getColumnName(searching.orderColumn()));
             r.add("%search_sort_type%", plugin.displayNames().getSortName(searching.orderType()));
-        }
-
-        @Override
-        public @NotNull Inventory getInventory() {
-            return inventory;
         }
 
         @Override
