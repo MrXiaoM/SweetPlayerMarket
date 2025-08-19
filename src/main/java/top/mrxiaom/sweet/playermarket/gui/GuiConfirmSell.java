@@ -113,11 +113,18 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             // 拿走玩家的指定数量货币。由于上方已添加货币到额外参数中，不需要给予卖家货币
             currency.takeMoney(player, totalMoney);
             // 给予玩家物品
+            int totalCount = 0;
             for (int i = 0; i < count; i++) {
                 ItemStack item = marketItem.item();
+                totalCount += item.getAmount();
                 ItemStackUtil.giveItemToPlayer(player, item);
             }
-            // TODO: 获取物品名，提示玩家购买成功
+            // 获取物品名，提示玩家购买成功
+            Messages.Gui.sell__success.tm(player,
+                    Pair.of("%item%", plugin.displayNames().getDisplayName(marketItem.item(), player)),
+                    Pair.of("%total_count%", totalCount),
+                    Pair.of("%money%", String.format("%.2f", totalMoney).replace(".00", "")),
+                    Pair.of("%currency%", currencyName));
             parent.doSearch(false);
             parent.open();
         }

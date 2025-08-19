@@ -14,6 +14,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -189,7 +190,8 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
         if (plugin.getMarketplace().putItem(marketItem)) {
             // TODO: 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
-            return Messages.Command.create__success.tm(sender);
+            return Messages.Command.create__success.tm(sender,
+                    Pair.of("%item%", plugin.displayNames().getDisplayName(shopItem, sender)));
         } else {
             return Messages.Command.create__failed.tm(sender);
         }

@@ -139,7 +139,12 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
             }
             // 给予玩家的指定数量货币。由于卖家上架时已收取货币，不需要拿走卖家的货币
             currency.giveMoney(player, totalMoney);
-            // TODO: 获取物品名，提示玩家卖出成功
+            // 获取物品名，提示玩家卖出成功
+            Messages.Gui.buy__success.tm(player,
+                    Pair.of("%item%", plugin.displayNames().getDisplayName(marketItem.item(), player)),
+                    Pair.of("%total_count%", totalCount),
+                    Pair.of("%money%", String.format("%.2f", totalMoney).replace(".00", "")),
+                    Pair.of("%currency%", currencyName));
             parent.doSearch(false);
             parent.open();
         }
