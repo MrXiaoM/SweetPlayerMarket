@@ -90,6 +90,8 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 ConfigurationSection params = marketItem.params();
                 double old = params.getDouble("sell.received-currency", 0.0);
                 params.set("sell.received-currency", old + totalMoney);
+                int oldCount = params.getInt("sell.received-count", 0);
+                params.set("sell.received-count", oldCount + count);
 
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()

@@ -1,0 +1,105 @@
+title: '我的商品 第%page%页'
+inventory:
+  - '框框框框框框框框框'
+  - '框物物物物物物物框'
+  - '框物物物物物物物框'
+  - '框物物物物物物物框'
+  - '框框框框框框框框框'
+  - '上　类过通　序　下'
+main-icons:
+  物:
+    display: '&e&l%display%'
+    lore:
+      - item lore
+      - ''
+      - '  &f商家: &e%player%'
+      - '  &f类型: &e%type%  '
+      - '  &f库存: &e%amount% &f/&e %amount_original%  '
+      - '  &f单价: &e%price% %currency%  '
+      - '  &f上架时间: &e%create_time%  '
+      - '  &f过期时间: &e%outdate_time%  '
+      - ''
+  领:
+    display: '&e&l%display%'
+    lore:
+      - item lore
+      - ''
+      - '  &f商家: &e%player%'
+      - '  &f类型: &e%type%  '
+      - '  &f库存: &e%amount% &f/&e %amount_original%  '
+      - '  &f单价: &e%price% %currency%  '
+      - '  &f上架时间: &e%create_time%  '
+      - '  &f过期时间: &e%outdate_time%  '
+      - ''
+      - '&a左键 &7| &f领取商品 &7(%amount_can_take% 份)'
+  空:
+    material: AIR
+other-icons:
+  框:
+    material: WHITE_STAINED_GLASS_PANE
+    display: '&f'
+  上:
+    material: ARROW
+    display: '&e&l上一页'
+    left-click-commands:
+      - '[page]-1'
+  下:
+    material: ARROW
+    display: '&e&l下一页'
+    left-click-commands:
+      - '[page]+1'
+  类:
+    material: DIAMOND
+    display: '&e&l分类'
+    lore:
+      - ''
+      - '  &f当前分类: &e%search_type%  '
+      - ''
+      - '&a左键 &7| &f切换出售分类'
+      - '&b右键 &7| &f切换收购分类'
+      - '&eShift+左键 &7| &f切换所有分类'
+    left-click-commands:
+      - '[search:type]sell'
+    right-click-commands:
+      - '[search:type]buy'
+    shift-left-click-commands:
+      - '[search:type]none'
+  过:
+    material: CLOCK
+    display: '&e&l过期筛选'
+    lore:
+      - ''
+      - '  &f是否过期: &e%search_outdate%  '
+      - '  &f是否已下架: &e%search_out_of_stock%  '
+      - ''
+      - '&a左键 &7| 切换是否过期'
+      - '&b右键 &7| 切换是否已下架'
+    left-click-commands:
+      - '[search:outdate]'
+    right-click-commands:
+      - '[search:out-of-stock]'
+  通:
+    material: SNOWBALL
+    display: '&e&l未领取商品'
+    lore:
+      - ''
+      - '  &f仅显示已有人下单，但尚未进行领取的商品  '
+      - '  &f状态: &e%search_notice%'
+      - ''
+      - '&a左键 &7| &f切换状态'
+    left-click-commands:
+      - '[search:notice]'
+  序:
+    material: COMPASS
+    display: '&e&l排序'
+    lore:
+      - ''
+      - '  &f排序依据: &e%search_sort_column%  '
+      - '  &f排序方式: &e%search_sort_type%  '
+      - ''
+      - '&a左键 &7| &f切换排序依据'
+      - '&b右键 &7| &f切换排序方式'
+    left-click-commands:
+      - '[search:sort]column'
+    right-click-commands:
+      - '[search:sort]type'

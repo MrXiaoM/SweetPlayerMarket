@@ -22,6 +22,7 @@ import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
@@ -67,6 +68,10 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         }
     }
 
+    protected LoadedIcon decideIconByMarketItem(SearchGui instance, Player player, MarketItem item, ListPair<String, Object> r) {
+        return iconItem;
+    }
+
     @Override
     protected ItemStack applyMainIcon(IGui instance, Player player, char id, int index, int appearTimes) {
         SearchGui gui = (SearchGui) instance;
@@ -104,7 +109,8 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                     }
                     return lore;
                 };
-                ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreModifier);
+                LoadedIcon loadedIcon = decideIconByMarketItem(gui, player, item, r);
+                ItemStack icon = loadedIcon.generateIcon(baseItem, player, displayModifier, loreModifier);
                 icon.setAmount(displayAmount);
                 return icon;
             }
@@ -128,6 +134,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         protected int pages = 1;
         protected boolean actionLock = false;
         protected final ListPair<String, Object> commonReplacements = new ListPair<>();
+        protected int columnIndex = -1;
         protected SearchGui(Player player, Searching searching) {
             super(player, guiTitle, guiInventory);
             int itemsSize = 0;
@@ -181,6 +188,23 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             this.items.clear();
             this.items.addAll(items);
             open();
+        }
+
+        public void switchOrderColumn() {
+            int i = ++columnIndex;
+            List<String> columnList = plugin.displayNames().columnList();
+            if (i >= columnList.size()) {
+                i = columnIndex = 0;
+            }
+            searching.orderColumn(columnList.get(i));
+        }
+
+        public void switchOrderSortType() {
+            if (searching.orderType() == EnumSort.ASC) {
+                searching.orderType(EnumSort.DESC);
+            } else {
+                searching.orderType(EnumSort.ASC);
+            }
         }
 
         public Searching searching() {

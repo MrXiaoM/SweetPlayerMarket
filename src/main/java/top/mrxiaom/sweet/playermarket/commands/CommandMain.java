@@ -26,6 +26,7 @@ import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.VaultEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
 import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
+import top.mrxiaom.sweet.playermarket.gui.GuiMyItems;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.time.LocalDateTime;
@@ -59,6 +60,22 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return Messages.player__only.tm(sender);
             }
             GuiMarketplace.create(player, Searching.of(false)).open();
+            return true;
+        }
+        if (args.length >= 1 && "me".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.me")) {
+            Player player;
+            if (args.length >= 2 && sender.hasPermission("sweet.playermarket.me.other")) {
+                player = Util.getOnlinePlayer(args[2]).orElse(null);
+                if (player == null) {
+                    return Messages.player__not_online.tm(sender);
+                }
+            } else if (sender instanceof Player) {
+                player = (Player) sender;
+            } else {
+                return Messages.player__only.tm(sender);
+            }
+            GuiMyItems.create(player, Searching.of(false)
+                    .playerId(plugin.getKey(player))).open();
             return true;
         }
         if (args.length >= 1 && "create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
@@ -206,6 +223,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             List<String> list = new ArrayList<>();
             add(sender, list, "sweet.playermarket.open", "open");
             add(sender, list, "sweet.playermarket.create", "create");
+            add(sender, list, "sweet.playermarket.me", "me");
             if (sender.isOp()) {
                 list.add("reload");
             }
@@ -222,6 +240,12 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
                 return startsWith(arg1Create, args[1]);
+            }
+            if ("open".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.open.other")) {
+                return null;
+            }
+            if ("me".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.me.other")) {
+                return null;
             }
         }
         if (args.length == 3) {

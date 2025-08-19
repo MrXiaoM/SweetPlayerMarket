@@ -2,10 +2,13 @@ package top.mrxiaom.sweet.playermarket.data;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.economy.VaultEconomy;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
@@ -26,6 +29,8 @@ public class DisplayNames extends AbstractModule {
     private final Map<String, String> columnNames = new HashMap<>();
     private final List<String> columnList = new ArrayList<>();
     private String currencyVault, currencyPlayerPoints, currencyAll, marketTypeAll;
+    private final boolean supportTranslatable = Util.isPresent("org.bukkit.Translatable");
+    private final boolean supportLangUtils = Util.isPresent("com.meowj.langutils.lang.LanguageHelper");
 
     public DisplayNames(SweetPlayerMarket plugin) {
         super(plugin);
@@ -133,6 +138,33 @@ public class DisplayNames extends AbstractModule {
 
     public List<String> columnList() {
         return columnList;
+    }
+
+    public String getDisplayName(ItemStack item, Player player) {
+        String displayName = AdventureItemStack.getItemDisplayNameAsMiniMessage(item);
+        if (displayName != null) {
+            return displayName;
+        }
+        return get(item, player);
+    }
+
+    public String get(ItemStack item, Player player) {
+        if (supportTranslatable) {
+            return item.getTranslationKey();
+        }
+        if (supportLangUtils) {
+            return com.meowj.langutils.lang.LanguageHelper.getItemName(item, player);
+        }
+        String[] words = item.getType().name().toLowerCase().replace('_', ' ').split(" ");
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.length() == 1) {
+                words[i] = word.toUpperCase();
+            } else {
+                words[i] = word.substring(0, 1).toUpperCase() + word.substring(1);
+            }
+        }
+        return String.join(" ", words);
     }
 
     public static DisplayNames inst() {

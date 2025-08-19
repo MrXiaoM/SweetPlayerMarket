@@ -11,40 +11,26 @@ import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.util.List;
 
-public class ActionSearchSort implements IAction {
+public class ActionSearchNotice implements IAction {
+    public static final ActionSearchNotice INSTANCE = new ActionSearchNotice();
     public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[search:sort]")) {
-            return new ActionSearchSort(s.substring(13));
-        }
-        if (s.startsWith("search:sort:")) {
-            return new ActionSearchSort(s.substring(12));
-        }
+        if (s.equals("[search:notice]") || s.equals("search:notice")) return INSTANCE;
         return null;
     };
-    private final String str;
-    public ActionSearchSort(String str) {
-        this.str = str;
-    }
-
+    private ActionSearchNotice() {}
     @Override
     public void run(Player player, @Nullable List<Pair<String, Object>> replacements) {
         if (player != null) {
             IGui gui = GuiManager.inst().getOpeningGui(player);
             if (gui instanceof AbstractGuiSearch.SearchGui) {
                 AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
-                switch (str) {
-                    case "column": {
-                        gm.switchOrderColumn();
-                        gm.refreshGui();
-                        break;
-                    }
-                    case "type": {
-                        gm.switchOrderSortType();
-                        gm.refreshGui();
-                        break;
-                    }
-                    // TODO: 支持指定 column 和 sort
+                Integer old = gm.searching().notice();
+                if (old == null) {
+                    gm.searching().notice(1);
+                } else {
+                    gm.searching().notice(null);
                 }
+                gm.refreshGui();
             }
         }
     }

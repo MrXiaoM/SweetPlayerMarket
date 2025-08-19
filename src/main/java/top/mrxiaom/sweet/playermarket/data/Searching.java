@@ -8,15 +8,17 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@SuppressWarnings("UnusedReturnValue")
 public class Searching {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final boolean outdated;
+    private boolean outdated;
     private @Nullable String playerId;
     private @Nullable EnumMarketType type;
     private @Nullable String currency;
     private @NotNull String orderColumn = "create_time";
     private @NotNull EnumSort orderType = EnumSort.DESC;
     private boolean onlyOutOfStock = false;
+    private @Nullable Integer notice;
 
     private Searching(boolean outdated) {
         this.outdated = outdated;
@@ -48,6 +50,15 @@ public class Searching {
 
     public boolean onlyOutOfStock() {
         return onlyOutOfStock;
+    }
+
+    public @Nullable Integer notice() {
+        return notice;
+    }
+
+    public Searching outdated(boolean outdated) {
+        this.outdated = outdated;
+        return this;
     }
 
     public Searching playerId(String playerId) {
@@ -86,6 +97,11 @@ public class Searching {
         return this;
     }
 
+    public Searching notice(@Nullable Integer notice) {
+        this.notice = notice;
+        return this;
+    }
+
     public String generateConditions() {
         StringBuilder sb = new StringBuilder(onlyOutOfStock ? "`amount`=0 " : "`amount`>0 ");
         String now = LocalDateTime.now().format(formatter);
@@ -99,6 +115,7 @@ public class Searching {
         if (type != null) sb.append("AND `shop_type`=? ");
         if (currency != null) sb.append("AND `currency`=? ");
         if (playerId != null) sb.append("AND `player`=? ");
+        if (notice != null) sb.append("AND `notice`=? ");
         return sb.toString();
     }
 
@@ -115,6 +132,7 @@ public class Searching {
         if (type != null) ps.setInt(++i, type.value());
         if (currency != null) ps.setString(++i, currency);
         if (playerId != null) ps.setString(++i, playerId);
+        if (notice != null) ps.setInt(++i, notice);
     }
 
     public static Searching of(boolean outdated) {

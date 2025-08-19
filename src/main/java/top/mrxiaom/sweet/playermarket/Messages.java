@@ -55,6 +55,11 @@ public class Messages {
         public static final Message buy__item_not_enough = field("&e你没有足够的物品来卖出");
         public static final Message buy__submit_failed = field("&e数据库更改提交失败，可能该商品已下架");
         public static final Message buy__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
+
+        public static final Message me__claim__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
+        public static final Message me__claim__plugin_too_old = field("&e这个子服的插件太老了，无法领取这个类型的商品");
+        public static final Message me__claim__buy__success = field("&a你已领取&e %item%&e x%total_count%");
+        public static final Message me__claim__sell__success = field("&a你已领取&e %money% %currency%");
     }
 
 }

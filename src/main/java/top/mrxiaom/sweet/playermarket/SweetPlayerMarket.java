@@ -149,7 +149,9 @@ public class SweetPlayerMarket extends BukkitPlugin {
 
         for (IActionProvider provider : Lists.newArrayList(
                 ActionPage.PROVIDER, ActionRefresh.PROVIDER,
-                ActionSearchCurrency.PROVIDER, ActionSearchSort.PROVIDER, ActionSearchType.PROVIDER,
+                ActionSearchCurrency.PROVIDER, ActionSearchNotice.PROVIDER,
+                ActionSearchOutdate.PROVIDER, ActionSearchOutOfStock.PROVIDER,
+                ActionSearchSort.PROVIDER, ActionSearchType.PROVIDER,
                 ActionConfirmCount.PROVIDER
         )) {
             ActionProviders.registerActionProvider(provider);

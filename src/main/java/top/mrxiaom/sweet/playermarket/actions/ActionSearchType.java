@@ -9,6 +9,7 @@ import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
+import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class ActionSearchType implements IAction {
     public void run(Player player, @Nullable List<Pair<String, Object>> replacements) {
         if (player != null) {
             IGui gui = GuiManager.inst().getOpeningGui(player);
-            if (gui instanceof GuiMarketplace.Impl) {
-                GuiMarketplace.Impl gm = (GuiMarketplace.Impl) gui;
+            if (gui instanceof AbstractGuiSearch.SearchGui) {
+                AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
                 switch (type) {
                     case "buy": {
                         gm.searching().type(EnumMarketType.BUY);

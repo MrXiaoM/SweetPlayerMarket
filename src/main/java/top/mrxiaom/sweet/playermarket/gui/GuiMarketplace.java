@@ -10,7 +10,6 @@ import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
-import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
@@ -33,7 +32,6 @@ public class GuiMarketplace extends AbstractGuiSearch {
     }
 
     public class Impl extends SearchGui {
-        private int columnIndex = -1;
         protected Impl(Player player, Searching searching) {
             super(player, searching);
             List<String> columnList = plugin.displayNames().columnList();
@@ -46,25 +44,7 @@ public class GuiMarketplace extends AbstractGuiSearch {
             postInit();
         }
 
-        public void switchOrderColumn() {
-            int i = ++columnIndex;
-            List<String> columnList = plugin.displayNames().columnList();
-            if (i >= columnList.size()) {
-                i = columnIndex = 0;
-            }
-            searching.orderColumn(columnList.get(i));
-        }
-
-        public void switchOrderSortType() {
-            if (searching.orderType() == EnumSort.ASC) {
-                searching.orderType(EnumSort.DESC);
-            } else {
-                searching.orderType(EnumSort.ASC);
-            }
-        }
-
         @Override
-        @SuppressWarnings("UnnecessaryReturnStatement")
         protected void onClickMarketItem(InventoryAction action, ClickType click, InventoryType.SlotType slotType, int slot, MarketItem item, int i, InventoryView view, InventoryClickEvent event) {
             if (item.amount() == 0) {
                 actionLock = false;
@@ -88,6 +68,7 @@ public class GuiMarketplace extends AbstractGuiSearch {
                     return;
                 }
             }
+            actionLock = false;
         }
     }
 }

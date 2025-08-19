@@ -8,6 +8,7 @@ import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
+import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.util.List;
 
@@ -32,8 +33,8 @@ public class ActionSearchCurrency implements IAction {
     public void run(Player player, @Nullable List<Pair<String, Object>> replacements) {
         if (player != null) {
             IGui gui = GuiManager.inst().getOpeningGui(player);
-            if (gui instanceof GuiMarketplace.Impl) {
-                GuiMarketplace.Impl gm = (GuiMarketplace.Impl) gui;
+            if (gui instanceof AbstractGuiSearch.SearchGui) {
+                AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
                 switch (type) {
                     case "next": {
                         String currency = gm.searching().currency();
