@@ -11,14 +11,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
-import top.mrxiaom.pluginbase.utils.AdventureUtil;
-import top.mrxiaom.pluginbase.utils.ListPair;
-import top.mrxiaom.pluginbase.utils.PAPI;
-import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.*;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 
-import java.util.List;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.*;
 
 @AutoRegister
 public class NoticeManager extends AbstractModule implements Listener {
@@ -63,15 +63,22 @@ public class NoticeManager extends AbstractModule implements Listener {
             return new Notice(text, hover, click);
         }
     }
-    Notice noticeOnJoin;
+    private final Map<EnumMarketType, Notice> noticeByType = new HashMap<>();
+    private Notice noticeOnJoin;
     public NoticeManager(SweetPlayerMarket plugin) {
         super(plugin);
         registerEvents();
+        registerBungee();
     }
 
     @Override
     public void reloadConfig(MemoryConfiguration config) {
         noticeOnJoin = Notice.from(config, "notice.on-join");
+        noticeByType.clear();
+        for (EnumMarketType type : EnumMarketType.values()) {
+            String key = type.name().toLowerCase().replace("_", "-");
+            noticeByType.put(type, Notice.from(config, "notice." + key));
+        }
     }
 
     @EventHandler
@@ -85,6 +92,47 @@ public class NoticeManager extends AbstractModule implements Listener {
                 .search();
         if (!items.isEmpty()) {
             noticeOnJoin.send(player, null);
+        }
+    }
+
+    /**
+     * 玩家已下单时，向店主发送提示
+     */
+    public void confirmNotice(MarketItem item) {
+        Player online = plugin.getPlayer(item.playerId());
+        if (online != null) {
+            confirmNotice(item, online);
+            return;
+        }
+        Bytes.sendByWhoeverOrNot("BungeeCord", Bytes.build(out -> {
+            out.writeLong(System.currentTimeMillis() + 3000L);
+            out.writeUTF(item.shopId());
+            out.writeUTF(item.playerId());
+        }, "Forward", "ALL", "SweetPlayerMarket_Notice"));
+    }
+
+    public void confirmNotice(MarketItem item, Player owner) {
+        Notice notice = noticeByType.get(item.type());
+        if (notice == null || notice.isEmpty()) return;
+        ListPair<String, Object> r = new ListPair<>();
+        r.add("%item%", plugin.displayNames().getDisplayName(item.item(), owner));
+        r.add("%currency%", plugin.displayNames().getCurrencyName(item.currencyName()));
+        notice.send(owner, r);
+    }
+
+    @Override
+    public void receiveBungee(String subChannel, DataInputStream in) throws IOException {
+        if (subChannel.equals("SweetPlayerMarket_Notice")) {
+            if (System.currentTimeMillis() > in.readLong()) return;
+            String shopId = in.readUTF();
+            String playerId = in.readUTF();
+            Player online = plugin.getPlayer(playerId);
+            if (online != null) plugin.getScheduler().runTaskAsync(() -> {
+                MarketItem item = plugin.getMarketplace().getItem(shopId);
+                if (item != null && item.noticeFlag() == 1) {
+                    confirmNotice(item, online);
+                }
+            });
         }
     }
 

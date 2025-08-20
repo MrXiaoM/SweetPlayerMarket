@@ -16,6 +16,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiConfirm;
 
 import java.sql.Connection;
@@ -53,13 +54,14 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 InventoryType.SlotType slotType, int slot,
                 InventoryView view, InventoryClickEvent event
         ) {
+            MarketItem marketItem;
             IEconomy currency;
             String currencyName;
             double totalMoney;
             actionLock = true;
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
-                MarketItem marketItem = db.getItem(conn, this.marketItem.shopId());
+                marketItem = db.getItem(conn, this.marketItem.shopId());
                 if (marketItem == null || marketItem.amount() == 0) {
                     Messages.Gui.common__item_not_found.tm(player);
                     parent.doSearch();
@@ -105,7 +107,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     return;
                 }
             } catch (Throwable e) {
-                warn("玩家 " + player.getName() + " 在下单 " + marketItem.playerName() + " 的出售商品 " + marketItem.shopId() + " 时出现异常", e);
+                warn("玩家 " + player.getName() + " 在下单 " + this.marketItem.playerName() + " 的出售商品 " + this.marketItem.shopId() + " 时出现异常", e);
                 player.closeInventory();
                 Messages.Gui.sell__exception.tm(player);
                 return;
@@ -127,6 +129,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     Pair.of("%currency%", currencyName));
             parent.doSearch();
             parent.open();
+            NoticeManager.inst().confirmNotice(marketItem);
         }
 
         @Override

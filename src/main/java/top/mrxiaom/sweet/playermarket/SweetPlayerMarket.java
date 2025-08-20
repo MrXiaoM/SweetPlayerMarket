@@ -28,6 +28,7 @@ import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.*;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
 import java.net.URL;
@@ -260,14 +261,18 @@ public class SweetPlayerMarket extends BukkitPlugin {
         }
     }
 
-    public OfflinePlayer getPlayer(String key) {
+    public Player getPlayer(String key) {
         if (onlineMode) {
-            UUID uuid;
-            try {
-                uuid = UUID.fromString(key);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
+            UUID uuid = Utils.parseUUID(key);
+            return Util.getOnlinePlayer(uuid).orElse(null);
+        } else {
+            return Util.getOnlinePlayer(key).orElse(null);
+        }
+    }
+
+    public OfflinePlayer getOfflinePlayer(String key) {
+        if (onlineMode) {
+            UUID uuid = Utils.parseUUID(key);
             return Util.getOfflinePlayer(uuid).orElse(null);
         } else {
             return Util.getOfflinePlayer(key).orElse(null);

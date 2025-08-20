@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class Utils {
@@ -51,4 +52,11 @@ public class Utils {
         }
     }
 
+    public static UUID parseUUID(String s) {
+        try {
+            return UUID.fromString(s);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
 }
