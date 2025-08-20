@@ -244,21 +244,23 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             if (actionLock) return;
             Character clickedId = getClickedId(slot);
             if (clickedId == null) return;
-            if (clickedId == '物') {
-                actionLock = true;
-                int i = getAppearTimes(clickedId, slot) - 1;
-                MarketItem item = getItem(i);
-                if (item == null) {
-                    actionLock = false;
+            plugin.getScheduler().runTask(() -> {
+                if (clickedId == '物') {
+                    actionLock = true;
+                    int i = getAppearTimes(clickedId, slot) - 1;
+                    MarketItem item = getItem(i);
+                    if (item == null) {
+                        actionLock = false;
+                        return;
+                    }
+                    onClickMarketItem(action, click, slotType, slot, item, i, view, event);
                     return;
                 }
-                onClickMarketItem(action, click, slotType, slot, item, i, view, event);
-                return;
-            }
-            if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
-                return;
-            }
-            handleOtherClick(click, clickedId);
+                if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
+                    return;
+                }
+                handleOtherClick(click, clickedId);
+            });
         }
 
         protected abstract void onClickMarketItem(
