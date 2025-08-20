@@ -15,9 +15,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.commands.arguments.MeArguments;
+import top.mrxiaom.sweet.playermarket.commands.arguments.OpenArguments;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
@@ -33,7 +35,10 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static top.mrxiaom.pluginbase.utils.arguments.CommandArguments.NULL;
+
 @AutoRegister
+@SuppressWarnings("SameReturnValue")
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {
     private String defaultCurrency;
     public CommandMain(SweetPlayerMarket plugin) {
@@ -46,89 +51,66 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         defaultCurrency = config.getString("default.currency", "Vault");
     }
 
-    private boolean runOpen(CommandSender sender, String[] args) {
-        Player player;
-        if (args.length >= 2 && !args[2].startsWith("-")) {
-            if (!sender.hasPermission("sweet.playermarket.open.other")) {
-                return Messages.Command.no_permission.tm(sender);
-            }
-            player = Util.getOnlinePlayer(args[2]).orElse(null);
-            if (player == null) {
-                return Messages.player__not_online.tm(sender);
-            }
-        } else if (sender instanceof Player) {
-            player = (Player) sender;
-        } else {
-            return Messages.player__only.tm(sender);
+    private Player getPlayerOrSelf(CommandArguments args, CommandSender sender, String perm) {
+        return args.nextPlayerOrSelf(sender,
+                () -> Messages.player__only.tm(sender), perm,
+                () -> Messages.Command.no_permission.tm(sender),
+                () -> Messages.player__not_online.tm(sender));
+    }
+
+    private boolean runOpen(CommandSender sender, OpenArguments args) {
+        Player player = getPlayerOrSelf(args, sender, "sweet.playermarket.open.other");
+        if (player == null) {
+            return true;
         }
         GuiMarketplace.create(player, Searching.of(false)).open();
         return true;
     }
 
-    private boolean runMe(CommandSender sender, String[] args) {
-        Player player;
-        if (args.length >= 2 && !args[2].startsWith("-")) {
-            if (!sender.hasPermission("sweet.playermarket.me.other")) {
-                return Messages.Command.no_permission.tm(sender);
-            }
-            player = Util.getOnlinePlayer(args[2]).orElse(null);
-            if (player == null) {
-                return Messages.player__not_online.tm(sender);
-            }
-        } else if (sender instanceof Player) {
-            player = (Player) sender;
-        } else {
-            return Messages.player__only.tm(sender);
-        }
-        Integer notice = null;
-        boolean onlyOutOfStock = false;
-        for (String s : args) {
-            if (s.equals("-n") || s.equals("--notice")) {
-                notice = 1;
-            }
-            if (s.equals("-o") || s.equals("--only-out-of-stock")) {
-                onlyOutOfStock = true;
-            }
+    private boolean runMe(CommandSender sender, MeArguments args) {
+        Player player = getPlayerOrSelf(args, sender, "sweet.playermarket.me.other");
+        if (player == null) {
+            return true;
         }
         GuiMyItems.create(player, Searching.of(false)
                 .playerId(plugin.getKey(player))
-                .notice(notice)
-                .onlyOutOfStock(onlyOutOfStock)).open();
+                .notice(args.notice() ? 1 : null)
+                .onlyOutOfStock(args.onlyOutOfStock())
+        ).open();
         return true;
     }
 
     @SuppressWarnings({"deprecation"})
-    private boolean runCreate(Player sender, String[] args) {
+    private boolean runCreate(Player sender, CommandArguments args) {
         ItemStack item = sender.getItemInHand();
         if (item.getType().equals(Material.AIR)) {
             return Messages.Command.create__no_item.tm(sender);
         }
-        if (args.length == 1) {
-            return Messages.Command.create__no_type_input.tm(sender);
-        }
-        EnumMarketType type = Util.valueOrNull(EnumMarketType.class, args[1]);
+        EnumMarketType type = args.nextValueOf(EnumMarketType.class);
         if (type == null) {
             return Messages.Command.create__no_type_found.tm(sender);
         }
-        if (args.length == 2) {
-            return Messages.Command.create__no_price_input.tm(sender);
-        }
-        double price = Util.parseDouble(args[2]).orElse(0.0);
+        double price = args.nextDouble(0.0);
         if (price <= 0) {
             return Messages.Command.create__no_price_valid.tm(sender);
         }
-        IEconomy currency;
-        if (args.length == 3) {
-            currency = plugin.parseEconomy(defaultCurrency);
-            if (currency == null) {
-                return Messages.Command.create__no_currency_default.tm(sender);
+        IEconomy currency = args.nextOptional(currencyName -> {
+            if (currencyName == null) {
+                IEconomy parsed = plugin.parseEconomy(defaultCurrency);
+                if (parsed != null) {
+                    return parsed;
+                }
+                Messages.Command.create__no_currency_default.tm(sender);
+            } else {
+                IEconomy parsed = plugin.parseEconomy(currencyName);
+                if (parsed != null) {
+                    return parsed;
+                }
+                Messages.Command.create__no_currency_found.tm(sender);
             }
-        } else {
-            currency = plugin.parseEconomy(args[3]);
-            if (currency == null) {
-                return Messages.Command.create__no_currency_found.tm(sender);
-            }
-        }
+            return null;
+        });
+        if (currency == null) return true;
         if (currency instanceof VaultEconomy) {
             if (!sender.hasPermission("sweet.playermarket.create.currency.vault")) {
                 return Messages.Command.create__no_currency_permission.tm(sender);
@@ -145,9 +127,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return Messages.Command.create__no_currency_permission.tm(sender);
             }
         }
-        Integer itemCount = args.length <= 4
-                ? Integer.valueOf(item.getAmount())
-                : Util.parseInt(args[4]).orElse(null);
+        Integer itemCount = args.nextInt(item::getAmount, NULL());
         if (itemCount == null) {
             return Messages.Command.create__no_item_count_valid.tm(sender);
         }
@@ -157,9 +137,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         if (itemCount > item.getAmount()) {
             return Messages.Command.create__no_item_count_valid_held.tm(sender);
         }
-        Integer marketAmount = args.length <= 5
-                ? Integer.valueOf(1)
-                : Util.parseInt(args[5]).orElse(null);
+        Integer marketAmount = args.nextInt(() -> 1, NULL());
         if (marketAmount == null || marketAmount < 1 || marketAmount > 64) {
             return Messages.Command.create__no_amount_valid.tm(sender);
         }
@@ -215,8 +193,8 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
     }
 
-    private boolean runReload(CommandSender sender, String[] args) {
-        if (args.length == 2 && "database".equalsIgnoreCase(args[1])) {
+    private boolean runReload(CommandSender sender, CommandArguments args) {
+        if (args.match("database")) {
             plugin.options.database().reloadConfig();
             plugin.options.database().reconnect();
             return Messages.Command.reload__database.tm(sender);
@@ -226,33 +204,39 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length >= 1 && "open".equalsIgnoreCase(args[0])) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command cmd,
+            @NotNull String label,
+            @NotNull String[] args
+    ) {
+        CommandArguments command = CommandArguments.simple(args);
+        if (command.match("open")) {
             if (!sender.hasPermission("sweet.playermarket.open")) {
                 return Messages.Command.no_permission.tm(sender);
             }
-            return runOpen(sender, args);
+            return runOpen(sender, command.to(OpenArguments::of));
         }
-        if (args.length >= 1 && "me".equalsIgnoreCase(args[0])) {
+        if (command.match("me")) {
             if (!sender.hasPermission("sweet.playermarket.me")) {
                 return Messages.Command.no_permission.tm(sender);
             }
-            return runMe(sender, args);
+            return runMe(sender, command.to(MeArguments::of));
         }
-        if (args.length >= 1 && "create".equalsIgnoreCase(args[0])) {
+        if (command.match("create")) {
             if (!sender.hasPermission("sweet.playermarket.create")) {
                 return Messages.Command.no_permission.tm(sender);
             }
             if (!(sender instanceof Player)) {
                 return Messages.player__only.tm(sender);
             }
-            return runCreate((Player) sender, args);
+            return runCreate((Player) sender, command);
         }
-        if (args.length >= 1 && "reload".equalsIgnoreCase(args[0])) {
+        if (command.match("reload")) {
             if (!sender.isOp()) {
                 return Messages.Command.no_permission.tm(sender);
             }
-            return runReload(sender, args);
+            return runReload(sender, command);
         }
         return true;
     }
