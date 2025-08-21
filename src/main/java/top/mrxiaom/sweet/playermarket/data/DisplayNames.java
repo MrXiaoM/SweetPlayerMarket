@@ -155,7 +155,8 @@ public class DisplayNames extends AbstractModule {
         if (supportLangUtils) {
             return com.meowj.langutils.lang.LanguageHelper.getItemName(item, player);
         }
-        String[] words = item.getType().name().toLowerCase().replace('_', ' ').split(" ");
+        // 条件最糟糕时使用的方案: 将 _ 替换为空格，并使得每个单词的首字母大写
+        String[] words = item.getType().toString().toLowerCase().split("_");
         for (int i = 0; i < words.length; i++) {
             String word = words[i];
             if (word.length() == 1) {
