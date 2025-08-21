@@ -143,14 +143,14 @@ public class DisplayNames extends AbstractModule {
     public String getDisplayName(ItemStack item, Player player) {
         String displayName = AdventureItemStack.getItemDisplayNameAsMiniMessage(item);
         if (displayName != null) {
-            return displayName;
+            return displayName.replace("&", "&&");
         }
         return get(item, player);
     }
 
     public String get(ItemStack item, Player player) {
         if (supportTranslatable) {
-            return item.getTranslationKey();
+            return "<lang:" + item.getTranslationKey() + ">";
         }
         if (supportLangUtils) {
             return com.meowj.langutils.lang.LanguageHelper.getItemName(item, player);
