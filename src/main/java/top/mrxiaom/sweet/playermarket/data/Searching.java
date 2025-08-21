@@ -61,17 +61,17 @@ public class Searching {
         return this;
     }
 
-    public Searching playerId(String playerId) {
+    public Searching playerId(@Nullable String playerId) {
         this.playerId = playerId;
         return this;
     }
 
-    public Searching type(EnumMarketType type) {
+    public Searching type(@Nullable EnumMarketType type) {
         this.type = type;
         return this;
     }
 
-    public Searching currency(String currency) {
+    public Searching currency(@Nullable String currency) {
         this.currency = currency;
         return this;
     }
@@ -120,15 +120,11 @@ public class Searching {
     }
 
     public String generateOrder() {
-        if (orderColumn != null && orderType != null) {
-            return "ORDER BY `" + orderColumn + "` " + orderType.value() + " ";
-        }
-        return "";
+        return "ORDER BY `" + orderColumn + "` " + orderType.value() + " ";
     }
 
     public void setValues(PreparedStatement ps, int parameterIndex) throws SQLException {
         int i = parameterIndex - 1;
-        //ps.setTimestamp(i, Timestamp.from(Instant.now()));
         if (type != null) ps.setInt(++i, type.value());
         if (currency != null) ps.setString(++i, currency);
         if (playerId != null) ps.setString(++i, playerId);
