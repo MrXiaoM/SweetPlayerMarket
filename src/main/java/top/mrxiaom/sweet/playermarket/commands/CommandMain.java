@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -63,7 +64,10 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         if (player == null) {
             return true;
         }
-        GuiMarketplace.create(player, Searching.of(false)).open();
+        IEconomy currency = plugin.parseEconomy(args.currency());
+        GuiMarketplace.create(player, Searching.of(false)
+                .type(Util.valueOr(EnumMarketType.class, args.type(), null))
+                .currency(currency == null ? null : currency.id())).open();
         return true;
     }
 
