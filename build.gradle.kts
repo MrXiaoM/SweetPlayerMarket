@@ -11,7 +11,6 @@ val targetJavaVersion = 8
 val shadowGroup = "top.mrxiaom.sweet.playermarket.libs"
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
@@ -64,6 +63,7 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
     }
+    withJavadocJar()
     withSourcesJar()
 }
 tasks {
@@ -75,6 +75,9 @@ tasks {
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
         }
+        listOf(
+            "top/mrxiaom/pluginbase/temporary/*",
+        ).forEach(this::exclude)
     }
     val copyTask = create<Copy>("copyBuildArtifact") {
         dependsOn(shadowJar)
@@ -84,6 +87,17 @@ tasks {
     }
     build {
         dependsOn(copyTask)
+    }
+    javadoc {
+        (options as StandardJavadocDocletOptions).apply {
+            links("https://hub.spigotmc.org/javadocs/spigot/")
+
+            locale("zh_CN")
+            encoding("UTF-8")
+            docEncoding("UTF-8")
+            addBooleanOption("keywords", true)
+            addBooleanOption("Xdoclint:none", true)
+        }
     }
     withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
