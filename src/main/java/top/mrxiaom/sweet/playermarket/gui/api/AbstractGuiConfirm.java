@@ -118,7 +118,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
         protected void updateBaseReplacements() {
             ListPair<String, Object> r = baseReplacements;
             ItemStack baseItem = marketItem.item();
-            String itemName = plugin.getItemName(baseItem);
+            String itemName = plugin.displayNames().getDisplayName(baseItem, player);
 
             r.add("%player%", marketItem.playerName());
             r.add("%display%", itemName);

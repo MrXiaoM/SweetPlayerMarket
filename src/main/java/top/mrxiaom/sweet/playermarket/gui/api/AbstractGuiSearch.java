@@ -81,7 +81,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             } else {
                 ItemStack baseItem = item.item();
                 int displayAmount = baseItem.getAmount();
-                String itemName = plugin.getItemName(baseItem);
+                String itemName = plugin.displayNames().getDisplayName(baseItem, player);
                 List<String> itemLore = AdventureItemStack.getItemLoreAsMiniMessage(baseItem);
 
                 ListPair<String, Object> r = new ListPair<>();

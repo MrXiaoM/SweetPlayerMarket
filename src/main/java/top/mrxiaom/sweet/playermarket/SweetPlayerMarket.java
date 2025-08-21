@@ -10,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,6 @@ import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
-import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
@@ -66,7 +64,6 @@ public class SweetPlayerMarket extends BukkitPlugin {
             this.classLoader.addURL(library);
         }
     }
-    private final boolean supportTranslatable = Util.isPresent("org.bukkit.Translatable");
     private boolean onlineMode;
     private IEconomy vault;
     private IEconomy playerPoints;
@@ -236,18 +233,6 @@ public class SweetPlayerMarket extends BukkitPlugin {
         } else {
             return dateTime.format(datetimeFormatter);
         }
-    }
-
-    public String getItemName(ItemStack item) {
-        String displayName = AdventureItemStack.getItemDisplayNameAsMiniMessage(item);
-        return displayName != null ? displayName : getTranslation(item);
-    }
-
-    public String getTranslation(ItemStack item) {
-        if (supportTranslatable) {
-            return "<lang:" + item.getTranslationKey() + ">";
-        }
-        return item.getType().name().toLowerCase().replace('_', ' ');
     }
 
     public String getKey(Player player) {
