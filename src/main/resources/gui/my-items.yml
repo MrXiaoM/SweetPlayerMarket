@@ -1,4 +1,4 @@
-title: '我的商品 第%page%页'
+title: '我的商品 - %page%/%max_page% 页'
 inventory:
   - '框框框框框框框框框'
   - '框物物物物物物物框'

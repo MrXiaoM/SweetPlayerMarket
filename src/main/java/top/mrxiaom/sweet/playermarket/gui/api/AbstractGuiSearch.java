@@ -223,8 +223,10 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
 
         @Override
         protected Inventory create(int size, String title) {
+            int maxPage = items.getMaxPage(slotsSize);
             return super.create(size, Pair.replace0(title,
-                    Pair.of("%page%", pages)
+                    Pair.of("%page%", pages),
+                    Pair.of("%max_page%", maxPage == 0 ? "?" : maxPage)
             ));
         }
 

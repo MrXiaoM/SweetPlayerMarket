@@ -1,4 +1,4 @@
-title: '全球市场 第%page%页'
+title: '全球市场 - %page%/%max_page% 页'
 inventory:
   - '框框框框框框框框框'
   - '框物物物物物物物框'
