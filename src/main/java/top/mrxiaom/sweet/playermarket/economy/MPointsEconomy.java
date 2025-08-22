@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MPointsEconomy implements IEconomyWithSign, IEconomy {
     private static final Map<String, IEconomy> caches = new HashMap<>();
@@ -61,5 +62,17 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
     public void takeMoney(OfflinePlayer player, double money) {
         if (sign == null) throw new UnsupportedOperationException("");
         api.changebalance(sign, player.getUniqueId(), player.getName(), BigDecimal.valueOf(money), false);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof MPointsEconomy)) return false;
+        MPointsEconomy that = (MPointsEconomy) o;
+        return Objects.equals(id(), that.id());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id());
     }
 }
