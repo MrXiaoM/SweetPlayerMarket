@@ -24,6 +24,7 @@ import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
+import top.mrxiaom.sweet.playermarket.utils.ListX;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +126,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
     }
 
     public abstract class SearchGui extends Gui implements IGuiRefreshable, IGuiPageable {
-        protected final List<MarketItem> items = new ArrayList<>();
+        protected final ListX<MarketItem> items = new ListX<>();
         protected final int slotsSize;
         protected Searching searching;
         protected int pages = 1;
@@ -156,8 +157,10 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         }
 
         public void doSearch() {
-            items.clear();
-            items.addAll(plugin.getMarketplace().getItems(pages, slotsSize, searching));
+            ListX<MarketItem> items = plugin.getMarketplace().getItems(pages, slotsSize, searching);
+            this.items.clear();
+            this.items.addAll(items);
+            this.items.setTotalCount(items.getTotalCount());
         }
 
         @Override
@@ -177,11 +180,12 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
 
         @Override
         public void turnPageDown(int pages) {
-            List<MarketItem> items = plugin.getMarketplace().getItems(this.pages + pages, slotsSize, searching);
+            ListX<MarketItem> items = plugin.getMarketplace().getItems(this.pages + pages, slotsSize, searching);
             if (items.isEmpty()) return;
             this.pages += pages;
             this.items.clear();
             this.items.addAll(items);
+            this.items.setTotalCount(items.getTotalCount());
             open();
         }
 

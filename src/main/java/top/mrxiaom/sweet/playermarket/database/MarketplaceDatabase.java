@@ -12,6 +12,7 @@ import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractPluginHolder;
+import top.mrxiaom.sweet.playermarket.utils.ListX;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -66,7 +67,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             return this;
         }
 
-        public List<MarketItem> search() {
+        public ListX<MarketItem> search() {
             return getItems(page, size, searching);
         }
     }
@@ -160,21 +161,34 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
      * @param searching 搜素参数
      * @return 搜索结果
      */
-    public List<MarketItem> getItems(int page, int size, Searching searching) {
+    public ListX<MarketItem> getItems(int page, int size, Searching searching) {
         try (Connection conn = plugin.getConnection()) {
             String conditions = searching.generateConditions();
             String order = searching.generateOrder();
+            ListX<MarketItem> list;
             int startIndex = (page - 1) * size;
             String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
                     + "WHERE " + conditions + order
                     + "LIMIT " + startIndex + ", " + size + ";";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 searching.setValues(ps, 1);
-                return queryAndLoadItems(ps);
+                list = new ListX<>(queryAndLoadItems(ps));
             }
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` "
+                    + "WHERE " + conditions + ";"
+            )) {
+                searching.setValues(ps, 1);
+                try (ResultSet result = ps.executeQuery()) {
+                    if (result.next()) {
+                        list.setTotalCount(result.getInt(1));
+                    }
+                }
+            }
+            return list;
         } catch (SQLException e) {
             warn(e);
-            return new ArrayList<>();
+            return new ListX<>();
         }
     }
 
