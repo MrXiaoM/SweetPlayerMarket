@@ -159,10 +159,10 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
         // 检查商品上架条件
         BaseLimitation limitation = LimitationManager.inst().getLimitByItem(item);
-        if (!limitation.canUseMarketType(type)) {
+        if (!sender.hasPermission("sweet.playermarket.create.bypass.type") && !limitation.canUseMarketType(type)) {
             return Messages.Command.create__limitation__type_not_allow.tm(sender);
         }
-        if (!limitation.canUseCurrency(currency)) {
+        if (!sender.hasPermission("sweet.playermarket.create.bypass.currency") && !limitation.canUseCurrency(currency)) {
             return Messages.Command.create__limitation__currency_not_allow.tm(sender,
                     Pair.of("%currency%", plugin.displayNames().getCurrencyName(currency)));
         }
@@ -171,7 +171,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         CreateCost createCost = limitation.getCreateCost(type);
         IEconomy costCurrency;
         double createCostMoney;
-        if (createCost != null) {
+        if (!sender.hasPermission("sweet.playermarket.create.bypass.cost") && createCost != null) {
             costCurrency = createCost.currency(currency);
             createCostMoney = createCost.money(totalPrice);
             if (createCostMoney > 0 && !costCurrency.has(sender, createCostMoney)) {

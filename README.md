@@ -60,3 +60,6 @@ SweetPlayerMarket 是一个支持跨服、支持数据库的玩家全球市场�
 + `sweet.playermarket.create.currency.vault` 允许使用 Vault 金币上架商品
 + `sweet.playermarket.create.currency.playerpoints` 允许使用 PlayerPoints 点券上架商品
 + `sweet.playermarket.create.currency.mpoints.<点数>` 允许使用 MPoints 点数上架商品
++ `sweet.playermarket.create.bypass.cost` 绕过创建商品手续费限制
++ `sweet.playermarket.create.bypass.currency` 绕过创建商品货币类型限制
++ `sweet.playermarket.create.bypass.type` 绕过创建商品类型（出售、收购）限制
