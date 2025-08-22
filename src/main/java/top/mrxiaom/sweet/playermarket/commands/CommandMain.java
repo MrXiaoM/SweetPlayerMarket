@@ -104,7 +104,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
         // 商品单价
         double price = args.nextDouble(0.0);
-        if (price <= 0) {
+        if (price < 0.01) {
             return Messages.Command.create__no_price_valid.tm(sender);
         }
         // 商品货币类型
