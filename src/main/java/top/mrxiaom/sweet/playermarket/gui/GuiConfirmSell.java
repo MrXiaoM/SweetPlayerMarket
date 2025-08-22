@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -9,6 +10,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
@@ -122,8 +124,10 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 ItemStackUtil.giveItemToPlayer(player, item);
             }
             // 获取物品名，提示玩家购买成功
-            Messages.Gui.sell__success.tm(player,
-                    Pair.of("%item%", plugin.displayNames().getDisplayName(marketItem.item(), player)),
+            ItemStack itemDisplay = marketItem.item();
+            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(itemDisplay).build();
+            Messages.Gui.sell__success.tm(miniMessage, player,
+                    Pair.of("%item%", plugin.displayNames().getDisplayName(itemDisplay, player)),
                     Pair.of("%total_count%", totalCount),
                     Pair.of("%money%", String.format("%.2f", totalMoney).replace(".00", "")),
                     Pair.of("%currency%", currencyName));

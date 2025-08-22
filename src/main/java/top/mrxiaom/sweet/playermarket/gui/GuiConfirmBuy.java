@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -142,8 +144,10 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
             // 给予玩家的指定数量货币。由于卖家上架时已收取货币，不需要拿走卖家的货币
             currency.giveMoney(player, totalMoney);
             // 获取物品名，提示玩家卖出成功
-            Messages.Gui.buy__success.tm(player,
-                    Pair.of("%item%", plugin.displayNames().getDisplayName(marketItem.item(), player)),
+            ItemStack itemDisplay = marketItem.item();
+            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(itemDisplay).build();
+            Messages.Gui.buy__success.tm(miniMessage, player,
+                    Pair.of("%item%", plugin.displayNames().getDisplayName(itemDisplay, player)),
                     Pair.of("%total_count%", totalCount),
                     Pair.of("%money%", String.format("%.2f", totalMoney).replace(".00", "")),
                     Pair.of("%currency%", currencyName));

@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -11,6 +12,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
@@ -153,7 +155,8 @@ public class GuiMyItems extends AbstractGuiSearch {
                         int _total = totalCount;
                         successAction = () -> {
                             ItemStackUtil.giveItemToPlayer(player, itemList);
-                            Messages.Gui.me__claim__buy__success.tm(player,
+                            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(_item).build();
+                            Messages.Gui.me__claim__buy__success.tm(miniMessage, player,
                                     Pair.of("%item%", plugin.displayNames().getDisplayName(_item, player)),
                                     Pair.of("%total_count%", _total));
                         };

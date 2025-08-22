@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.commands;
 
 import com.google.common.collect.Lists;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,6 +15,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
@@ -232,7 +234,8 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
         if (plugin.getMarketplace().putItem(marketItem)) {
             // TODO: 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
-            return Messages.Command.create__success.tm(sender,
+            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(shopItem).build();
+            return Messages.Command.create__success.tm(miniMessage, sender,
                     Pair.of("%item%", plugin.displayNames().getDisplayName(shopItem, sender)));
         } else {
             return Messages.Command.create__failed.tm(sender);

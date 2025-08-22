@@ -30,7 +30,7 @@ public class Messages {
         public static final Message create__limitation__create_cost_failed = field("&e你的%currency%不足，需要支付 %money% %currency% 的上架手续费");
         public static final Message create__sell__no_enough_items = field("&e你没有足够的物品来上架商品");
         public static final Message create__buy__no_enough_currency = field("&e你没有足够的货币来上架商品");
-        public static final Message create__success = field("&a你已成功上架&e %item%&a 到全球市场!");
+        public static final Message create__success = field("&a你已成功上架&e <item>%item%</hover>&r&a 到全球市场!");
         public static final Message create__failed = field("&e商品上架失败，请联系服务器管理员");
 
         public static final Message reload__database = field("&a已重载 database.yml 并重新连接数据库");
@@ -53,17 +53,17 @@ public class Messages {
         public static final Message sell__currency_not_enough = field("&e你没有足够的%currency%");
         public static final Message sell__submit_failed = field("&e数据库更改提交失败，可能该商品已下架");
         public static final Message sell__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
-        public static final Message sell__success = field("&a你已成功购买&e %item%&e x%total_count%&a，花费&e %money% %currency%");
+        public static final Message sell__success = field("&a你已成功购买&e <item>%item%</item>&r&e x%total_count%&a，花费&e %money% %currency%");
 
         public static final Message buy__amount_not_enough = field("&e商品库存空间不足，减少一点卖出数量吧~");
         public static final Message buy__item_not_enough = field("&e你没有足够的物品来卖出");
         public static final Message buy__submit_failed = field("&e数据库更改提交失败，可能该商品已下架");
         public static final Message buy__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
-        public static final Message buy__success = field("&a你已成功卖出&e %item%&e x%total_count%&a，获得&e %money% %currency%");
+        public static final Message buy__success = field("&a你已成功卖出&e <item>%item%</item>&r&e x%total_count%&a，获得&e %money% %currency%");
 
         public static final Message me__claim__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
         public static final Message me__claim__plugin_too_old = field("&e这个子服的插件太老了，无法领取这个类型的商品");
-        public static final Message me__claim__buy__success = field("&a你已成功领取&e %item%&e x%total_count%");
+        public static final Message me__claim__buy__success = field("&a你已成功领取&e <item>%item%</item>&r&e x%total_count%");
         public static final Message me__claim__sell__success = field("&a你已成功领取&e %money% %currency%");
     }
 
