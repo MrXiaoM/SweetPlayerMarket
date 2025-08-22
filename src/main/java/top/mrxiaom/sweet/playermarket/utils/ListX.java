@@ -22,4 +22,9 @@ public class ListX<E> extends ArrayList<E> {
         if (totalCount == 0) return 0;
         return (int) Math.ceil((double) totalCount / perPage);
     }
+
+    public void copyTo(ListX<E> list) {
+        list.addAll(this);
+        list.setTotalCount(getTotalCount());
+    }
 }

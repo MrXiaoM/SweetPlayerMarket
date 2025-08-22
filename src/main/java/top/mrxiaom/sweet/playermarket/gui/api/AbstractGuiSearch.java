@@ -159,8 +159,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         public void doSearch() {
             ListX<MarketItem> items = plugin.getMarketplace().getItems(pages, slotsSize, searching);
             this.items.clear();
-            this.items.addAll(items);
-            this.items.setTotalCount(items.getTotalCount());
+            items.copyTo(this.items);
         }
 
         @Override
@@ -184,8 +183,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             if (items.isEmpty()) return;
             this.pages += pages;
             this.items.clear();
-            this.items.addAll(items);
-            this.items.setTotalCount(items.getTotalCount());
+            items.copyTo(this.items);
             open();
         }
 
