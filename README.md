@@ -48,6 +48,15 @@ SweetPlayerMarket 是一个支持跨服、支持数据库的玩家全球市场�
 | `/pm reload database`                      | 重新连接数据库        | OP/控制台                          |
 | `/pm reload`                               | 重载插件配置文件       | OP/控制台                          |
 
+`open` 命令后面可以添加以下选项
++ `--type=类型` 筛选商品类型
++ `--currency=类型` 筛选货币类型
+
+`me` 命令后面可以添加以下选项
++ `--notice` 仅显示有 `notice_flag` 的商品
++ `--only-out-of-stock` 仅显示已经下架的商品
+
+以下为本插件可用的权限
 + `sweet.playermarket.create.currency.vault` 允许使用 Vault 金币上架商品
 + `sweet.playermarket.create.currency.playerpoints` 允许使用 PlayerPoints 点券上架商品
 + `sweet.playermarket.create.currency.mpoints.<点数>` 允许使用 MPoints 点数上架商品
