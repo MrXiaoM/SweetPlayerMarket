@@ -1,6 +1,5 @@
 package top.mrxiaom.sweet.playermarket;
-        
-import com.google.common.collect.Lists;
+
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import me.yic.mpoints.MPointsAPI;
 import net.milkbowl.vault.economy.Economy;
@@ -15,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
-import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
@@ -151,15 +149,13 @@ public class SweetPlayerMarket extends BukkitPlugin {
 
         initEconomy();
 
-        for (IActionProvider provider : Lists.newArrayList(
+        ActionProviders.registerActionProviders(
                 ActionPage.PROVIDER, ActionRefresh.PROVIDER,
                 ActionSearchCurrency.PROVIDER, ActionSearchNotice.PROVIDER,
                 ActionSearchOutdate.PROVIDER, ActionSearchOutOfStock.PROVIDER,
                 ActionSearchSort.PROVIDER, ActionSearchType.PROVIDER,
                 ActionConfirmCount.PROVIDER
-        )) {
-            ActionProviders.registerActionProvider(provider);
-        }
+        );
     }
 
     private void initEconomy() {
