@@ -35,6 +35,7 @@ import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.VaultEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
+import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.func.OutdateTimeManager;
 import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
 import top.mrxiaom.sweet.playermarket.gui.GuiMyItems;
@@ -244,7 +245,9 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             warn(e);
             return Messages.Command.create__failed.tm(sender);
         }
-        // TODO: 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
+        // 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
+        NoticeManager.inst().updateCreated();
+        // 提示商品上架成功
         MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(item).build();
         return Messages.Command.create__success.tm(miniMessage, sender,
                 Pair.of("%item%", plugin.displayNames().getDisplayName(item, sender)));

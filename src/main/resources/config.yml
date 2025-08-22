@@ -10,6 +10,9 @@
 # auto  -- 根据 server.properties 中的 online-mode 决定
 online-mode: auto
 
+# 是否在玩家上架物品后，刷新所有已打开全球市场界面的玩家界面
+update-gui-after-create-item: true
+
 # 通用时间格式
 datetime:
   format: 'yyyy-MM-dd HH:mm:ss'

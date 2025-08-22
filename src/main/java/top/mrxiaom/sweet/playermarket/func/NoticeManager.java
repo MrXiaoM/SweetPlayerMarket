@@ -3,6 +3,7 @@ package top.mrxiaom.sweet.playermarket.func;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
@@ -11,10 +12,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.func.GuiManager;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.*;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -65,6 +69,7 @@ public class NoticeManager extends AbstractModule implements Listener {
     }
     private final Map<EnumMarketType, Notice> noticeByType = new HashMap<>();
     private Notice noticeOnJoin;
+    private boolean updateGuiAfterCreateItem;
     public NoticeManager(SweetPlayerMarket plugin) {
         super(plugin);
         registerEvents();
@@ -73,6 +78,7 @@ public class NoticeManager extends AbstractModule implements Listener {
 
     @Override
     public void reloadConfig(MemoryConfiguration config) {
+        updateGuiAfterCreateItem = config.getBoolean("update-gui-after-create-item", true);
         noticeOnJoin = Notice.from(config, "notice.on-join");
         noticeByType.clear();
         for (EnumMarketType type : EnumMarketType.values()) {
@@ -120,6 +126,27 @@ public class NoticeManager extends AbstractModule implements Listener {
         notice.send(owner, r);
     }
 
+    public void updateCreated() {
+        if (updateGuiAfterCreateItem) {
+            doSearchGuiUpdate();
+            Bytes.sendByWhoeverOrNot("BungeeCord", Bytes.build(out -> {
+                out.writeLong(System.currentTimeMillis() + 3000L);
+            }, "Forward", "ALL", "SweetPlayerMarket_Update"));
+        }
+    }
+
+    public void doSearchGuiUpdate() {
+        if (updateGuiAfterCreateItem) {
+            GuiManager manager = GuiManager.inst();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                IGuiHolder gui = manager.getOpeningGui(player);
+                if (gui instanceof AbstractGuiSearch.SearchGui) {
+                    ((AbstractGuiSearch.SearchGui) gui).refreshGui();
+                }
+            }
+        }
+    }
+
     @Override
     public void receiveBungee(String subChannel, DataInputStream in) throws IOException {
         if (subChannel.equals("SweetPlayerMarket_Notice")) {
@@ -133,6 +160,10 @@ public class NoticeManager extends AbstractModule implements Listener {
                     confirmNotice(item, online);
                 }
             });
+        }
+        if (subChannel.equals("SweetPlayerMarket_Update")) {
+            if (System.currentTimeMillis() > in.readLong()) return;
+            doSearchGuiUpdate();
         }
     }
 
