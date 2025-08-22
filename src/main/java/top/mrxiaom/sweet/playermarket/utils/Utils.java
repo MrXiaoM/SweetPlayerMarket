@@ -26,6 +26,18 @@ public class Utils {
         }
     }
 
+    public static int getItemAmount(Player player, ItemStack sample) {
+        int invAmount = 0;
+        PlayerInventory inventory = player.getInventory();
+        ItemStack[] contents = inventory.getContents();
+        for (ItemStack content : contents) {
+            if (content != null && content.isSimilar(sample)) {
+                invAmount += content.getAmount();
+            }
+        }
+        return invAmount;
+    }
+
     public static void takeItem(Player player, ItemStack sample, int count) {
         PlayerInventory inv = player.getInventory();
         int toDelete = count;

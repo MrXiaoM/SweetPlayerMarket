@@ -11,7 +11,6 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
@@ -201,20 +200,11 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             switch (type) {
                 case SELL: {
                     // 出售商店，检查玩家背包里有没有这么多的物品，并拿走这些物品
-                    ItemStack sample = shopItem.clone();
-                    sample.setAmount(1);
-                    int invAmount = 0;
-                    PlayerInventory inventory = sender.getInventory();
-                    ItemStack[] contents = inventory.getContents();
-                    for (ItemStack content : contents) {
-                        if (content != null && content.isSimilar(sample)) {
-                            invAmount += content.getAmount();
-                        }
-                    }
+                    int invAmount = Utils.getItemAmount(sender, shopItem);
                     if (invAmount < totalAmount) {
                         return Messages.Command.create__sell__no_enough_items.tm(sender);
                     }
-                    Utils.takeItem(sender, sample, totalAmount);
+                    Utils.takeItem(sender, shopItem, totalAmount);
                     break;
                 }
                 case BUY: {
@@ -239,7 +229,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
 
             // 将商品信息提交到数据库
-            MarketItem marketItem = MarketItem.builder(shopId, sender)
+            db.putItem(conn, MarketItem.builder(shopId, sender)
                     .item(shopItem)
                     .type(type)
                     .price(price)
@@ -247,8 +237,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     .amount(marketAmount)
                     // TODO: 商品到期时间移到配置文件
                     .outdateTime(LocalDateTime.now().plusDays(5))
-                    .build();
-            db.putItem(conn, marketItem);
+                    .build());
         } catch (SQLException e) {
             warn(e);
             return Messages.Command.create__failed.tm(sender);
