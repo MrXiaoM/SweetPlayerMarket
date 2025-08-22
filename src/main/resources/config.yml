@@ -20,6 +20,29 @@ default:
   # 上架默认使用货币
   currency: Vault
 
+# 全球市场上架到期时间限制组
+# 拥有权限 sweet.playermarket.outdate.<组名> 则使用相应的时间，例如 sweet.playermarket.outdate.vip
+# 优先级 (priority) 数值越小的限制组越优先使用，在所有组都不匹配时，使用 default 组
+# 时间格式为 数值+单位，例如 5d 为 5天，可用单位有 M月、d天、h时、m分、s秒
+# 时间使用 infinite 代表永久有效
+outdate-time:
+  default:
+    priority: 1000
+    buy: 5d
+    sell: 5d
+  vip:
+    priority: 990
+    buy: 7d
+    sell: 7d
+  svip:
+    priority: 989
+    buy: 9d
+    sell: 9d
+  mvp:
+    priority: 988
+    buy: 10d
+    sell: 10d
+
 # 商品数据的显示名称
 display-names:
   # 商店类型名称

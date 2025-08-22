@@ -24,6 +24,7 @@ import top.mrxiaom.sweet.playermarket.commands.arguments.MeArguments;
 import top.mrxiaom.sweet.playermarket.commands.arguments.OpenArguments;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.OutdateTime;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
@@ -34,13 +35,13 @@ import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.VaultEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
+import top.mrxiaom.sweet.playermarket.func.OutdateTimeManager;
 import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
 import top.mrxiaom.sweet.playermarket.gui.GuiMyItems;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static top.mrxiaom.pluginbase.utils.arguments.CommandArguments.NULL;
@@ -186,6 +187,8 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             createCostMoney = 0.0;
         }
 
+        OutdateTime outdateTime = OutdateTimeManager.inst().get(sender);
+
         try (Connection conn = plugin.getConnection()) {
             MarketplaceDatabase db = plugin.getMarketplace();
             String shopId = db.createNewId(conn);
@@ -235,8 +238,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     .price(price)
                     .currency(currency)
                     .amount(marketAmount)
-                    // TODO: 商品到期时间移到配置文件
-                    .outdateTime(LocalDateTime.now().plusDays(5))
+                    .outdateTime(outdateTime.get(type))
                     .build());
         } catch (SQLException e) {
             warn(e);
