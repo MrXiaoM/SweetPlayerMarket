@@ -24,11 +24,14 @@ import top.mrxiaom.sweet.playermarket.commands.arguments.OpenArguments;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
+import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
+import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.VaultEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
+import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
 import top.mrxiaom.sweet.playermarket.gui.GuiMyItems;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
@@ -90,14 +93,17 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         if (item.getType().equals(Material.AIR)) {
             return Messages.Command.create__no_item.tm(sender);
         }
+        // 商品类型
         EnumMarketType type = args.nextValueOf(EnumMarketType.class);
         if (type == null) {
             return Messages.Command.create__no_type_found.tm(sender);
         }
+        // 商品单价
         double price = args.nextDouble(0.0);
         if (price <= 0) {
             return Messages.Command.create__no_price_valid.tm(sender);
         }
+        // 商品货币类型
         IEconomy currency = args.nextOptional(currencyName -> {
             if (currencyName == null) {
                 IEconomy parsed = plugin.parseEconomy(defaultCurrency);
@@ -115,6 +121,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             return null;
         });
         if (currency == null) return true;
+        // 货币使用权限限制
         if (currency instanceof VaultEconomy) {
             if (!sender.hasPermission("sweet.playermarket.create.currency.vault")) {
                 return Messages.Command.create__no_currency_permission.tm(sender);
@@ -131,6 +138,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return Messages.Command.create__no_currency_permission.tm(sender);
             }
         }
+        // 单份商品的物品数量
         Integer itemCount = args.nextInt(item::getAmount, NULL());
         if (itemCount == null) {
             return Messages.Command.create__no_item_count_valid.tm(sender);
@@ -141,12 +149,38 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         if (itemCount > item.getAmount()) {
             return Messages.Command.create__no_item_count_valid_held.tm(sender);
         }
+        // 商品总份数
         Integer marketAmount = args.nextInt(() -> 1, NULL());
         if (marketAmount == null || marketAmount < 1 || marketAmount > 64) {
             return Messages.Command.create__no_amount_valid.tm(sender);
         }
 
-        // TODO: 计算上架所需手续费用，并检查玩家够不够钱
+        // 检查商品上架条件
+        BaseLimitation limitation = LimitationManager.inst().getLimitByItem(item);
+        if (!limitation.canUseMarketType(type)) {
+            return Messages.Command.create__limitation__type_not_allow.tm(sender);
+        }
+        if (!limitation.canUseCurrency(currency)) {
+            return Messages.Command.create__limitation__currency_not_allow.tm(sender,
+                    Pair.of("%currency%", plugin.displayNames().getCurrencyName(currency)));
+        }
+        // 检查玩家是否有足够的手续费
+        double totalPrice = price * marketAmount;
+        CreateCost createCost = limitation.getCreateCost(type);
+        IEconomy costCurrency;
+        double createCostMoney;
+        if (createCost != null) {
+            costCurrency = createCost.currency(currency);
+            createCostMoney = createCost.money(totalPrice);
+            if (createCostMoney > 0 && !costCurrency.has(sender, createCostMoney)) {
+                return Messages.Command.create__limitation__create_cost_failed.tm(sender,
+                        Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
+                        Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+            }
+        } else {
+            costCurrency = null;
+            createCostMoney = 0.0;
+        }
 
         ItemStack shopItem = item.clone();
         shopItem.setAmount(itemCount);
@@ -171,13 +205,21 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
         if (type.equals(EnumMarketType.BUY)) {
             // 收购商店，收取玩家指定类型的货币
-            double totalPrice = price * marketAmount;
-            if (!currency.has(sender, totalPrice)) {
+            double totalMoney = createCost != null && createCost.isTheSameCurrency(currency)
+                    ? (totalPrice + createCostMoney)
+                    : (totalPrice);
+            if (!currency.has(sender, totalMoney)) {
                 return Messages.Command.create__buy__no_enough_currency.tm(sender);
             }
             currency.takeMoney(sender, totalPrice);
         }
 
+        // 扣除手续费
+        if (costCurrency != null && createCostMoney > 0) {
+            costCurrency.takeMoney(sender, createCostMoney);
+        }
+
+        // 将商品信息提交到数据库
         MarketItem marketItem = MarketItem.builder(sender)
                 .item(shopItem)
                 .type(type)

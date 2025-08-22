@@ -25,6 +25,9 @@ public class Messages {
         public static final Message create__no_item_count_valid_stack = field("&e请输入正确的单个商品的物品数量，你输入的数量超出了堆叠限制");
         public static final Message create__no_item_count_valid_held = field("&e请输入正确的单个商品的物品数量，你输入的数量超出了手持物品数量");
         public static final Message create__no_amount_valid = field("&e请输入正确的商品总份数");
+        public static final Message create__limitation__type_not_allow = field("&e在上架该物品时，禁止上架到这个类型的商店");
+        public static final Message create__limitation__currency_not_allow = field("&e在上架该物品时，禁止使用%currency%上架");
+        public static final Message create__limitation__create_cost_failed = field("&e你的%currency%不足，需要支付 %money% %currency% 的上架手续费");
         public static final Message create__sell__no_enough_items = field("&e你没有足够的物品来上架商品");
         public static final Message create__buy__no_enough_currency = field("&e你没有足够的货币来上架商品");
         public static final Message create__success = field("&a你已成功上架&e %item%&a 到全球市场!");
