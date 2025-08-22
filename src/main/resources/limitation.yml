@@ -1,4 +1,5 @@
 
+# 默认限制
 default:
   # 商品创建手续费，将此项留空 (create-cost: {}) 则不收取手续费
   create-cost:
@@ -9,8 +10,17 @@ default:
       # 收取的货币数量，可以使用固定数字，也可以使用百分比
       # 例如填写 5%，则收取上架总价的 5% 手续费
       money: 10
+  # 限制匹配的物品禁止上架指定商店类型
+  #shop-type-blacklist: [ BUY, SELL ]
+  # 限制匹配的物品只允许上架指定商店类型
+  #shop-type-whitelist: [ BUY, SELL ]
+  # 限制匹配的物品禁止使用某种货币上架，其中，MPoints 不输入冒号则禁止所有
+  #currency-blacklist: [ PlayerPoints, MPoints ]
+  # 限制匹配的物品只允许使用指定货币上架，其中，MPoints 不输入冒号则允许所有
+  #currency-whitelist: [ Vault, 'MPoints:sign' ]
 
 # 按物品进行限制
+# 越放在前面的配置，越先进行匹配
 by-items:
     # 物品匹配器类型
     # ANY 代表任意一个匹配器满足条件均可匹配
