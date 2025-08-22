@@ -28,6 +28,7 @@ import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
+import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
 import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
@@ -38,6 +39,8 @@ import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
 import top.mrxiaom.sweet.playermarket.gui.GuiMyItems;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -184,62 +187,76 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             createCostMoney = 0.0;
         }
 
-        ItemStack shopItem = item.clone();
-        shopItem.setAmount(itemCount);
+        try (Connection conn = plugin.getConnection()) {
+            MarketplaceDatabase db = plugin.getMarketplace();
+            String shopId = db.createNewId(conn);
+            if (shopId == null) {
+                return Messages.Command.create__failed_db.tm(sender);
+            }
 
-        int totalAmount = itemCount * marketAmount;
-        if (type.equals(EnumMarketType.SELL)) {
-            // 出售商店，检查玩家背包里有没有这么多的物品，并拿走这些物品
-            ItemStack sample = shopItem.clone();
-            sample.setAmount(1);
-            int invAmount = 0;
-            PlayerInventory inventory = sender.getInventory();
-            ItemStack[] contents = inventory.getContents();
-            for (ItemStack content : contents) {
-                if (content != null && content.isSimilar(sample)) {
-                    invAmount += content.getAmount();
+            ItemStack shopItem = item.clone();
+            shopItem.setAmount(itemCount);
+
+            int totalAmount = itemCount * marketAmount;
+            switch (type) {
+                case SELL: {
+                    // 出售商店，检查玩家背包里有没有这么多的物品，并拿走这些物品
+                    ItemStack sample = shopItem.clone();
+                    sample.setAmount(1);
+                    int invAmount = 0;
+                    PlayerInventory inventory = sender.getInventory();
+                    ItemStack[] contents = inventory.getContents();
+                    for (ItemStack content : contents) {
+                        if (content != null && content.isSimilar(sample)) {
+                            invAmount += content.getAmount();
+                        }
+                    }
+                    if (invAmount < totalAmount) {
+                        return Messages.Command.create__sell__no_enough_items.tm(sender);
+                    }
+                    Utils.takeItem(sender, sample, totalAmount);
+                    break;
+                }
+                case BUY: {
+                    // 收购商店，收取玩家指定类型的货币
+                    double totalMoney = createCost != null && createCost.isTheSameCurrency(currency)
+                            ? (totalPrice + createCostMoney)
+                            : (totalPrice);
+                    if (!currency.has(sender, totalMoney)) {
+                        return Messages.Command.create__buy__no_enough_currency.tm(sender);
+                    }
+                    currency.takeMoney(sender, totalPrice);
+                    break;
+                }
+                default: {
+                    return Messages.Command.create__no_type_found.tm(sender);
                 }
             }
-            if (invAmount < totalAmount) {
-                return Messages.Command.create__sell__no_enough_items.tm(sender);
+
+            // 扣除手续费
+            if (costCurrency != null && createCostMoney > 0) {
+                costCurrency.takeMoney(sender, createCostMoney);
             }
-            Utils.takeItem(sender, sample, totalAmount);
-        }
-        if (type.equals(EnumMarketType.BUY)) {
-            // 收购商店，收取玩家指定类型的货币
-            double totalMoney = createCost != null && createCost.isTheSameCurrency(currency)
-                    ? (totalPrice + createCostMoney)
-                    : (totalPrice);
-            if (!currency.has(sender, totalMoney)) {
-                return Messages.Command.create__buy__no_enough_currency.tm(sender);
-            }
-            currency.takeMoney(sender, totalPrice);
-        }
 
-        // 扣除手续费
-        if (costCurrency != null && createCostMoney > 0) {
-            costCurrency.takeMoney(sender, createCostMoney);
-        }
-
-        // 将商品信息提交到数据库
-        MarketItem marketItem = MarketItem.builder(sender)
-                .item(shopItem)
-                .type(type)
-                .price(price)
-                .currency(currency)
-                .amount(marketAmount)
-                // TODO: 商品到期时间移到配置文件
-                .outdateTime(LocalDateTime.now().plusDays(5))
-                .build();
-
-        if (plugin.getMarketplace().putItem(marketItem)) {
-            // TODO: 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
-            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(shopItem).build();
-            return Messages.Command.create__success.tm(miniMessage, sender,
-                    Pair.of("%item%", plugin.displayNames().getDisplayName(shopItem, sender)));
-        } else {
+            // 将商品信息提交到数据库
+            MarketItem marketItem = MarketItem.builder(shopId, sender)
+                    .item(shopItem)
+                    .type(type)
+                    .price(price)
+                    .currency(currency)
+                    .amount(marketAmount)
+                    // TODO: 商品到期时间移到配置文件
+                    .outdateTime(LocalDateTime.now().plusDays(5))
+                    .build();
+            db.putItem(conn, marketItem);
+        } catch (SQLException e) {
+            warn(e);
             return Messages.Command.create__failed.tm(sender);
         }
+        // TODO: 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
+        MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(item).build();
+        return Messages.Command.create__success.tm(miniMessage, sender,
+                Pair.of("%item%", plugin.displayNames().getDisplayName(item, sender)));
     }
 
     private boolean runReload(CommandSender sender, CommandArguments args) {

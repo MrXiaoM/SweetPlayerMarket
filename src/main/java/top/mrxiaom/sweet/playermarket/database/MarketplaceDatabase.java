@@ -19,6 +19,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MarketplaceDatabase extends AbstractPluginHolder implements IDatabase {
     public class SearchHolder {
@@ -233,6 +234,31 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
+    public String createNewId(Connection conn) {
+        return createNewId(conn, 0);
+    }
+
+    public String createNewId(Connection conn, int times) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? LIMIT 1;"
+        )) {
+            String shopId = UUID.randomUUID().toString();
+            ps.setString(1, shopId);
+            if (!ps.executeQuery().next()) {
+                return shopId;
+            }
+        } catch (SQLException e) {
+            warn(e);
+            return null;
+        }
+        int i = times + 1;
+        if (i >= 514) {
+            return null;
+        } else {
+            return createNewId(conn, i);
+        }
+    }
+
     /**
      * 添加商品到商店中
      */
@@ -246,7 +272,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
-    private void putItem(Connection conn, MarketItem item) throws SQLException {
+    public void putItem(Connection conn, MarketItem item) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO `" + TABLE_MARKETPLACE + "` "
                 + "(`shop_id`,`player`,`shop_type`,`create_time`,`outdate_time`,`currency`,`price`,`amount`,`notice_flag`,`tag`,`data`) "

@@ -201,6 +201,11 @@ public class MarketItem {
         return builder(UUID.randomUUID().toString(), playerId, playerName);
     }
 
+    public static MarketItemBuilder builder(String shopId, Player player) {
+        String playerId = SweetPlayerMarket.getInstance().getKey(player);
+        return builder(shopId, playerId, player.getName());
+    }
+
     public static MarketItemBuilder builder(Player player) {
         String playerId = SweetPlayerMarket.getInstance().getKey(player);
         return builder(playerId, player.getName());

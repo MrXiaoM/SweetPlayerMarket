@@ -31,6 +31,7 @@ public class Messages {
         public static final Message create__sell__no_enough_items = field("&e你没有足够的物品来上架商品");
         public static final Message create__buy__no_enough_currency = field("&e你没有足够的货币来上架商品");
         public static final Message create__success = field("&a你已成功上架&e <item>%item%</hover>&r&a 到全球市场!");
+        public static final Message create__failed_db = field("&e无法创建新的商品 ID，请稍后重试");
         public static final Message create__failed = field("&e商品上架失败，请联系服务器管理员");
 
         public static final Message reload__database = field("&a已重载 database.yml 并重新连接数据库");
