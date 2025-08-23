@@ -96,7 +96,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
 
     @Override
     protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
-        AbstractGuiSearch.SearchGui gui = (AbstractGuiSearch.SearchGui) instance;
+        ConfirmGui gui = (ConfirmGui) instance;
         IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
         IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
         return icon.generateIcon(player, displayModifier, loreModifier);
