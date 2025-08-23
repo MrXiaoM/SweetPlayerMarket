@@ -89,13 +89,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                 ListPair<String, Object> r = new ListPair<>();
                 r.addAll(gui.commonReplacements);
                 r.add("%display%", itemName);
-                r.add("%player%", item.playerName());
-                r.add("%type%", plugin.displayNames().getMarketTypeName(item.type()));
-                r.add("%amount%", item.amount());
-                r.add("%price%", item.price());
-                r.add("%currency%", plugin.displayNames().getCurrencyName(item.currencyName()));
-                r.add("%create_time%", plugin.toString(item.createTime()));
-                r.add("%outdate_time%", plugin.toString(item.outdateTime()));
+                applyMarketItemPlaceholders(plugin, item, r);
 
                 IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
                 IModifier<List<String>> loreModifier = oldLore -> {
@@ -294,5 +288,16 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         protected MarketItem refreshItem(MarketItem item) {
             return plugin.getMarketplace().getItem(item.shopId());
         }
+    }
+
+    public static void applyMarketItemPlaceholders(SweetPlayerMarket plugin, MarketItem item, ListPair<String, Object> r) {
+        r.add("%player%", item.playerName());
+        r.add("%type%", plugin.displayNames().getMarketTypeName(item.type()));
+        r.add("%amount%", item.amount());
+        r.add("%amount_original%", item.params().getInt("original-amount"));
+        r.add("%price%", item.price());
+        r.add("%currency%", plugin.displayNames().getCurrencyName(item.currencyName()));
+        r.add("%create_time%", plugin.toString(item.createTime()));
+        r.add("%outdate_time%", plugin.toString(item.outdateTime()));
     }
 }

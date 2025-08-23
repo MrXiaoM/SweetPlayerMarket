@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import static top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch.applyMarketItemPlaceholders;
+
 public abstract class AbstractGuiConfirm extends AbstractGuiModule {
     private final String filePath;
     public AbstractGuiConfirm(SweetPlayerMarket plugin, String file) {
@@ -120,15 +122,8 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             ItemStack baseItem = marketItem.item();
             String itemName = plugin.displayNames().getDisplayName(baseItem, player);
 
-            r.add("%player%", marketItem.playerName());
             r.add("%display%", itemName);
-            r.add("%player%", marketItem.playerName());
-            r.add("%type%", plugin.displayNames().getMarketTypeName(marketItem.type()));
-            r.add("%amount%", marketItem.amount());
-            r.add("%price%", marketItem.price());
-            r.add("%currency%", plugin.displayNames().getCurrencyName(marketItem.currencyName()));
-            r.add("%create_time%", plugin.toString(marketItem.createTime()));
-            r.add("%outdate_time%", plugin.toString(marketItem.outdateTime()));
+            applyMarketItemPlaceholders(plugin, marketItem, r);
         }
 
         public int count() {
