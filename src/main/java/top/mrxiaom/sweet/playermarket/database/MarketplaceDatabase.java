@@ -236,14 +236,15 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     public boolean modifyItem(Connection conn, MarketItem item) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "UPDATE `" + TABLE_MARKETPLACE + "` "
-                        + "SET `currency`=?, `price`=?, `amount`=?, `notice_flag`=? "
+                        + "SET `currency`=?, `price`=?, `amount`=?, `notice_flag`=?, `data`=? "
                         + "WHERE `shop_id`=?;"
         )) {
             ps.setString(1, item.currencyName());
             ps.setString(2, String.format("%.2f", item.price()));
             ps.setInt(3, item.amount());
             ps.setInt(4, item.noticeFlag());
-            ps.setString(5, item.shopId());
+            ps.setString(5, item.data().saveToString());
+            ps.setString(6, item.shopId());
             return ps.executeUpdate() != 0;
         }
     }
