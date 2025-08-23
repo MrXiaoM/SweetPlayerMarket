@@ -360,20 +360,20 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 BaseLimitation limitation = getLimit(sender);
                 List<String> list = new ArrayList<>();
                 if (limitation != null) {
-                if (limitation.canUseCurrency(plugin.getVault()) && sender.hasPermission("sweet.playermarket.create.currency.vault")) {
-                    list.add("Vault");
-                }
-                if (limitation.canUseCurrency(plugin.getPlayerPoints()) && sender.hasPermission("sweet.playermarket.create.currency.playerpoints")) {
-                    list.add("PlayerPoints");
-                }
-                if (plugin.getMPoints() != null) {
-                    for (String sign : plugin.getMPoints().getSigns()) {
-                        if (sender.hasPermission("sweet.playermarket.create.currency.mpoints." + sign)
-                        && limitation.canUseCurrency(plugin.getMPoints().of(sign))) {
-                            list.add("MPoints:" + sign);
+                    if (limitation.canUseCurrency(plugin.getVault()) && sender.hasPermission("sweet.playermarket.create.currency.vault")) {
+                        list.add("Vault");
+                    }
+                    if (limitation.canUseCurrency(plugin.getPlayerPoints()) && sender.hasPermission("sweet.playermarket.create.currency.playerpoints")) {
+                        list.add("PlayerPoints");
+                    }
+                    if (plugin.getMPoints() != null) {
+                        for (String sign : plugin.getMPoints().getSigns()) {
+                            if (sender.hasPermission("sweet.playermarket.create.currency.mpoints." + sign)
+                                    && limitation.canUseCurrency(plugin.getMPoints().of(sign))) {
+                                list.add("MPoints:" + sign);
+                            }
                         }
                     }
-                }
                 }
                 return startsWith(list, args[3]);
             }
