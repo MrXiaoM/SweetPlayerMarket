@@ -49,6 +49,8 @@ public class Messages {
     public static class Gui {
         public static final Message common__item_not_found = field("&e来晚了，该商品已下架");
         public static final Message common__currency_not_found = field("&e在该子服不支持使用%currency%货币");
+        public static final Message common__yes = field("&a是");
+        public static final Message common__no = field("&c否");
 
         public static final Message sell__amount_not_enough = field("&e商品库存不足，减少一点购买数量吧~");
         public static final Message sell__currency_not_enough = field("&e你没有足够的%currency%");

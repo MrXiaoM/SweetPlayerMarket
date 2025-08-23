@@ -19,6 +19,7 @@ import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
@@ -235,6 +236,14 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             r.add("%search_currency%", plugin.displayNames().getCurrencyName(searching.currency()));
             r.add("%search_sort_column%", plugin.displayNames().getColumnName(searching.orderColumn()));
             r.add("%search_sort_type%", plugin.displayNames().getSortName(searching.orderType()));
+            r.add("%search_outdate%", bool(searching.outdated()));
+            r.add("%search_out_of_stock%", bool(searching.onlyOutOfStock()));
+            Integer notice = searching.notice();
+            r.add("%search_notice%", bool(notice != null && notice == 1));
+        }
+
+        private String bool(boolean b) {
+            return (b ? Messages.Gui.common__yes : Messages.Gui.common__no).str();
         }
 
         @Override

@@ -19,7 +19,7 @@ public class ListX<E> extends ArrayList<E> {
     }
 
     public int getMaxPage(int perPage) {
-        if (totalCount == 0) return 0;
+        if (totalCount == 0) return isEmpty() ? 1 : 0;
         return (int) Math.ceil((double) totalCount / perPage);
     }
 
