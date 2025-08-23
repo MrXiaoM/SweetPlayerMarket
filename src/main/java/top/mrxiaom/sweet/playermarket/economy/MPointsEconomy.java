@@ -1,10 +1,13 @@
 package top.mrxiaom.sweet.playermarket.economy;
 
+import com.google.common.collect.Lists;
 import me.yic.mpoints.MPointsAPI;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,6 +23,11 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
 
     public String sign() {
         return sign;
+    }
+
+    @Override
+    public List<String> getSigns() {
+        return Lists.newArrayList(api.getpointslist());
     }
 
     @Override

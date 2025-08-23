@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.data.limitation;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.utils.Util;
@@ -110,10 +111,11 @@ public class BaseLimitation {
 
     /**
      * 获取是否允许使用该货币类型上架商品
-     * @param currency
-     * @return
+     * @param currency 货币类型
      */
-    public boolean canUseCurrency(@NotNull IEconomy currency) {
+    @Contract("null->false")
+    public boolean canUseCurrency(@Nullable IEconomy currency) {
+        if (currency == null) return false;
         String id = currency.id();
         if (id.contains(":")) {
             String type = id.split(":", 2)[0];

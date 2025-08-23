@@ -305,13 +305,6 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         return true;
     }
 
-    private final List<String> arg1Create = new ArrayList<>();
-    {
-        for (EnumMarketType value : EnumMarketType.values()) {
-            arg1Create.add(value.name().toLowerCase());
-        }
-    }
-    private final List<String> arg3Create = Lists.newArrayList("Vault", "PlayerPoints", "MPoints:");
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
@@ -335,7 +328,16 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 }
             }
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
-                return startsWith(arg1Create, args[1]);
+                BaseLimitation limitation = getLimit(sender);
+                List<String> list = new ArrayList<>();
+                if (limitation != null) {
+                    for (EnumMarketType type : EnumMarketType.values()) {
+                        if (limitation.canUseMarketType(type)) {
+                            list.add(type.name().toLowerCase());
+                        }
+                    }
+                }
+                return startsWith(list, args[1]);
             }
             if ("open".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.open.other")) {
                 return null;
@@ -346,25 +348,74 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
         if (args.length == 3) {
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
-                return Collections.singletonList(Messages.TabComplete.create__price.str());
+                if (isItemAvailable(sender)) {
+                    return Collections.singletonList(Messages.TabComplete.create__price.str());
+                } else {
+                    return Collections.emptyList();
+                }
             }
         }
         if (args.length == 4) {
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
-                return startsWith(arg3Create, args[3]);
+                BaseLimitation limitation = getLimit(sender);
+                List<String> list = new ArrayList<>();
+                if (limitation != null) {
+                if (limitation.canUseCurrency(plugin.getVault()) && sender.hasPermission("sweet.playermarket.create.currency.vault")) {
+                    list.add("Vault");
+                }
+                if (limitation.canUseCurrency(plugin.getPlayerPoints()) && sender.hasPermission("sweet.playermarket.create.currency.playerpoints")) {
+                    list.add("PlayerPoints");
+                }
+                if (plugin.getMPoints() != null) {
+                    for (String sign : plugin.getMPoints().getSigns()) {
+                        if (sender.hasPermission("sweet.playermarket.create.currency.mpoints." + sign)
+                        && limitation.canUseCurrency(plugin.getMPoints().of(sign))) {
+                            list.add("MPoints:" + sign);
+                        }
+                    }
+                }
+                }
+                return startsWith(list, args[3]);
             }
         }
         if (args.length == 5) {
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
-                return Collections.singletonList(Messages.TabComplete.create__item_count.str());
+                if (isItemAvailable(sender)) {
+                    return Collections.singletonList(Messages.TabComplete.create__item_count.str());
+                } else {
+                    return Collections.emptyList();
+                }
             }
         }
         if (args.length == 6) {
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
-                return Collections.singletonList(Messages.TabComplete.create__amount.str());
+                if (isItemAvailable(sender)) {
+                    return Collections.singletonList(Messages.TabComplete.create__amount.str());
+                } else {
+                    return Collections.emptyList();
+                }
             }
         }
         return Collections.emptyList();
+    }
+    @SuppressWarnings({"deprecation"})
+    private BaseLimitation getLimit(CommandSender sender) {
+        if (sender instanceof Player) {
+            ItemStack item = ((Player) sender).getItemInHand();
+            if (item.getType().equals(Material.AIR)) {
+                return null;
+            }
+            return LimitationManager.inst().getLimitByItem(item);
+        }
+        return null;
+    }
+    @SuppressWarnings({"deprecation"})
+    private boolean isItemAvailable(CommandSender sender) {
+        if (sender instanceof Player) {
+            ItemStack item = ((Player) sender).getItemInHand();
+            return !item.getType().equals(Material.AIR);
+        }
+        return false;
     }
     private void add(CommandSender sender, List<String> list, String permission, String... args) {
         if (sender.hasPermission(permission)) {
