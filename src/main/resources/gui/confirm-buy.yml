@@ -65,8 +65,8 @@ other-icons:
     lore:
       - ''
       - '  &f单价: &e%price% %currency%  '
-      - '  &f购买: &e%count% 件&7 (共 %total_count% 个物品)  '
-      - '  &f花费: &e%total_money% %currency%  '
+      - '  &f卖出: &e%count% 件&7 (共 %total_count% 个物品)  '
+      - '  &f获得: &e%total_money% %currency%  '
       - ''
       - '&a左键 &7| &f减少1件'
       - '&b右键 &7| &f减少5件'
