@@ -69,7 +69,6 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     }
 
     private boolean runOpen(CommandSender sender, OpenArguments args) {
-        args.pointer(1);
         Player player = getPlayerOrSelf(args, sender, "sweet.playermarket.open.other");
         if (player == null) {
             return true;
@@ -82,7 +81,6 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     }
 
     private boolean runMe(CommandSender sender, MeArguments args) {
-        args.pointer(1);
         Player player = getPlayerOrSelf(args, sender, "sweet.playermarket.me.other");
         if (player == null) {
             return true;
@@ -97,7 +95,6 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
     @SuppressWarnings({"deprecation"})
     private boolean runCreate(Player sender, CommandArguments args) {
-        args.pointer(1);
         ItemStack item = sender.getItemInHand();
         if (item.getType().equals(Material.AIR)) {
             return Messages.Command.create__no_item.tm(sender);
@@ -257,7 +254,6 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     }
 
     private boolean runReload(CommandSender sender, CommandArguments args) {
-        args.pointer(1);
         if (args.match("database")) {
             plugin.options.database().reloadConfig();
             plugin.options.database().reconnect();
