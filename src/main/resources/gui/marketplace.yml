@@ -19,6 +19,19 @@ main-icons:
       - '  &f过期时间: &e%outdate_time%  '
       - ''
       - '&a左键 &7| &f下单并结算'
+  物_自己:
+    display: '&e&l%display%'
+    lore:
+      - item lore
+      - ''
+      - '  &f商家: &e%player%'
+      - '  &f类型: &e%type% x %amount%  '
+      - '  &f单价: &e%price% %currency%  '
+      - '  &f上架时间: &e%create_time%  '
+      - '  &f过期时间: &e%outdate_time%  '
+      - ''
+    # TODO: 支持下架操作
+    left-click-commands: []
   空:
     material: AIR
 other-icons:

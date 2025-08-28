@@ -1,5 +1,8 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -7,6 +10,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
@@ -18,8 +23,42 @@ import java.util.List;
 
 @AutoRegister
 public class GuiMarketplace extends AbstractGuiSearch {
+    private boolean canBuySelfItems;
+    private LoadedIcon iconItemSelf;
     public GuiMarketplace(SweetPlayerMarket plugin) {
         super(plugin, "gui/marketplace.yml");
+    }
+
+    public boolean canBuySelfItems() {
+        return canBuySelfItems;
+    }
+
+    @Override
+    public void reloadConfig(MemoryConfiguration cfg) {
+        canBuySelfItems = cfg.getBoolean("can-buy-self-items");
+        super.reloadConfig(cfg);
+    }
+
+    @Override
+    protected void reloadMenuConfig(YamlConfiguration config) {
+        super.reloadMenuConfig(config);
+        iconItemSelf = null;
+    }
+
+    @Override
+    protected void loadMainIcon(ConfigurationSection section, String id, LoadedIcon icon) {
+        super.loadMainIcon(section, id, icon);
+        if (id.equals("物_自己")) {
+            iconItemSelf = icon;
+        }
+    }
+
+    @Override
+    protected LoadedIcon decideIconByMarketItem(SearchGui instance, Player player, MarketItem item, ListPair<String, Object> r) {
+        if (!canBuySelfItems && item.playerId().equals(plugin.getKey(player))) {
+            return iconItemSelf;
+        }
+        return iconItem;
     }
 
     public static GuiMarketplace inst() {
@@ -57,6 +96,11 @@ public class GuiMarketplace extends AbstractGuiSearch {
                     items.set(i, item.toBuilder().amount(0).build());
                     actionLock = false;
                     Messages.Gui.common__item_not_found.tm(player);
+                    return;
+                }
+                if (!canBuySelfItems && marketItem.playerId().equals(plugin.getKey(player))) {
+                    iconItemSelf.click(player, click);
+                    actionLock = false;
                     return;
                 }
                 if (item.type().equals(EnumMarketType.SELL)) {
