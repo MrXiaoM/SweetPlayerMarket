@@ -240,7 +240,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     .currency(currency)
                     .amount(marketAmount)
                     .outdateTime(outdateTime.get(type))
-                    .build());
+                    .build(plugin.itemTagResolver()));
         } catch (SQLException e) {
             warn(e);
             return Messages.Command.create__failed.tm(sender);
@@ -251,6 +251,20 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(item).build();
         return Messages.Command.create__success.tm(miniMessage, sender,
                 Pair.of("%item%", plugin.displayNames().getDisplayName(item, sender)));
+    }
+
+    private boolean runRecalc(CommandSender sender, CommandArguments args) {
+        Messages.Command.recalc__start.tm(sender);
+        plugin.getScheduler().runTaskAsync(() -> {
+            MarketplaceDatabase db = plugin.getMarketplace();
+            int count = db.recalculateItemsTag();
+            if (count >= 0) {
+                Messages.Command.recalc__success.tm(sender, Pair.of("%count%", count));
+            } else {
+                Messages.Command.recalc__failed.tm(sender);
+            }
+        });
+        return true;
     }
 
     private boolean runReload(CommandSender sender, CommandArguments args) {
@@ -292,6 +306,12 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             return runCreate((Player) sender, command);
         }
+        if (command.match("recalc")) {
+            if (!sender.hasPermission("sweet.playermarket.recalc")) {
+                return Messages.Command.no_permission.tm(sender);
+            }
+            return runRecalc(sender, command);
+        }
         if (command.match("reload")) {
             if (!sender.isOp()) {
                 return Messages.Command.no_permission.tm(sender);
@@ -309,6 +329,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             add(sender, list, "sweet.playermarket.open", "open");
             add(sender, list, "sweet.playermarket.create", "create");
             add(sender, list, "sweet.playermarket.me", "me");
+            add(sender, list, "sweet.playermarket.recalc", "recalc");
             if (sender.isOp()) {
                 list.add("reload");
             }

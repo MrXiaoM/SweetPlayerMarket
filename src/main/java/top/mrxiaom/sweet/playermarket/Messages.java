@@ -34,6 +34,10 @@ public class Messages {
         public static final Message create__failed_db = field("&e无法创建新的商品 ID，请稍后重试");
         public static final Message create__failed = field("&e商品上架失败，请联系服务器管理员");
 
+        public static final Message recalc__start = field("&a开始执行商品标签重新计算操作，请稍等…");
+        public static final Message recalc__success = field("&a重新计算完成，有 %count% 个商品的标签发生变动");
+        public static final Message recalc__failed = field("&e执行重新计算时出现一个错误，请查阅控制台日志");
+
         public static final Message reload__database = field("&a已重载 database.yml 并重新连接数据库");
         public static final Message reload__success = field("&a配置文件已重载");
     }

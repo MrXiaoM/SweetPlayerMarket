@@ -22,6 +22,7 @@ import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.playermarket.actions.*;
+import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.*;
@@ -66,6 +67,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private IEconomy vault;
     private IEconomy playerPoints;
     private IEconomyWithSign mPoints;
+    private ItemTagResolver itemTagResolver = item -> "default"; // TODO 商品分类
     private MarketplaceDatabase marketplaceDatabase;
     private DisplayNames displayNames;
     private DateTimeFormatter datetimeFormatter;
@@ -105,6 +107,14 @@ public class SweetPlayerMarket extends BukkitPlugin {
             }
         }
         return null;
+    }
+
+    public ItemTagResolver itemTagResolver() {
+        return itemTagResolver;
+    }
+
+    public void itemTagResolver(ItemTagResolver itemTagResolver) {
+        this.itemTagResolver = itemTagResolver;
     }
 
     public DisplayNames displayNames() {
@@ -153,8 +163,8 @@ public class SweetPlayerMarket extends BukkitPlugin {
                 ActionPage.PROVIDER, ActionRefresh.PROVIDER,
                 ActionSearchCurrency.PROVIDER, ActionSearchNotice.PROVIDER,
                 ActionSearchOutdate.PROVIDER, ActionSearchOutOfStock.PROVIDER,
-                ActionSearchSort.PROVIDER, ActionSearchType.PROVIDER,
-                ActionConfirmCount.PROVIDER
+                ActionSearchSort.PROVIDER, ActionSearchTag.PROVIDER,
+                ActionSearchType.PROVIDER, ActionConfirmCount.PROVIDER
         );
     }
 

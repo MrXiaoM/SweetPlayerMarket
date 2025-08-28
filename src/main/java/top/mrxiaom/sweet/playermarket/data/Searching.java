@@ -15,6 +15,7 @@ public class Searching {
     private @Nullable String playerId;
     private @Nullable EnumMarketType type;
     private @Nullable String currency;
+    private @Nullable String tag;
     private @NotNull String orderColumn = "create_time";
     private @NotNull EnumSort orderType = EnumSort.DESC;
     private boolean onlyOutOfStock = false;
@@ -38,6 +39,10 @@ public class Searching {
 
     public @Nullable String currency() {
         return currency;
+    }
+
+    public @Nullable String tag() {
+        return tag;
     }
 
     public @NotNull String orderColumn() {
@@ -73,6 +78,11 @@ public class Searching {
 
     public Searching currency(@Nullable String currency) {
         this.currency = currency;
+        return this;
+    }
+
+    public Searching tag(@Nullable String tag) {
+        this.tag = tag;
         return this;
     }
 
@@ -114,6 +124,7 @@ public class Searching {
         }
         if (type != null) sb.append("AND `shop_type`=? ");
         if (currency != null) sb.append("AND `currency`=? ");
+        if (tag != null) sb.append("AND `tag`=? ");
         if (playerId != null) sb.append("AND `player`=? ");
         if (notice != null) sb.append("AND `notice_flag`=? ");
         return sb.toString();
@@ -127,6 +138,7 @@ public class Searching {
         int i = parameterIndex - 1;
         if (type != null) ps.setInt(++i, type.value());
         if (currency != null) ps.setString(++i, currency);
+        if (tag != null) ps.setString(++i, tag);
         if (playerId != null) ps.setString(++i, playerId);
         if (notice != null) ps.setInt(++i, notice);
     }

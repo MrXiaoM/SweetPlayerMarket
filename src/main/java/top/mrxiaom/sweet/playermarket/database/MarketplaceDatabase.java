@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.database.IDatabase;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
@@ -246,6 +247,45 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             ps.setString(5, item.data().saveToString());
             ps.setString(6, item.shopId());
             return ps.executeUpdate() != 0;
+        }
+    }
+
+    public int recalculateItemsTag() {
+        return recalculateItemsTag(plugin.itemTagResolver());
+    }
+
+    public int recalculateItemsTag(ItemTagResolver resolver) {
+        try (Connection conn = plugin.getConnection()) {
+            List<MarketItem> items;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `amount`>0;"
+            );
+                ResultSet result = ps.executeQuery()) {
+                items = loadItemsFromResult(result);
+            }
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE `" + TABLE_MARKETPLACE + "` "
+                            + "SET `tag`=? WHERE `shop_id`=?;"
+            )) {
+                int count = 0;
+                for (MarketItem item : items) {
+                    String newTagRaw = resolver.resolve(item);
+                    String newTag = newTagRaw == null ? "default" : newTagRaw;
+                    if (!item.tag().equals(newTag)) {
+                        ps.setString(1, newTag);
+                        ps.setString(2, item.shopId());
+                        ps.addBatch();
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    ps.executeBatch();
+                }
+                return count;
+            }
+        } catch (SQLException e) {
+            warn(e);
+            return -1;
         }
     }
 

@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 
 import java.time.LocalDateTime;
@@ -249,10 +250,23 @@ public class MarketItemBuilder {
      * 构建商品
      */
     public MarketItem build() {
+        return build(null);
+    }
+
+    /**
+     * 构建商品
+     * @param resolver 用于确定物品标签
+     */
+    public MarketItem build(@Nullable ItemTagResolver resolver) {
         if (type == null) throw new IllegalArgumentException("'type' must be input!");
         if (currencyName == null) throw new IllegalArgumentException("'currencyName' must be input!");
         if (price == null) throw new IllegalArgumentException("'price' must be input!");
         if (item == null) throw new IllegalArgumentException("'item' must be input!");
+
+        if (resolver != null) {
+            String tag = resolver.resolve(build(null));
+            this.tag = tag == null ? "default" : tag;
+        }
 
         if (!params.contains("original-amount")) {
             params.set("original-amount", amount);
