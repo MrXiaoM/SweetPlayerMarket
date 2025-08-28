@@ -98,19 +98,16 @@ public class GuiMarketplace extends AbstractGuiSearch {
                     Messages.Gui.common__item_not_found.tm(player);
                     return;
                 }
+                ListPair<String, Object> r = new ListPair<>();
+                r.add("__internal__market_item", marketItem);
                 if (!canBuySelfItems && marketItem.playerId().equals(plugin.getKey(player))) {
-                    iconItemSelf.click(player, click);
+                    iconItemSelf.click(player, click, r);
                     actionLock = false;
                     return;
                 }
-                if (item.type().equals(EnumMarketType.SELL)) {
-                    GuiConfirmSell.create(player, this, marketItem).open();
-                    return;
-                }
-                if (item.type().equals(EnumMarketType.BUY)) {
-                    GuiConfirmBuy.create(player, this, marketItem).open();
-                    return;
-                }
+                iconItem.click(player, click, r);
+                actionLock = false;
+                return;
             }
             actionLock = false;
         }
