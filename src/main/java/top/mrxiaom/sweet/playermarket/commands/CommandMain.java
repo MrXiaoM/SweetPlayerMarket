@@ -81,7 +81,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             return command.into(ReloadArguments::of).execute(plugin, sender);
         }
-        return true;
+        return (sender.isOp() ? Messages.Command.help__admin : Messages.Command.help__player).tm(sender);
     }
 
     @Nullable
