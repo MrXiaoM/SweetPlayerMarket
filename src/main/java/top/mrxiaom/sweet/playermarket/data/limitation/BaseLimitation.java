@@ -4,20 +4,21 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.utils.ListPair;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class BaseLimitation {
     private final @NotNull Map<EnumMarketType, CreateCost> createCostByType = new HashMap<>();
     private final @Nullable CreateCost createCostAll;
+    private final @NotNull List<String> description;
     private final @NotNull Set<EnumMarketType> typeBlackList = new HashSet<>();
     private final @NotNull Set<EnumMarketType> typeWhiteList = new HashSet<>();
     private final @NotNull Set<String> currencyBlackList = new HashSet<>();
@@ -68,6 +69,7 @@ public class BaseLimitation {
             }
         }
         this.createCostAll = createCostAll;
+        this.description = config.getStringList("description");
 
         for (String s : config.getStringList("shop-type-blacklist")) {
             EnumMarketType type = Util.valueOrNull(EnumMarketType.class, s);
@@ -93,6 +95,30 @@ public class BaseLimitation {
     @Nullable
     public CreateCost getCreateCost(EnumMarketType type) {
         return createCostByType.getOrDefault(type, createCostAll);
+    }
+
+    public @NotNull List<String> getDescription() {
+        return description;
+    }
+
+    public @NotNull List<String> getBakedDescription(CreateCost cost, IEconomy economy, double totalMoney) {
+        return getBakedDescription(new ListPair<>(), cost, economy, totalMoney);
+    }
+
+    public @NotNull List<String> getBakedDescription(List<Pair<String, Object>> r, CreateCost cost, IEconomy economy, double totalMoney) {
+        if (description.isEmpty()) {
+            return new ArrayList<>();
+        }
+        addDescriptionReplacements(r, cost, economy, totalMoney);
+        return Pair.replace(description, r);
+    }
+
+    public void addDescriptionReplacements(List<Pair<String, Object>> r, CreateCost cost, IEconomy economy, double totalMoney) {
+        IEconomy currency = cost.currency(economy);
+        String currencyName = DisplayNames.inst().getCurrencyName(currency);
+        String money = String.format("%.2f", cost.money(totalMoney)).replace(".00", "");
+        r.add(Pair.of("%currency%", currencyName));
+        r.add(Pair.of("%money%", money));
     }
 
     /**
