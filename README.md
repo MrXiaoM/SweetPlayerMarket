@@ -32,36 +32,4 @@ SweetPlayerMarket 是一个支持跨服、支持数据库的玩家全球市场�
 
 本插件依然沿用 [PluginBase](http://plugins.mcio.dev/elopers/base/gui-config) 的高可自定义界面引擎，允许你让商品列表以**任何奇形怪状的形式**显示在这最大 `6*9` 格子大小箱子菜单中！
 
-## 命令与权限
-
-根命令为 `/sweetplayermarket`，别名为 `/playermarket`, `/spm`, `/pm`  
-以 `<>` 包裹的为必选参数，以 `[]` 包裹的为可选参数。
-
-| 命令                                         | 描述             | 权限                              |
-|--------------------------------------------|----------------|---------------------------------|
-| 玩家命令                                       |                |                                 |
-| `/pm open`                                 | 打开全球市场首页       | `sweet.playermarket.open`       |
-| `/pm me`                                   | 查看自己的已上架商品     | `sweet.playermarket.me`         |
-| `/pm create <商店类型> <价格> <货币> [单个数量] [总份数]` | 上架商品到全球市场      | `sweet.playermarket.create`     |
-| 管理员命令                                      |                |                                 |
-| `/pm open [玩家]`                            | 为自己或某人打开全球市场首页 | `sweet.playermarket.open.other` |
-| `/pm me [玩家]`                              | 为自己或某人查看已上架商品  | `sweet.playermarket.open.other` |
-| `/pm recalc`                               | 重新计算所有商品的标签    | `sweet.playermarket.recalc`     |
-| `/pm reload database`                      | 重新连接数据库        | OP/控制台                          |
-| `/pm reload`                               | 重载插件配置文件       | OP/控制台                          |
-
-`open` 命令后面可以添加以下选项
-+ `--type=类型` 筛选商品类型
-+ `--currency=类型` 筛选货币类型
-
-`me` 命令后面可以添加以下选项
-+ `--notice` 仅显示有 `notice_flag` 的商品
-+ `--only-out-of-stock` 仅显示已经下架的商品
-
-以下为本插件可用的权限
-+ `sweet.playermarket.create.currency.vault` 允许使用 Vault 金币上架商品
-+ `sweet.playermarket.create.currency.playerpoints` 允许使用 PlayerPoints 点券上架商品
-+ `sweet.playermarket.create.currency.mpoints.<点数>` 允许使用 MPoints 点数上架商品
-+ `sweet.playermarket.create.bypass.cost` 绕过创建商品手续费限制
-+ `sweet.playermarket.create.bypass.currency` 绕过创建商品货币类型限制
-+ `sweet.playermarket.create.bypass.type` 绕过创建商品类型（出售、收购）限制
+更多信息，请参阅 [MCIO Plugins](https://plugins.mcio.dev/docs/playermarket/intro) 中的插件文档。
