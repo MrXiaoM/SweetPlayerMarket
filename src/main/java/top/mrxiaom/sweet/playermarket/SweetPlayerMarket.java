@@ -22,10 +22,10 @@ import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.playermarket.actions.*;
+import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.api.MarketAPI;
 import top.mrxiaom.sweet.playermarket.data.DisplayNames;
-import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
@@ -39,6 +39,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -73,8 +75,21 @@ public class SweetPlayerMarket extends BukkitPlugin {
         for (URL library : libraries) {
             this.classLoader.addURL(library);
         }
+
+        economyResolvers.add(str -> str.equals("Vault") ? getVault() : null);
+        economyResolvers.add(str -> str.equals("PlayerPoints") ? getPlayerPoints() : null);
+        economyResolvers.add(str -> {
+            if (str.startsWith("MPoints:") && str.length() > 8) {
+                IEconomyWithSign withSign = getMPoints();
+                if (withSign != null) {
+                    return withSign.of(str.substring(8));
+                }
+            }
+            return null;
+        });
     }
     private final MarketAPI api = new API();
+    private final List<IEconomyResolver> economyResolvers = new ArrayList<>();
     private boolean onlineMode;
     private IEconomy vault;
     private IEconomy playerPoints;
@@ -106,16 +121,10 @@ public class SweetPlayerMarket extends BukkitPlugin {
         if (str == null) {
             return null;
         }
-        if (str.equals("Vault")) {
-            return getVault();
-        }
-        if (str.equals("PlayerPoints")) {
-            return getPlayerPoints();
-        }
-        if (str.startsWith("MPoints:") && str.length() > 8) {
-            IEconomyWithSign withSign = getMPoints();
-            if (withSign != null) {
-                return withSign.of(str.substring(8));
+        for (IEconomyResolver resolver : economyResolvers) {
+            IEconomy economy = resolver.parse(str);
+            if (economy != null) {
+                return economy;
             }
         }
         return null;
@@ -291,6 +300,12 @@ public class SweetPlayerMarket extends BukkitPlugin {
 
     public class API implements MarketAPI {
         private API() {}
+
+        @Override
+        public void registerEconomy(IEconomyResolver resolver) {
+            economyResolvers.add(resolver);
+            economyResolvers.sort(Comparator.comparing(IEconomyResolver::priority));
+        }
 
         @Override
         public MarketItem deploy(Player owner, Consumer<MarketItemBuilder> consumer) {

@@ -11,6 +11,10 @@ import java.util.function.Consumer;
  */
 public interface MarketAPI {
     /**
+     * 向插件注册经济接口处理器
+     */
+    void registerEconomy(IEconomyResolver resolver);
+    /**
      * 将商品上架到全球市场
      * @param owner 卖家
      * @param consumer MarketItemBuilder 接收器，用于构建商品信息
