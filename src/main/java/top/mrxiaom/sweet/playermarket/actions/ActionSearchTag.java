@@ -35,7 +35,7 @@ public class ActionSearchTag implements IAction {
             IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
             if (gui instanceof AbstractGuiSearch.SearchGui) {
                 AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
-                gm.searching().tag(tag);
+                gm.searching().tag(tag.isEmpty() ? null : tag);
                 gm.refreshGui();
             }
         }

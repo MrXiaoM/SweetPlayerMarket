@@ -40,7 +40,7 @@ public class ActionPage implements IAction {
             if (gui instanceof IGuiPageable) {
                 IGuiPageable p = (IGuiPageable) gui;
                 if (pages > 0) p.turnPageDown(pages);
-                else p.turnPageUp(-pages);
+                if (pages < 0) p.turnPageUp(-pages);
             }
         }
     }
