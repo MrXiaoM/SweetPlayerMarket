@@ -30,7 +30,7 @@ public class LimitationManager extends AbstractModule {
         if (!file.exists()) {
             plugin.saveResource("limitation.yml", file);
         }
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        YamlConfiguration config = Util.load(file);
         limitDefault = BaseLimitation.of(plugin, getSection(config,"default"));
 
         limitByItems.clear();
