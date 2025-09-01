@@ -23,22 +23,33 @@ import top.mrxiaom.pluginbase.utils.item.ItemEditor;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
+import top.mrxiaom.sweet.playermarket.api.MarketAPI;
 import top.mrxiaom.sweet.playermarket.data.DisplayNames;
+import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
+import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.*;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class SweetPlayerMarket extends BukkitPlugin {
     public static SweetPlayerMarket getInstance() {
         return (SweetPlayerMarket) BukkitPlugin.getInstance();
+    }
+
+    public static MarketAPI api() {
+        return getInstance().api;
     }
 
     public SweetPlayerMarket() throws Exception {
@@ -63,6 +74,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
             this.classLoader.addURL(library);
         }
     }
+    private final MarketAPI api = new API();
     private boolean onlineMode;
     private IEconomy vault;
     private IEconomy playerPoints;
@@ -274,6 +286,35 @@ public class SweetPlayerMarket extends BukkitPlugin {
             return Util.getOfflinePlayer(uuid).orElse(null);
         } else {
             return Util.getOfflinePlayer(key).orElse(null);
+        }
+    }
+
+    public class API implements MarketAPI {
+        private API() {}
+
+        @Override
+        public MarketItem deploy(Player owner, Consumer<MarketItemBuilder> consumer) {
+            String playerId = getKey(owner);
+            String playerName = owner.getName();
+            return deploy(playerId, playerName, consumer);
+        }
+
+        @Override
+        public MarketItem deploy(String playerId, String playerName, Consumer<MarketItemBuilder> consumer) {
+            try (Connection conn = getConnection()) {
+                MarketplaceDatabase db = getMarketplace();
+                String shopId = db.createNewId(conn);
+                if (shopId == null) {
+                    throw new IllegalStateException("无法创建新的商品ID，请稍后再试");
+                }
+                MarketItemBuilder builder = MarketItem.builder(shopId, playerId, playerName);
+                consumer.accept(builder);
+                MarketItem item = builder.build(itemTagResolver);
+                db.putItem(conn, item);
+                return item;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
