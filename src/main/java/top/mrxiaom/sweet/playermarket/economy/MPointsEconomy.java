@@ -3,7 +3,11 @@ package top.mrxiaom.sweet.playermarket.economy;
 import com.google.common.collect.Lists;
 import me.yic.mpoints.MPointsAPI;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
+import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -12,6 +16,41 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MPointsEconomy implements IEconomyWithSign, IEconomy {
+    public static class Resolver implements IEconomyResolver {
+        private final SweetPlayerMarket plugin;
+        public Resolver(SweetPlayerMarket plugin) {
+            this.plugin = plugin;
+        }
+
+        @Override
+        public @Nullable IEconomy parse(@NotNull String str) {
+            if (str.startsWith("MPoints:") && str.length() > 8) {
+                IEconomyWithSign withSign = plugin.getMPoints();
+                if (withSign != null) {
+                    return withSign.of(str.substring(8));
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public @Nullable String parseName(String str) {
+            if (str.startsWith("MPoints:") && str.length() > 8) {
+                String sign = str.substring(8);
+                return DisplayNames.inst().getCurrencyNameMPoints(sign);
+            }
+            return null;
+        }
+
+        @Override
+        public @Nullable String getName(IEconomy economy) {
+            if (economy instanceof MPointsEconomy) {
+                String sign = ((MPointsEconomy) economy).sign();
+                return DisplayNames.inst().getCurrencyNameMPoints(sign);
+            }
+            return null;
+        }
+    }
     private static final Map<String, IEconomy> caches = new HashMap<>();
     private final MPointsAPI api;
     private final String sign;

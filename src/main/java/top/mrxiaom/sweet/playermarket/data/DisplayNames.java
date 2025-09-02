@@ -6,14 +6,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.economy.VaultEconomy;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
-import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
-import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
 
 import java.util.ArrayList;
@@ -36,6 +34,10 @@ public class DisplayNames extends AbstractModule {
         super(plugin);
     }
 
+    /**
+     * 获取商品类型的展示名
+     * @param type 商品类型
+     */
     @NotNull
     public String getMarketTypeName(@Nullable EnumMarketType type) {
         if (type == null) {
@@ -45,47 +47,67 @@ public class DisplayNames extends AbstractModule {
         return s != null ? s : type.name();
     }
 
+    public String getCurrencyNameVault() {
+        return currencyVault;
+    }
+
+    public String getCurrencyNamePlayerPoints() {
+        return currencyPlayerPoints;
+    }
+
+    public String getCurrencyNameMPoints(String sign) {
+        return currencyMPoints.getOrDefault(sign, sign);
+    }
+
+    /**
+     * 获取货币的展示名
+     * @param currency 字符串形式的货币类型
+     */
     @NotNull
     public String getCurrencyName(@Nullable String currency) {
         if (currency == null) {
             return currencyAll;
         }
-        if (currency.equals("Vault")) {
-            return currencyVault;
-        }
-        if (currency.equals("PlayerPoints")) {
-            return currencyPlayerPoints;
-        }
-        if (currency.startsWith("MPoints:") && currency.length() > 8) {
-            String sign = currency.substring(8);
-            return currencyMPoints.getOrDefault(sign, sign);
+        for (IEconomyResolver resolver : plugin.economyResolvers()) {
+            String name = resolver.parseName(currency);
+            if (name != null) {
+                return name;
+            }
         }
         return currency;
     }
 
+    /**
+     * 获取货币的展示名
+     * @param currency 货币接口实现
+     */
     @NotNull
     public String getCurrencyName(@Nullable IEconomy currency) {
         if (currency == null) {
             return currencyAll;
         }
-        if (currency instanceof VaultEconomy) {
-            return currencyVault;
-        }
-        if (currency instanceof PlayerPointsEconomy) {
-            return currencyPlayerPoints;
-        }
-        if (currency instanceof MPointsEconomy) {
-            String sign = ((MPointsEconomy) currency).sign();
-            return currencyMPoints.getOrDefault(sign, sign);
+        for (IEconomyResolver resolver : plugin.economyResolvers()) {
+            String name = resolver.getName(currency);
+            if (name != null) {
+                return name;
+            }
         }
         return currency.getName();
     }
 
+    /**
+     * 获取数据表列名的展示名
+     * @param column 列
+     */
     @NotNull
     public String getColumnName(@NotNull String column) {
         return columnNames.getOrDefault(column, column);
     }
 
+    /**
+     * 获取排序类型的展示名
+     * @param sort 排序类型
+     */
     @NotNull
     public String getSortName(@NotNull EnumSort sort) {
         String s = sortNames.get(sort);
@@ -136,10 +158,18 @@ public class DisplayNames extends AbstractModule {
         }
     }
 
+    /**
+     * 获取可用于排序的数据表列名
+     */
     public List<String> columnList() {
         return columnList;
     }
 
+    /**
+     * 获取物品展示名。如果没有展示名，则返回物品原名
+     * @param item 物品
+     * @see DisplayNames#get(ItemStack, Player)
+     */
     public String getDisplayName(ItemStack item, Player player) {
         String displayName = AdventureItemStack.getItemDisplayNameAsMiniMessage(item);
         if (displayName != null) {
@@ -148,12 +178,21 @@ public class DisplayNames extends AbstractModule {
         return get(item, player);
     }
 
-    public String get(ItemStack item, Player player) {
+    /**
+     * 获取物品原名
+     * @param item 物品
+     * @param player 玩家实例，用于指定语言。如果为 <code>null</code>，则使用默认语言
+     */
+    public String get(@NotNull ItemStack item, @Nullable Player player) {
         if (supportTranslatable) {
             return "<lang:" + item.getTranslationKey() + ">";
         }
         if (supportLangUtils) {
-            return com.meowj.langutils.lang.LanguageHelper.getItemName(item, player);
+            if (player == null) {
+                return com.meowj.langutils.lang.LanguageHelper.getItemName(item, "fallback");
+            } else {
+                return com.meowj.langutils.lang.LanguageHelper.getItemName(item, player);
+            }
         }
         // 条件最糟糕时使用的方案: 将 _ 替换为空格，并使得每个单词的首字母大写
         String[] words = item.getType().toString().toLowerCase().split("_");

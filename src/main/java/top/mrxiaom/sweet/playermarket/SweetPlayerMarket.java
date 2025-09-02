@@ -39,10 +39,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class SweetPlayerMarket extends BukkitPlugin {
@@ -76,17 +73,9 @@ public class SweetPlayerMarket extends BukkitPlugin {
             this.classLoader.addURL(library);
         }
 
-        economyResolvers.add(str -> str.equals("Vault") ? getVault() : null);
-        economyResolvers.add(str -> str.equals("PlayerPoints") ? getPlayerPoints() : null);
-        economyResolvers.add(str -> {
-            if (str.startsWith("MPoints:") && str.length() > 8) {
-                IEconomyWithSign withSign = getMPoints();
-                if (withSign != null) {
-                    return withSign.of(str.substring(8));
-                }
-            }
-            return null;
-        });
+        economyResolvers.add(new VaultEconomy.Resolver(this));
+        economyResolvers.add(new PlayerPointsEconomy.Resolver(this));
+        economyResolvers.add(new MPointsEconomy.Resolver(this));
     }
     private final MarketAPI api = new API();
     private final List<IEconomyResolver> economyResolvers = new ArrayList<>();
@@ -128,6 +117,10 @@ public class SweetPlayerMarket extends BukkitPlugin {
             }
         }
         return null;
+    }
+
+    public List<IEconomyResolver> economyResolvers() {
+        return Collections.unmodifiableList(economyResolvers);
     }
 
     public ItemTagResolver itemTagResolver() {

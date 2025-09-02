@@ -2,10 +2,42 @@ package top.mrxiaom.sweet.playermarket.economy;
 
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
+import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 
 import java.util.Objects;
 
 public class PlayerPointsEconomy implements IEconomy {
+    public static class Resolver implements IEconomyResolver {
+        private final SweetPlayerMarket plugin;
+        public Resolver(SweetPlayerMarket plugin) {
+            this.plugin = plugin;
+        }
+
+        @Override
+        public @Nullable IEconomy parse(@NotNull String str) {
+            return str.equals("PlayerPoints") ? plugin.getPlayerPoints() : null;
+        }
+
+        @Override
+        public @Nullable String parseName(String str) {
+            if (str.equals("PlayerPoints")) {
+                return DisplayNames.inst().getCurrencyNamePlayerPoints();
+            }
+            return null;
+        }
+
+        @Override
+        public @Nullable String getName(IEconomy economy) {
+            if (economy instanceof PlayerPointsEconomy) {
+                return DisplayNames.inst().getCurrencyNamePlayerPoints();
+            }
+            return null;
+        }
+    }
     private final PlayerPointsAPI api;
     public PlayerPointsEconomy(PlayerPointsAPI api) {
         this.api = api;

@@ -2,10 +2,42 @@ package top.mrxiaom.sweet.playermarket.economy;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
+import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 
 import java.util.Objects;
 
 public class VaultEconomy implements IEconomy {
+    public static class Resolver implements IEconomyResolver {
+        private final SweetPlayerMarket plugin;
+        public Resolver(SweetPlayerMarket plugin) {
+            this.plugin = plugin;
+        }
+
+        @Override
+        public @Nullable IEconomy parse(@NotNull String str) {
+            return str.equals("Vault") ? plugin.getVault() : null;
+        }
+
+        @Override
+        public @Nullable String parseName(String str) {
+            if (str.equals("Vault")) {
+                return DisplayNames.inst().getCurrencyNameVault();
+            }
+            return null;
+        }
+
+        @Override
+        public @Nullable String getName(IEconomy economy) {
+            if (economy instanceof VaultEconomy) {
+                return DisplayNames.inst().getCurrencyNameVault();
+            }
+            return null;
+        }
+    }
     private final Economy economy;
     private final String name;
 
