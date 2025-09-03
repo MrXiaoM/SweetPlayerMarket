@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
@@ -121,6 +122,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
     }
 
     public abstract class SearchGui extends Gui implements IGuiRefreshable, IGuiPageable {
+        public final SweetPlayerMarket plugin = AbstractGuiSearch.this.plugin;
         protected final ListX<MarketItem> items = new ListX<>();
         protected final int slotsSize;
         protected Searching searching;
@@ -145,6 +147,11 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         @Nullable
         public MarketItem getItem(int index) {
             return index < 0 || index >= items.size() ? null : items.get(index);
+        }
+
+        public void setItem(int index, @NotNull MarketItem item) {
+            if (index < 0 || index >= items.size()) return;
+            items.set(index, item);
         }
 
         public int getItemsSize() {

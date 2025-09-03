@@ -32,6 +32,8 @@ main-icons:
       - '  &f过期时间: &e%outdate_time%  '
       - ''
       - '&a左键 &7| &f领取商品 &7(%amount_can_take% 份)'
+    left-click-commands:
+      - '[claim]'
   空:
     material: AIR
 other-icons:

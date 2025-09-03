@@ -99,6 +99,7 @@ public class GuiMarketplace extends AbstractGuiSearch {
                     return;
                 }
                 ListPair<String, Object> r = new ListPair<>();
+                r.add("__internal__index", i);
                 r.add("__internal__market_item", marketItem);
                 if (!canBuySelfItems && marketItem.playerId().equals(plugin.getKey(player))) {
                     iconItemSelf.click(player, click, r);

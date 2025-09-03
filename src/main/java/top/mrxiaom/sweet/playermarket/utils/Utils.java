@@ -4,12 +4,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 public class Utils {
+
+    @Nullable
+    public static <K, V> V get(@Nullable List<Pair<K, V>> list, @NotNull K key) {
+        return getOrDefault(list, key, null);
+    }
+    public static <K, V> V getOrDefault(@Nullable List<Pair<K, V>> list, @NotNull K key, @Nullable V def) {
+        if (list == null) return def;
+        for (Pair<K, V> pair : list) {
+            if (key.equals(pair.key())) {
+                return pair.value();
+            }
+        }
+        return def;
+    }
 
     private static int first(Inventory inv, ItemStack item) {
         if (item == null) {
