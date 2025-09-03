@@ -33,8 +33,9 @@ main-icons:
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
       - ''
-    # TODO: 支持下架操作
-    left-click-commands: []
+      - '&a左键 &7| &f下架商品'
+    left-click-commands:
+      - '[take-down]'
   空:
     material: AIR
 other-icons:

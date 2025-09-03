@@ -92,6 +92,11 @@ public class Messages {
         public static final Message me__claim__plugin_too_old = field("&e这个子服的插件太老了，无法领取这个类型的商品");
         public static final Message me__claim__buy__success = field("&a你已成功领取&e <item>%item%</item>&r&e x%total_count%");
         public static final Message me__claim__sell__success = field("&a你已成功领取&e %money% %currency%");
+        public static final Message me__claim__submit_failed = field("&e数据库更改提交失败，请联系服务器管理员");
+
+        public static final Message me__take_down__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
+        public static final Message me__take_down__item_not_found = field("&e该商品已下架，无需再进行下架操作");
+        public static final Message me__take_down__submit_failed = field("&e数据库更改提交失败，请联系服务器管理员");
     }
 
 }

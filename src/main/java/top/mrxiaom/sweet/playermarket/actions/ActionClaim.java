@@ -41,7 +41,6 @@ public class ActionClaim extends AbstractActionWithMarketItem {
             SweetPlayerMarket plugin = gm.plugin;
             if (item.noticeFlag() == 0) return;
 
-            String currencyName;
             Runnable successAction = null;
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
@@ -54,7 +53,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     Messages.Gui.common__item_not_found.tm(player);
                     return;
                 }
-                currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
+                String currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
                 ConfigurationSection params = marketItem.params();
                 if (marketItem.type().equals(EnumMarketType.SELL)) {
                     IEconomy currency = marketItem.currency();
@@ -110,7 +109,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                         .params(params)
                         .build()
                 )) {
-                    Messages.Gui.sell__submit_failed.tm(player);
+                    Messages.Gui.me__claim__submit_failed.tm(player);
                     return;
                 }
             } catch (SQLException e) {
