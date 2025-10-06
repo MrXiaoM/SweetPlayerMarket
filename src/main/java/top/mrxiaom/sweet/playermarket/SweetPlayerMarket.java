@@ -17,6 +17,7 @@ import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
+import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
@@ -34,6 +35,7 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -62,7 +64,9 @@ public class SweetPlayerMarket extends BukkitPlugin {
         this.scheduler = new FoliaLibScheduler(this);
 
         info("正在检查依赖库状态");
-        File librariesDir = new File(this.getDataFolder(), "libraries");
+        File librariesDir = ClassLoaderWrapper.isSupportLibraryLoader
+                ? new File("libraries")
+                : new File(this.getDataFolder(), "libraries");
         DefaultLibraryResolver resolver = new DefaultLibraryResolver(getLogger(), librariesDir);
 
         resolver.addLibrary(BuildConstants.LIBRARIES);
@@ -138,6 +142,13 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @NotNull
     public MarketplaceDatabase getMarketplace() {
         return marketplaceDatabase;
+    }
+
+    @Override
+    protected @NotNull ClassLoaderWrapper initClassLoader(URLClassLoader classLoader) {
+        return ClassLoaderWrapper.isSupportLibraryLoader
+                ? new ClassLoaderWrapper(ClassLoaderWrapper.findLibraryLoader(classLoader))
+                : new ClassLoaderWrapper(classLoader);
     }
 
     @Override

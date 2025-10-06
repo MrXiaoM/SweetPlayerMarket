@@ -100,15 +100,15 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
     }
 
     @Override
-    public void giveMoney(OfflinePlayer player, double money) {
+    public boolean giveMoney(OfflinePlayer player, double money) {
         if (sign == null) throw new UnsupportedOperationException("");
-        api.changebalance(sign, player.getUniqueId(), player.getName(), BigDecimal.valueOf(money), true);
+        return api.changebalance(sign, player.getUniqueId(), player.getName(), BigDecimal.valueOf(money), true) == 0;
     }
 
     @Override
-    public void takeMoney(OfflinePlayer player, double money) {
+    public boolean takeMoney(OfflinePlayer player, double money) {
         if (sign == null) throw new UnsupportedOperationException("");
-        api.changebalance(sign, player.getUniqueId(), player.getName(), BigDecimal.valueOf(money), false);
+        return api.changebalance(sign, player.getUniqueId(), player.getName(), BigDecimal.valueOf(money), false) == 0;
     }
 
     @Override

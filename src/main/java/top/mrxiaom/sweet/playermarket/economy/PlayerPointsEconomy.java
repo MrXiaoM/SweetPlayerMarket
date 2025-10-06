@@ -64,13 +64,13 @@ public class PlayerPointsEconomy implements IEconomy {
     }
 
     @Override
-    public void giveMoney(OfflinePlayer player, double money) {
-        api.give(player.getUniqueId(), (int) money);
+    public boolean giveMoney(OfflinePlayer player, double money) {
+        return api.give(player.getUniqueId(), (int) money);
     }
 
     @Override
-    public void takeMoney(OfflinePlayer player, double money) {
-        api.take(player.getUniqueId(), (int) money);
+    public boolean takeMoney(OfflinePlayer player, double money) {
+        return api.take(player.getUniqueId(), (int) money);
     }
 
     @Override
