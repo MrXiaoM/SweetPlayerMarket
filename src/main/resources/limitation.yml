@@ -33,10 +33,10 @@ by-items:
     # 物品匹配器
     matchers:
         # 有任意类型的指定名称 NBT 时，物品匹配，此处示例为 MythicMobs 物品
-      - any-nbt-tag: [ MYTHIC_ITEM ]
+      - any-nbt-tag: [ MYTHIC_TYPE ]
         # 所有字符串类型，指定名称的 NBT 值匹配时，物品匹配
       #- nbt-strings:
-      #    MYTHIC_ITEM: ExampleItem
+      #    MYTHIC_TYPE: ExampleItem
         # 所有整数类型，指定名称的 NBT 值匹配时，物品匹配
       #- nbt-ints:
       #    CustomModelData: 10001
