@@ -13,14 +13,14 @@ default:
   # 限制组在上架菜单中显示的描述
   description:
     - '  &7● &f上架需要花费手续费 %money% %currency%'
-  # 限制匹配的物品禁止上架指定商店类型
-  #shop-type-blacklist: [ BUY, SELL ]
-  # 限制匹配的物品只允许上架指定商店类型
-  #shop-type-whitelist: [ BUY, SELL ]
-  # 限制匹配的物品禁止使用某种货币上架，其中，MPoints 不输入冒号则禁止所有
-  #currency-blacklist: [ PlayerPoints, MPoints ]
-  # 限制匹配的物品只允许使用指定货币上架，其中，MPoints 不输入冒号则允许所有
-  #currency-whitelist: [ Vault, 'MPoints:sign' ]
+#  # 限制匹配的物品禁止上架指定商店类型
+#  shop-type-blacklist: [ BUY, SELL ]
+#  # 限制匹配的物品只允许上架指定商店类型
+#  shop-type-whitelist: [ BUY, SELL ]
+#  # 限制匹配的物品禁止使用某种货币上架，其中，MPoints 不输入冒号则禁止所有
+#  currency-blacklist: [ PlayerPoints, MPoints ]
+#  # 限制匹配的物品只允许使用指定货币上架，其中，MPoints 不输入冒号则允许所有
+#  currency-whitelist: [ Vault, 'MPoints:sign' ]
 
 # 按物品进行限制
 # 越放在前面的配置，越先进行匹配
@@ -34,28 +34,28 @@ by-items:
     matchers:
         # 有任意类型的指定名称 NBT 时，物品匹配，此处示例为 MythicMobs 物品
       - any-nbt-tag: [ MYTHIC_TYPE ]
-        # 所有字符串类型，指定名称的 NBT 值匹配时，物品匹配
-      #- nbt-strings:
-      #    MYTHIC_TYPE: ExampleItem
-        # 所有整数类型，指定名称的 NBT 值匹配时，物品匹配
-      #- nbt-ints:
-      #    CustomModelData: 10001
-        # 有任意名称符合物品ID时，物品匹配
-      #- any-materials: [ DIAMOND, IRON_INGOT ]
-        # 有任意名称在物品名中包含时，物品匹配
-      #- contains-name: [ '神器' ]
-        # 有任意内容在物品Lore的任意一行中包含时，物品匹配
-      #- contains-lore: [ '神器' ]
+#        # 所有字符串类型，指定名称的 NBT 值匹配时，物品匹配
+#      - nbt-strings:
+#          MYTHIC_TYPE: ExampleItem
+#        # 所有整数类型，指定名称的 NBT 值匹配时，物品匹配
+#      - nbt-ints:
+#          CustomModelData: 10001
+#        # 有任意名称符合物品ID时，物品匹配
+#      - any-materials: [ DIAMOND, IRON_INGOT ]
+#        # 有任意名称在物品名中包含时，物品匹配
+#      - contains-name: [ '神器' ]
+#        # 有任意内容在物品Lore的任意一行中包含时，物品匹配
+#      - contains-lore: [ '神器' ]
     # 将 create-cost 设为空，免手续费
     create-cost: {}
     # 限制组在上架菜单中显示的描述
     description:
       - '  &7● &fMythicMobs 物品上架免手续费'
-    # 限制匹配的物品禁止上架指定商店类型
-    #shop-type-blacklist: [ BUY, SELL ]
-    # 限制匹配的物品只允许上架指定商店类型
-    #shop-type-whitelist: [ BUY, SELL ]
-    # 限制匹配的物品禁止使用某种货币上架，其中，MPoints 不输入冒号则禁止所有
-    #currency-blacklist: [ PlayerPoints, MPoints ]
-    # 限制匹配的物品只允许使用指定货币上架，其中，MPoints 不输入冒号则允许所有
-    #currency-whitelist: [ Vault, 'MPoints:sign' ]
+#    # 限制匹配的物品禁止上架指定商店类型
+#    shop-type-blacklist: [ BUY, SELL ]
+#    # 限制匹配的物品只允许上架指定商店类型
+#    shop-type-whitelist: [ BUY, SELL ]
+#    # 限制匹配的物品禁止使用某种货币上架，其中，MPoints 不输入冒号则禁止所有
+#    currency-blacklist: [ PlayerPoints, MPoints ]
+#    # 限制匹配的物品只允许使用指定货币上架，其中，MPoints 不输入冒号则允许所有
+#    currency-whitelist: [ Vault, 'MPoints:sign' ]
