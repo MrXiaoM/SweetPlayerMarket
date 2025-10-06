@@ -15,10 +15,13 @@ import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IShopAdapterFactory;
+import top.mrxiaom.sweet.playermarket.api.IShopBuyConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
+import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiConfirm;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
@@ -97,22 +100,39 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                     actionLock = false;
                     return;
                 }
-                ItemStack sample = marketItem.item();
+                ConfigurationSection params = marketItem.params();
+                // 检查商品适配器设置
+                String factoryId = params.getString("adapter.factory-id", null);
+                if (factoryId != null) {
+                    // 如果有适配器，使用适配器的卖出逻辑
+                    IShopAdapterFactory factory = ShopAdapterRegistry.inst().getById(factoryId);
+                    IShopBuyConfirmAdapter shopAdapter = factory == null ? null : factory.getBuyConfirmAdapter(marketItem, player);
+                    if (shopAdapter == null) {
+                        Messages.Gui.buy__adapter_not_found.tm(player);
+                        return;
+                    }
+                    totalMoney = shopAdapter.getTotalMoney(count);
+                    Integer total = shopAdapter.checkAndTake(count);
+                    if (total == null) return;
+                    totalCount = total;
+                } else {
+                    // 如果没有适配器，直接扣除玩家物品
+                    ItemStack sample = marketItem.item();
 
-                totalMoney = count * marketItem.price();
-                totalCount = count * sample.getAmount();
+                    totalMoney = count * marketItem.price();
+                    totalCount = count * sample.getAmount();
 
-                // 检查玩家背包是否有足够的物品，并取走
-                int invCount = getInvCount(sample);
-                if (invCount < totalCount) {
-                    Messages.Gui.buy__item_not_enough.tm(player);
-                    actionLock = false;
-                    return;
+                    // 检查玩家背包是否有足够的物品，并取走
+                    int invCount = getInvCount(sample);
+                    if (invCount < totalCount) {
+                        Messages.Gui.buy__item_not_enough.tm(player);
+                        actionLock = false;
+                        return;
+                    }
+                    Utils.takeItem(player, sample, totalCount);
                 }
-                Utils.takeItem(player, sample, totalCount);
 
                 // 添加物品到额外参数中，让商家自行领取
-                ConfigurationSection params = marketItem.params();
                 List<ItemStack> itemList = new ArrayList<>();
                 for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {
                     if (obj instanceof ItemStack) {

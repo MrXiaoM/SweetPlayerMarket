@@ -15,10 +15,13 @@ import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IShopAdapterFactory;
+import top.mrxiaom.sweet.playermarket.api.IShopSellConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
+import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiConfirm;
 
 import java.sql.Connection;
@@ -60,6 +63,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             IEconomy currency;
             String currencyName;
             double totalMoney = 0;
+            IShopSellConfirmAdapter shopAdapter = null;
             actionLock = true;
             IEconomy shouldReturnMoneyWhenException = null;
             try (Connection conn = plugin.getConnection()) {
@@ -91,8 +95,18 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     return;
                 }
 
-                // 添加货币到额外参数中，让商家自行领取
                 ConfigurationSection params = marketItem.params();
+                // 检查商品适配器设置
+                String factoryId = params.getString("adapter.factory-id", null);
+                if (factoryId != null) {
+                    IShopAdapterFactory factory = ShopAdapterRegistry.inst().getById(factoryId);
+                    shopAdapter = factory == null ? null : factory.getSellConfirmAdapter(marketItem, player);
+                    if (shopAdapter == null) {
+                        Messages.Gui.sell__adapter_not_found.tm(player);
+                        return;
+                    }
+                }
+                // 添加货币到额外参数中，让商家自行领取
                 double old = params.getDouble("sell.received-currency", 0.0);
                 params.set("sell.received-currency", old + totalMoney);
                 int oldCount = params.getInt("sell.received-count", 0);
@@ -126,12 +140,19 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 return;
             }
 
-            // 给予玩家物品
-            int totalCount = 0;
-            for (int i = 0; i < count; i++) {
-                ItemStack item = marketItem.item();
-                totalCount += item.getAmount();
-                ItemStackUtil.giveItemToPlayer(player, item);
+            int totalCount;
+            if (shopAdapter != null) {
+                // 如果有商品适配器，则按适配器的实现来给予玩家物品
+                totalCount = shopAdapter.giveToPlayer(count);
+            } else {
+                int total = 0;
+                // 如果没有商品适配器，直接给予玩家物品
+                for (int i = 0; i < count; i++) {
+                    ItemStack item = marketItem.item();
+                    total += item.getAmount();
+                    ItemStackUtil.giveItemToPlayer(player, item);
+                }
+                totalCount = total;
             }
             // 获取物品名，提示玩家购买成功
             ItemStack itemDisplay = marketItem.item();
