@@ -161,7 +161,9 @@ public class CreateArguments extends AbstractArguments<Player> {
                     if (!currency.has(sender, totalMoney)) {
                         return Messages.Command.create__buy__no_enough_currency.tm(sender);
                     }
-                    currency.takeMoney(sender, totalPrice);
+                    if (!currency.takeMoney(sender, totalPrice)) {
+                        return Messages.Command.create__buy__no_enough_currency.tm(sender);
+                    }
                     break;
                 }
                 default: {
@@ -171,7 +173,12 @@ public class CreateArguments extends AbstractArguments<Player> {
 
             // 扣除手续费
             if (costCurrency != null && createCostMoney > 0) {
-                costCurrency.takeMoney(sender, createCostMoney);
+                if (!costCurrency.takeMoney(sender, createCostMoney)) {
+                    // TODO: 保持事务一致性
+                    return Messages.Command.create__limitation__create_cost_failed.tm(sender,
+                            Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
+                            Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+                }
             }
 
             // 将商品信息提交到数据库

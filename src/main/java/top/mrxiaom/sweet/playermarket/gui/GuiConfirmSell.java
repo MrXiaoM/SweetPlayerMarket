@@ -59,8 +59,9 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             MarketItem marketItem;
             IEconomy currency;
             String currencyName;
-            double totalMoney;
+            double totalMoney = 0;
             actionLock = true;
+            IEconomy shouldReturnMoneyWhenException = null;
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
                 marketItem = db.getItem(conn, this.marketItem.shopId());
@@ -97,6 +98,13 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 int oldCount = params.getInt("sell.received-count", 0);
                 params.set("sell.received-count", oldCount + count);
 
+                // 拿走玩家的指定数量货币。由于上方已添加货币到额外参数中，不需要给予卖家货币
+                if (!currency.takeMoney(player, totalMoney)) {
+                    Messages.Gui.sell__currency_not_enough.tm(player, Pair.of("%currency%", currencyName));
+                    actionLock = false;
+                    return;
+                }
+                shouldReturnMoneyWhenException = currency;
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
                         .noticeFlag(1)
@@ -112,10 +120,12 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 warn("玩家 " + player.getName() + " 在下单 " + this.marketItem.playerName() + " 的出售商品 " + this.marketItem.shopId() + " 时出现异常", e);
                 player.closeInventory();
                 Messages.Gui.sell__exception.tm(player);
+                if (shouldReturnMoneyWhenException != null && totalMoney > 0) {
+                    shouldReturnMoneyWhenException.giveMoney(player, totalMoney);
+                }
                 return;
             }
-            // 拿走玩家的指定数量货币。由于上方已添加货币到额外参数中，不需要给予卖家货币
-            currency.takeMoney(player, totalMoney);
+
             // 给予玩家物品
             int totalCount = 0;
             for (int i = 0; i < count; i++) {
