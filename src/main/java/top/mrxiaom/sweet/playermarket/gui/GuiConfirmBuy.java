@@ -15,7 +15,6 @@ import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
-import top.mrxiaom.sweet.playermarket.api.IShopAdapterFactory;
 import top.mrxiaom.sweet.playermarket.api.IShopBuyConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
@@ -100,13 +99,11 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                     actionLock = false;
                     return;
                 }
-                ConfigurationSection params = marketItem.params();
                 // 检查商品适配器设置
-                String factoryId = params.getString("adapter.factory-id", null);
-                if (factoryId != null) {
+                ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+                if (entry.hasFactoryParams()) {
                     // 如果有适配器，使用适配器的卖出逻辑
-                    IShopAdapterFactory factory = ShopAdapterRegistry.inst().getById(factoryId);
-                    IShopBuyConfirmAdapter shopAdapter = factory == null ? null : factory.getBuyConfirmAdapter(marketItem, player);
+                    IShopBuyConfirmAdapter shopAdapter = entry.getBuyConfirmAdapter(marketItem, player);
                     if (shopAdapter == null) {
                         Messages.Gui.buy__adapter_not_found.tm(player);
                         return;
@@ -132,6 +129,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                     Utils.takeItem(player, sample, totalCount);
                 }
 
+                ConfigurationSection params = marketItem.params();
                 // 添加物品到额外参数中，让商家自行领取
                 List<ItemStack> itemList = new ArrayList<>();
                 for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {

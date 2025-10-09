@@ -19,6 +19,7 @@ import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
+import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,8 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
         if (id == '物') {
             MarketItem item = gui.marketItem;
 
+            ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(item);
+
             ItemStack baseItem = item.item();
             int displayAmount = baseItem.getAmount();
             List<String> itemLore = AdventureItemStack.getItemLoreAsMiniMessage(baseItem);
@@ -85,7 +88,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             };
             ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreMod);
             icon.setAmount(displayAmount);
-            return icon;
+            return entry.postProcessIcon(item, player, gui.commonReplacements, icon);
         }
         if (id == '确') {
             return iconConfirm.generateIcon(player, displayModifier, loreModifier);
@@ -124,6 +127,8 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
 
             r.add("%display%", itemName);
             applyMarketItemPlaceholders(plugin, marketItem, r);
+            ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+            entry.updateReplacements(marketItem, player, r);
         }
 
         public int count() {

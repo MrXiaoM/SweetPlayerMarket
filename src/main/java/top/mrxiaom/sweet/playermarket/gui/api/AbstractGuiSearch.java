@@ -26,6 +26,7 @@ import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
+import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.utils.ListX;
 
 import java.util.ArrayList;
@@ -92,6 +93,9 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                 r.add("%display%", itemName);
                 applyMarketItemPlaceholders(plugin, item, r);
 
+                ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(item);
+                entry.updateReplacements(item, player, r);
+
                 IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
                 IModifier<List<String>> loreModifier = oldLore -> {
                     List<String> lore = new ArrayList<>();
@@ -107,7 +111,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                 LoadedIcon loadedIcon = decideIconByMarketItem(gui, player, item, r);
                 ItemStack icon = loadedIcon.generateIcon(baseItem, player, displayModifier, loreModifier);
                 icon.setAmount(displayAmount);
-                return icon;
+                return entry.postProcessIcon(item, player, r, icon);
             }
         }
         return null;

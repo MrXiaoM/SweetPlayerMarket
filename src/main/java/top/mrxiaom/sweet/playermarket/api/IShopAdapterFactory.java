@@ -2,8 +2,10 @@ package top.mrxiaom.sweet.playermarket.api;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 
@@ -22,6 +24,27 @@ public interface IShopAdapterFactory {
      */
     default void applyToParams(EnumMarketType type, ConfigurationSection params) {
         params.set("adapter.factory-id", id());
+    }
+
+    /**
+     * 更新在 物品名称、物品Lore 中使用的变量
+     * @param item 商品实例
+     * @param player 浏览玩家
+     * @param r 变量列表
+     */
+    void updateReplacements(@NotNull MarketItem item, @NotNull Player player, @NotNull ListPair<String, Object> r);
+
+    /**
+     * 对已经替换完变量的商品展示图标进行后处理
+     * @param item 商品实例
+     * @param player 浏览玩家
+     * @param r 变量列表
+     * @param originalItem 原始图标物品
+     * @return 处理后图标物品
+     */
+    @NotNull
+    default ItemStack postProcessIcon(@NotNull MarketItem item, @NotNull Player player, @NotNull ListPair<String, Object> r, @NotNull ItemStack originalItem) {
+        return originalItem;
     }
 
     /**

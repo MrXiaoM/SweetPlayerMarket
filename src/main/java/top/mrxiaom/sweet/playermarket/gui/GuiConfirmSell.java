@@ -15,7 +15,6 @@ import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
-import top.mrxiaom.sweet.playermarket.api.IShopAdapterFactory;
 import top.mrxiaom.sweet.playermarket.api.IShopSellConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
@@ -95,17 +94,17 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     return;
                 }
 
-                ConfigurationSection params = marketItem.params();
                 // 检查商品适配器设置
-                String factoryId = params.getString("adapter.factory-id", null);
-                if (factoryId != null) {
-                    IShopAdapterFactory factory = ShopAdapterRegistry.inst().getById(factoryId);
-                    shopAdapter = factory == null ? null : factory.getSellConfirmAdapter(marketItem, player);
+                ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+                if (entry.hasFactoryParams()) {
+                    shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
                     if (shopAdapter == null) {
                         Messages.Gui.sell__adapter_not_found.tm(player);
                         return;
                     }
                 }
+
+                ConfigurationSection params = marketItem.params();
                 // 添加货币到额外参数中，让商家自行领取
                 double old = params.getDouble("sell.received-currency", 0.0);
                 params.set("sell.received-currency", old + totalMoney);
