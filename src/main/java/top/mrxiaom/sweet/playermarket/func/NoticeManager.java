@@ -22,7 +22,9 @@ import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @AutoRegister
 public class NoticeManager extends AbstractModule implements Listener {

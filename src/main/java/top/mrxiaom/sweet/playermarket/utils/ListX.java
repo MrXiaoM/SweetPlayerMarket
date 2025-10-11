@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ListX<E> extends ArrayList<E> {
     private int totalCount;
