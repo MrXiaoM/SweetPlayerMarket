@@ -44,7 +44,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
             Runnable successAction = null;
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
-                MarketItem marketItem = db.getItem(conn, item.shopId());
+                MarketItem marketItem = db.getItem(conn, item.shopId(), true);
                 if (marketItem == null || !marketItem.playerId().equals(plugin.getKey(player))) {
                     Object i = Utils.get(replacements, "__internal__index");
                     if (i instanceof Integer) {

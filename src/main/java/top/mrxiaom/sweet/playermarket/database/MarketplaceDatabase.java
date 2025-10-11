@@ -208,7 +208,13 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     }
 
     public MarketItem getItem(Connection conn, String shopId) throws SQLException {
-        String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? AND `amount`>0 LIMIT 1;";
+        return getItem(conn, shopId, false);
+    }
+
+    public MarketItem getItem(Connection conn, String shopId, boolean ignoreAmount) throws SQLException {
+        String sql = ignoreAmount
+                ? ("SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? LIMIT 1;")
+                : ("SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? AND `amount`>0 LIMIT 1;");
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, shopId);
             try (ResultSet resultSet = ps.executeQuery()) {

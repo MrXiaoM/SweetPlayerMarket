@@ -1,25 +1,26 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
+import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IShopSellConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
+import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
+import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ActionTakeDown extends AbstractActionWithMarketItem {
@@ -52,33 +53,40 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
                     Messages.Gui.me__take_down__item_not_found.tm(player);
                     return;
                 }
-                ConfigurationSection params = marketItem.params();
                 if (marketItem.type().equals(EnumMarketType.SELL)) {
+                    // 归还上架所需物品，不退手续费
                     int count = marketItem.amount();
-                    double totalMoney = count * marketItem.price();
-                    double old = params.getDouble("sell.received-currency", 0.0);
-                    params.set("sell.received-currency", old + totalMoney);
-                    int oldCount = params.getInt("sell.received-count", 0);
-                    params.set("sell.received-count", oldCount + count);
-                }
-                if (marketItem.type().equals(EnumMarketType.BUY)) {
-                    int count = marketItem.amount();
-                    List<ItemStack> itemList = new ArrayList<>();
-                    for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {
-                        if (obj instanceof ItemStack) {
-                            itemList.add((ItemStack) obj);
+                    ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+                    if (entry.hasFactoryParams()) {
+                        // 如果有商品适配器，则按适配器的实现来给予玩家物品
+                        IShopSellConfirmAdapter shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
+                        if (shopAdapter == null) {
+                            Messages.Gui.sell__adapter_not_found.tm(player);
+                            return;
+                        }
+                        shopAdapter.giveToPlayer(count);
+                    } else {
+                        // 如果没有商品适配器，直接给予玩家物品
+                        for (int i = 0; i < count; i++) {
+                            ItemStackUtil.giveItemToPlayer(player, marketItem.item());
                         }
                     }
-                    for (int i = 0; i < count; i++) {
-                        itemList.add(marketItem.item());
+                }
+                if (marketItem.type().equals(EnumMarketType.BUY)) {
+                    // 归还上架所需货币，不退手续费
+                    int count = marketItem.amount();
+                    IEconomy currency = marketItem.currency();
+                    if (currency == null) {
+                        String currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
+                        Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
+                        return;
                     }
-                    params.set("buy.received-items", itemList);
+                    currency.giveMoney(player, marketItem.price() * count);
                 }
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
-                        .noticeFlag(1)
+                        .noticeFlag(0)
                         .amount(0)
-                        .params(params)
                         .build()
                 )) {
                     Messages.Gui.me__take_down__submit_failed.tm(player);
