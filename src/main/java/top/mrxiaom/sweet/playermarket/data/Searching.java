@@ -150,4 +150,8 @@ public class Searching {
     public static String format(LocalDateTime dateTime) {
         return dateTime.format(formatter);
     }
+
+    public static LocalDateTime format(String str) {
+        return str == null ? null : LocalDateTime.parse(str, formatter);
+    }
 }

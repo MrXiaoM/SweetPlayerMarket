@@ -123,9 +123,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             warn("商品 " + shopId + " 的类型ID不正确 (" + typeInt + ")，请检查插件是否已更新到最新版本");
             return null;
         }
-        LocalDateTime createTime = result.getTimestamp("create_time").toLocalDateTime();
-        Timestamp outdateTimestamp = result.getTimestamp("outdate_time");
-        LocalDateTime outdate = outdateTimestamp == null ? null : outdateTimestamp.toLocalDateTime();
+        LocalDateTime createTime = Searching.format(result.getString("create_time"));
+        LocalDateTime outdate = Searching.format(result.getString("outdate_time"));
         String currencyName = result.getString("currency");
         IEconomy currency = plugin.parseEconomy(currencyName);
         String priceStr = result.getString("price");
