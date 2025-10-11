@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import jdk.vm.ci.code.site.Mark;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.api.IActionProvider;
@@ -55,33 +56,11 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
                 }
                 if (marketItem.type().equals(EnumMarketType.SELL)) {
                     // 归还上架所需物品，不退手续费
-                    int count = marketItem.amount();
-                    ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
-                    if (entry.hasFactoryParams()) {
-                        // 如果有商品适配器，则按适配器的实现来给予玩家物品
-                        IShopSellConfirmAdapter shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
-                        if (shopAdapter == null) {
-                            Messages.Gui.sell__adapter_not_found.tm(player);
-                            return;
-                        }
-                        shopAdapter.giveToPlayer(count);
-                    } else {
-                        // 如果没有商品适配器，直接给予玩家物品
-                        for (int i = 0; i < count; i++) {
-                            ItemStackUtil.giveItemToPlayer(player, marketItem.item());
-                        }
-                    }
+                    if (!takeDownSell(marketItem, player, marketItem.amount())) return;
                 }
                 if (marketItem.type().equals(EnumMarketType.BUY)) {
                     // 归还上架所需货币，不退手续费
-                    int count = marketItem.amount();
-                    IEconomy currency = marketItem.currency();
-                    if (currency == null) {
-                        String currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
-                        Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
-                        return;
-                    }
-                    currency.giveMoney(player, marketItem.price() * count);
+                    if (!takeDownBuy(marketItem, player, marketItem.amount())) return;
                 }
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
@@ -103,5 +82,35 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
             NoticeManager.inst().updateCreated();
             Messages.Gui.me__take_down__success.tm(player);
         }
+    }
+
+    protected static boolean takeDownSell(MarketItem marketItem, Player player, int count) {
+        ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+        if (entry.hasFactoryParams()) {
+            // 如果有商品适配器，则按适配器的实现来给予玩家物品
+            IShopSellConfirmAdapter shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
+            if (shopAdapter == null) {
+                Messages.Gui.sell__adapter_not_found.tm(player);
+                return false;
+            }
+            shopAdapter.giveToPlayer(count);
+        } else {
+            // 如果没有商品适配器，直接给予玩家物品
+            for (int i = 0; i < count; i++) {
+                ItemStackUtil.giveItemToPlayer(player, marketItem.item());
+            }
+        }
+        return true;
+    }
+
+    protected static boolean takeDownBuy(MarketItem marketItem, Player player, int count) {
+        IEconomy currency = marketItem.currency();
+        if (currency == null) {
+            String currencyName = SweetPlayerMarket.getInstance().displayNames().getCurrencyName(marketItem.currencyName());
+            Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
+            return false;
+        }
+        currency.giveMoney(player, marketItem.price() * count);
+        return true;
     }
 }

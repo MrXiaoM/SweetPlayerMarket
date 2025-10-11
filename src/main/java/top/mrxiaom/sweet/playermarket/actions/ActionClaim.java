@@ -13,15 +13,18 @@ import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.IShopSellConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +56,8 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     Messages.Gui.common__item_not_found.tm(player);
                     return;
                 }
+                int amount = marketItem.amount();
+                boolean outdated = LocalDateTime.now().isAfter(marketItem.outdateTime());
                 String currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
                 ConfigurationSection params = marketItem.params();
                 if (marketItem.type().equals(EnumMarketType.SELL)) {
@@ -64,14 +69,33 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     double money = params.getDouble("sell.received-currency");
                     params.set("sell.received-currency", null);
                     params.set("sell.received-count", null);
+                    int returnAmount = outdated ? amount : 0;
+                    if (outdated) {
+                        amount = 0;
+                        ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+                        if (entry.hasFactoryParams()) {
+                            IShopSellConfirmAdapter shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
+                            if (shopAdapter == null) {
+                                Messages.Gui.sell__adapter_not_found.tm(player);
+                                return;
+                            }
+                        }
+                    }
                     successAction = () -> {
-                        currency.giveMoney(player, money);
-                        Messages.Gui.me__claim__sell__success.tm(player,
-                                Pair.of("%money%", String.format("%.2f", money).replace(".00", "")),
-                                Pair.of("%currency%", currencyName));
+                        if (returnAmount > 0) {
+                            // 归还商品
+                            ActionTakeDown.takeDownSell(marketItem, player, returnAmount);
+                        }
+                        if (money > 0) {
+                            currency.giveMoney(player, money);
+                            Messages.Gui.me__claim__sell__success.tm(player,
+                                    Pair.of("%money%", String.format("%.2f", money).replace(".00", "")),
+                                    Pair.of("%currency%", currencyName));
+                        }
                     };
                 }
                 if (marketItem.type().equals(EnumMarketType.BUY)) {
+                    IEconomy currency = marketItem.currency();
                     List<ItemStack> itemList = new ArrayList<>();
                     int totalCount = 0;
                     ItemStack sampleItem = null;
@@ -91,12 +115,26 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     params.set("buy.received-items", null);
                     ItemStack _item = sampleItem;
                     int _total = totalCount;
+                    int returnAmount = outdated ? amount : 0;
+                    if (outdated) {
+                        amount = 0;
+                        if (currency == null) {
+                            Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
+                            return;
+                        }
+                    }
                     successAction = () -> {
-                        ItemStackUtil.giveItemToPlayer(player, itemList);
-                        MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(_item).build();
-                        Messages.Gui.me__claim__buy__success.tm(miniMessage, player,
-                                Pair.of("%item%", plugin.displayNames().getDisplayName(_item, player)),
-                                Pair.of("%total_count%", _total));
+                        if (returnAmount > 0) {
+                            // 归还货币
+                            ActionTakeDown.takeDownBuy(marketItem, player, returnAmount);
+                        }
+                        if (!itemList.isEmpty()) {
+                            ItemStackUtil.giveItemToPlayer(player, itemList);
+                            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(_item).build();
+                            Messages.Gui.me__claim__buy__success.tm(miniMessage, player,
+                                    Pair.of("%item%", plugin.displayNames().getDisplayName(_item, player)),
+                                    Pair.of("%total_count%", _total));
+                        }
                     };
                 }
                 if (successAction == null) {
@@ -106,6 +144,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
                         .noticeFlag(0)
+                        .amount(amount)
                         .params(params)
                         .build()
                 )) {

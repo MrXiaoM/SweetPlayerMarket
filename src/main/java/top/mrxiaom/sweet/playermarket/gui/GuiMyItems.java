@@ -17,6 +17,7 @@ import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AutoRegister
@@ -50,6 +51,9 @@ public class GuiMyItems extends AbstractGuiSearch {
             if (item.type().equals(EnumMarketType.BUY)) {
                 List<?> list = item.params().getList("buy.received-items");
                 amountCanTake = list == null ? 0 : list.size();
+            }
+            if (LocalDateTime.now().isAfter(item.outdateTime()) && item.amount() > 0) {
+                amountCanTake += item.amount();
             }
             if (amountCanTake > 0) {
                 r.add("%amount_can_take%", amountCanTake);
