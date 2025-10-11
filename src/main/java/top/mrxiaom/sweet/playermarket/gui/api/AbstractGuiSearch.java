@@ -29,6 +29,7 @@ import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.utils.ListX;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -37,7 +38,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
     private final String filePath;
     protected LoadedIcon iconItem, iconEmpty;
     public AbstractGuiSearch(SweetPlayerMarket plugin, String file) {
-        super(plugin, plugin.resolve("./" + file));
+        super(plugin, plugin.resolve("./gui/" + file));
         this.filePath = file;
     }
 
@@ -48,6 +49,8 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
 
     @Override
     public void reloadConfig(MemoryConfiguration cfg) {
+        File guiFolder = plugin.resolve(cfg.getString("gui-folder", "./gui"));
+        this.file = new File(guiFolder, filePath);
         if (!file.exists()) {
             plugin.saveResource(filePath, file);
         }

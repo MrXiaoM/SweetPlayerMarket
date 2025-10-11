@@ -28,7 +28,7 @@ import java.sql.Connection;
 @AutoRegister
 public class GuiConfirmSell extends AbstractGuiConfirm {
     public GuiConfirmSell(SweetPlayerMarket plugin) {
-        super(plugin, "gui/confirm-sell.yml");
+        super(plugin, "confirm-sell.yml");
     }
 
     public static GuiConfirmSell inst() {

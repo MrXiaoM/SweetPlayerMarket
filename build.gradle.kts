@@ -8,6 +8,7 @@ plugins {
 group = "top.mrxiaom.sweet.playermarket"
 version = "1.0.0"
 val targetJavaVersion = 8
+val pluginBaseVersion = "1.6.6"
 val shadowGroup = "top.mrxiaom.sweet.playermarket.libs"
 
 repositories {
@@ -44,9 +45,9 @@ dependencies {
 
     implementation("de.tr7zw:item-nbt-api:2.15.3-SNAPSHOT")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
-    implementation("top.mrxiaom.pluginbase:library:1.6.5")
-    implementation("top.mrxiaom.pluginbase:paper:1.6.5")
-    implementation("top.mrxiaom:LibrariesResolver:1.6.5")
+    implementation("top.mrxiaom.pluginbase:library:$pluginBaseVersion")
+    implementation("top.mrxiaom.pluginbase:paper:$pluginBaseVersion")
+    implementation("top.mrxiaom:LibrariesResolver:$pluginBaseVersion")
 }
 buildConfig {
     className("BuildConstants")

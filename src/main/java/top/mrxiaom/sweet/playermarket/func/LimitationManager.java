@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.func;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,7 @@ public class LimitationManager extends AbstractModule {
         if (!file.exists()) {
             plugin.saveResource("limitation.yml", file);
         }
-        YamlConfiguration config = Util.load(file);
+        FileConfiguration config = plugin.resolveGotoFlag(Util.load(file));
         limitDefault = BaseLimitation.of(plugin, getSection(config,"default"));
 
         limitByItems.clear();

@@ -14,7 +14,6 @@ import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
-import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
@@ -26,7 +25,7 @@ public class GuiMarketplace extends AbstractGuiSearch {
     private boolean canBuySelfItems;
     private LoadedIcon iconItemSelf;
     public GuiMarketplace(SweetPlayerMarket plugin) {
-        super(plugin, "gui/marketplace.yml");
+        super(plugin, "marketplace.yml");
     }
 
     public boolean canBuySelfItems() {

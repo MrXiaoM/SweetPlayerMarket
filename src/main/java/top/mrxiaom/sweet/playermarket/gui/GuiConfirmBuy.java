@@ -31,7 +31,7 @@ import java.util.List;
 @AutoRegister
 public class GuiConfirmBuy extends AbstractGuiConfirm {
     public GuiConfirmBuy(SweetPlayerMarket plugin) {
-        super(plugin, "gui/confirm-buy.yml");
+        super(plugin, "confirm-buy.yml");
     }
 
     public static GuiConfirmBuy inst() {

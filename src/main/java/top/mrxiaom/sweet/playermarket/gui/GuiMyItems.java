@@ -11,7 +11,6 @@ import org.bukkit.inventory.InventoryView;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.utils.ListPair;
-import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
@@ -23,7 +22,7 @@ import java.util.List;
 @AutoRegister
 public class GuiMyItems extends AbstractGuiSearch {
     public GuiMyItems(SweetPlayerMarket plugin) {
-        super(plugin, "gui/my-items.yml");
+        super(plugin, "my-items.yml");
     }
 
     LoadedIcon iconClaim;

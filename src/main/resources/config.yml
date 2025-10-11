@@ -10,6 +10,10 @@
 # auto  -- 根据 server.properties 中的 online-mode 决定
 online-mode: auto
 
+# 指定 gui 配置所在路径，以 ./ 开头为相对于插件数据目录的相对路径，
+# 其余为相对于服务端目录的相对路径，或者绝对路径
+gui-folder: './gui'
+
 # 是否在玩家上架物品后，刷新所有已打开全球市场界面的玩家界面
 update-gui-after-create-item: true
 
