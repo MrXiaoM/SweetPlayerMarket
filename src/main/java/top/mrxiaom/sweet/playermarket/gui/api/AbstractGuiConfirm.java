@@ -45,7 +45,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
         File guiFolder = plugin.resolve(cfg.getString("gui-folder", "./gui"));
         this.file = new File(guiFolder, filePath);
         if (!file.exists()) {
-            plugin.saveResource(filePath, file);
+            plugin.saveResource("gui/" + filePath, file);
         }
         super.reloadConfig(cfg);
     }
