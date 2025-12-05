@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
+import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.limitation.item.*;
@@ -26,7 +27,7 @@ public class LimitationByItem extends BaseLimitation {
         }
         this.matcherType = matcherType == null ? TypeAny.INSTANCE : matcherType;
 
-        List<ConfigurationSection> matchers = Util.getSectionList(config, "matchers");
+        List<ConfigurationSection> matchers = ConfigUtils.getSectionList(config, "matchers");
         for (ConfigurationSection s : matchers) {
             ItemMatcher matcher = parseMatcher(s);
             if (matcher == null) {

@@ -35,7 +35,6 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -69,7 +68,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
                 : new File(this.getDataFolder(), "libraries");
         DefaultLibraryResolver resolver = new DefaultLibraryResolver(getLogger(), librariesDir);
 
-        resolver.addLibrary(BuildConstants.LIBRARIES);
+        resolver.addResolvedLibrary(BuildConstants.RESOLVED_LIBRARIES);
 
         List<URL> libraries = resolver.doResolve();
         info("正在添加 " + libraries.size() + " 个依赖库到类加载器");
@@ -142,13 +141,6 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @NotNull
     public MarketplaceDatabase getMarketplace() {
         return marketplaceDatabase;
-    }
-
-    @Override
-    protected @NotNull ClassLoaderWrapper initClassLoader(URLClassLoader classLoader) {
-        return ClassLoaderWrapper.isSupportLibraryLoader
-                ? new ClassLoaderWrapper(ClassLoaderWrapper.findLibraryLoader(classLoader))
-                : new ClassLoaderWrapper(classLoader);
     }
 
     @Override

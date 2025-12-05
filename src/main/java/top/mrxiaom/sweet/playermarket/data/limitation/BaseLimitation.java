@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
@@ -43,7 +44,7 @@ public class BaseLimitation {
             Function<Double, Double> moneyFunc;
             String moneyStr = section.getString(key + ".money", "");
             if (moneyStr.endsWith("%")) {
-                Double percent = Util.getPercentAsDouble(moneyStr, null);
+                Double percent = ConfigUtils.getPercentAsDouble(moneyStr, null);
                 if (percent == null) {
                     plugin.warn("[limitation] 输入的货币数量百分比 " + moneyStr + " 不正确");
                     continue;

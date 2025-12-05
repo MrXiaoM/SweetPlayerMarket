@@ -5,10 +5,17 @@ plugins {
     id ("com.github.gmazzo.buildconfig") version "5.6.7"
 }
 
+buildscript {
+    repositories.mavenCentral()
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.1")
+}
+val base = top.mrxiaom.gradle.LibraryHelper(project)
+
 group = "top.mrxiaom.sweet.playermarket"
 version = "1.0.0"
+
 val targetJavaVersion = 8
-val pluginBaseVersion = "1.6.6"
+val pluginBaseModules = base.modules.run { listOf(library, gui, actions, l10n, commands, paper, misc) }
 val shadowGroup = "top.mrxiaom.sweet.playermarket.libs"
 
 repositories {
@@ -20,12 +27,6 @@ repositories {
     maven("https://repo.rosewooddev.io/repository/public/")
 }
 
-val libraries = arrayListOf<String>()
-fun DependencyHandlerScope.library(dependencyNotation: String) {
-    compileOnly(dependencyNotation)
-    libraries.add(dependencyNotation)
-}
-
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
     // compileOnly("org.spigotmc:spigot:1.20") // NMS
@@ -35,29 +36,30 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly(files("libs/MPoints-1.2.2.jar"))
+    compileOnly("org.jetbrains:annotations:24.0.0")
 
-    library("net.kyori:adventure-api:4.22.0")
-    library("net.kyori:adventure-platform-bukkit:4.4.0")
-    library("net.kyori:adventure-text-minimessage:4.22.0")
-    library("net.kyori:adventure-text-serializer-plain:4.22.0")
-    library("com.zaxxer:HikariCP:4.0.3")
-    library("org.jetbrains:annotations:24.0.0")
+    base.library("net.kyori:adventure-api:4.22.0")
+    base.library("net.kyori:adventure-platform-bukkit:4.4.0")
+    base.library("net.kyori:adventure-text-minimessage:4.22.0")
+    base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
+    base.library("com.zaxxer:HikariCP:4.0.3")
 
     implementation("de.tr7zw:item-nbt-api:2.15.3-SNAPSHOT")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
-    implementation("top.mrxiaom.pluginbase:library:$pluginBaseVersion")
-    implementation("top.mrxiaom.pluginbase:paper:$pluginBaseVersion")
-    implementation("top.mrxiaom:LibrariesResolver:$pluginBaseVersion")
+    for (artifact in pluginBaseModules) {
+        implementation(artifact)
+    }
+    implementation(base.resolver.lite)
 }
 buildConfig {
     className("BuildConstants")
     packageName("top.mrxiaom.sweet.playermarket")
 
-    val librariesVararg = libraries.joinToString(", ") { "\"$it\"" }
+    base.doResolveLibraries()
 
     buildConfigField("String", "VERSION", "\"${project.version}\"")
     buildConfigField("java.time.Instant", "BUILD_TIME", "java.time.Instant.ofEpochSecond(${System.currentTimeMillis() / 1000L}L)")
-    buildConfigField("String[]", "LIBRARIES", "new String[] { $librariesVararg }")
+    buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
 java {
     val javaVersion = JavaVersion.toVersion(targetJavaVersion)
