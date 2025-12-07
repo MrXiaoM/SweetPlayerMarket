@@ -92,7 +92,7 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
                 Messages.Gui.sell__adapter_not_found.tm(player);
                 return false;
             }
-            shopAdapter.giveToPlayer(count);
+            shopAdapter.takeDownItem(count);
         } else {
             // 如果没有商品适配器，直接给予玩家物品
             for (int i = 0; i < count; i++) {

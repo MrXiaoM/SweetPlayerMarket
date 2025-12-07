@@ -7,4 +7,12 @@ public interface IShopSellConfirmAdapter {
      * @return 最终购买总数量
      */
     int giveToPlayer(int count);
+
+    /**
+     * 重写下架商品后，归还玩家物品的逻辑，默认与 <code>giveToPlayer</code> 一致
+     * @param count 购买数量
+     */
+    default void takeDownItem(int count) {
+        giveToPlayer(count);
+    }
 }
