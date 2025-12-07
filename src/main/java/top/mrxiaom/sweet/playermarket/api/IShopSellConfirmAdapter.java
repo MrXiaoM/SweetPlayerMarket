@@ -15,4 +15,12 @@ public interface IShopSellConfirmAdapter {
     default void takeDownItem(int count) {
         giveToPlayer(count);
     }
+
+    /**
+     * 重写商品过期后，玩家拿回商品的逻辑，默认与 <code>giveToPlayer</code> 一致
+     * @param count 购买数量
+     */
+    default void takeBackOutdatedItem(int count) {
+        giveToPlayer(count);
+    }
 }

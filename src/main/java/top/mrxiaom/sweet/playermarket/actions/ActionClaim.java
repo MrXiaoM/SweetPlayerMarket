@@ -67,7 +67,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                         return;
                     }
                     double money = params.getDouble("sell.received-currency");
-                    int returnAmount = outdated ? amount : 0;
+                    int outdatedReturnAmount = outdated ? amount : 0;
                     if (outdated) {
                         amount = 0;
                         ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
@@ -82,9 +82,9 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     params.set("sell.received-currency", null);
                     params.set("sell.received-count", null);
                     successAction = () -> {
-                        if (returnAmount > 0) {
-                            // 归还商品
-                            ActionTakeDown.takeDownSell(marketItem, player, returnAmount);
+                        if (outdatedReturnAmount > 0) {
+                            // 已到期归还商品
+                            takeBackSell(marketItem, player, outdatedReturnAmount);
                         }
                         if (money > 0) {
                             currency.giveMoney(player, money);
@@ -114,7 +114,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     }
                     ItemStack _item = sampleItem;
                     int _total = totalCount;
-                    int returnAmount = outdated ? amount : 0;
+                    int outdatedReturnAmount = outdated ? amount : 0;
                     if (outdated) {
                         amount = 0;
                         if (currency == null) {
@@ -124,9 +124,9 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     }
                     params.set("buy.received-items", null);
                     successAction = () -> {
-                        if (returnAmount > 0) {
-                            // 归还货币
-                            ActionTakeDown.takeDownBuy(marketItem, player, returnAmount);
+                        if (outdatedReturnAmount > 0) {
+                            // 已到期归还货币
+                            takeBackBuy(marketItem, player, outdatedReturnAmount);
                         }
                         if (!itemList.isEmpty()) {
                             ItemStackUtil.giveItemToPlayer(player, itemList);
@@ -161,5 +161,33 @@ public class ActionClaim extends AbstractActionWithMarketItem {
             gm.doSearch();
             gm.open();
         }
+    }
+
+    protected static void takeBackSell(MarketItem marketItem, Player player, int count) {
+        ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+        if (entry.hasFactoryParams()) {
+            // 如果有商品适配器，则按适配器的实现来给予玩家物品
+            IShopSellConfirmAdapter shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
+            if (shopAdapter == null) {
+                Messages.Gui.sell__adapter_not_found.tm(player);
+                return;
+            }
+            shopAdapter.takeBackOutdatedItem(count);
+        } else {
+            // 如果没有商品适配器，直接给予玩家物品
+            for (int i = 0; i < count; i++) {
+                ItemStackUtil.giveItemToPlayer(player, marketItem.item());
+            }
+        }
+    }
+
+    protected static void takeBackBuy(MarketItem marketItem, Player player, int count) {
+        IEconomy currency = marketItem.currency();
+        if (currency == null) {
+            String currencyName = SweetPlayerMarket.getInstance().displayNames().getCurrencyName(marketItem.currencyName());
+            Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
+            return;
+        }
+        currency.giveMoney(player, marketItem.price() * count);
     }
 }
