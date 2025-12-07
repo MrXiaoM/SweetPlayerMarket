@@ -67,8 +67,6 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                         return;
                     }
                     double money = params.getDouble("sell.received-currency");
-                    params.set("sell.received-currency", null);
-                    params.set("sell.received-count", null);
                     int returnAmount = outdated ? amount : 0;
                     if (outdated) {
                         amount = 0;
@@ -81,6 +79,8 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                             }
                         }
                     }
+                    params.set("sell.received-currency", null);
+                    params.set("sell.received-count", null);
                     successAction = () -> {
                         if (returnAmount > 0) {
                             // 归还商品
@@ -112,7 +112,6 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     if (sampleItem == null) {
                         return;
                     }
-                    params.set("buy.received-items", null);
                     ItemStack _item = sampleItem;
                     int _total = totalCount;
                     int returnAmount = outdated ? amount : 0;
@@ -123,6 +122,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                             return;
                         }
                     }
+                    params.set("buy.received-items", null);
                     successAction = () -> {
                         if (returnAmount > 0) {
                             // 归还货币
