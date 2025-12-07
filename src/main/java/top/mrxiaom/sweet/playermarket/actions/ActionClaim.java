@@ -66,25 +66,31 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                         Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
                         return;
                     }
-                    double money = params.getDouble("sell.received-currency");
+                    double receivedMoney = params.getDouble("sell.received-currency");
+                    IShopSellConfirmAdapter shopAdapter;
+                    ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+                    if (entry.hasFactoryParams()) {
+                        shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
+                        if (shopAdapter == null) {
+                            Messages.Gui.sell__adapter_not_found.tm(player);
+                            return;
+                        }
+                        receivedMoney = shopAdapter.overrideRewardMoney(receivedMoney);
+                    } else {
+                        shopAdapter = null;
+                    }
                     int outdatedReturnAmount = outdated ? amount : 0;
                     if (outdated) {
+                        // 到期领取商品之后，设置可购买数量为 0
                         amount = 0;
-                        ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
-                        if (entry.hasFactoryParams()) {
-                            IShopSellConfirmAdapter shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
-                            if (shopAdapter == null) {
-                                Messages.Gui.sell__adapter_not_found.tm(player);
-                                return;
-                            }
-                        }
                     }
+                    double money = receivedMoney;
                     params.set("sell.received-currency", null);
                     params.set("sell.received-count", null);
                     successAction = () -> {
                         if (outdatedReturnAmount > 0) {
                             // 已到期归还商品
-                            takeBackSell(marketItem, player, outdatedReturnAmount);
+                            takeBackSell(marketItem, shopAdapter, player, outdatedReturnAmount);
                         }
                         if (money > 0) {
                             currency.giveMoney(player, money);
@@ -163,15 +169,9 @@ public class ActionClaim extends AbstractActionWithMarketItem {
         }
     }
 
-    protected static void takeBackSell(MarketItem marketItem, Player player, int count) {
-        ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
-        if (entry.hasFactoryParams()) {
+    protected static void takeBackSell(MarketItem marketItem, IShopSellConfirmAdapter shopAdapter, Player player, int count) {
+        if (shopAdapter != null) {
             // 如果有商品适配器，则按适配器的实现来给予玩家物品
-            IShopSellConfirmAdapter shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
-            if (shopAdapter == null) {
-                Messages.Gui.sell__adapter_not_found.tm(player);
-                return;
-            }
             shopAdapter.takeBackOutdatedItem(count);
         } else {
             // 如果没有商品适配器，直接给予玩家物品

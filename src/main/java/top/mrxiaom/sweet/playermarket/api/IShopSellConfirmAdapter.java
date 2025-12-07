@@ -23,4 +23,13 @@ public interface IShopSellConfirmAdapter {
     default void takeBackOutdatedItem(int count) {
         giveToPlayer(count);
     }
+
+    /**
+     * 重写玩家领取货币时，给予玩家的货币数量
+     * @param originalMoney 原货币数量
+     * @return 新货币数量
+     */
+    default double overrideRewardMoney(double originalMoney) {
+        return originalMoney;
+    }
 }
