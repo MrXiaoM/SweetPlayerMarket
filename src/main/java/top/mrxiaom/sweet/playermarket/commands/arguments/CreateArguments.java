@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.commands.arguments;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -10,6 +11,7 @@ import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.AbstractArguments;
+import top.mrxiaom.sweet.playermarket.api.event.MarketItemCreatedEvent;
 import top.mrxiaom.sweet.playermarket.commands.CommandMain;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
@@ -132,11 +134,33 @@ public class CreateArguments extends AbstractArguments<Player> {
 
         OutdateTime outdateTime = OutdateTimeManager.inst().get(sender);
 
+        plugin.getScheduler().runTaskAsync(() -> doDeployMarketItem(
+                    plugin, sender,
+                    item, itemCount,
+                    marketAmount, type,
+                    createCost, currency,
+                    totalPrice, createCostMoney,
+                    costCurrency, price, outdateTime
+        ));
+        return true;
+    }
+
+    private void doDeployMarketItem(
+            SweetPlayerMarket plugin, Player sender,
+            ItemStack item, int itemCount,
+            int marketAmount, EnumMarketType type,
+            CreateCost createCost, IEconomy currency,
+            double totalPrice, double createCostMoney,
+            IEconomy costCurrency, double price,
+            OutdateTime outdateTime
+    ) {
+        MarketItem marketItem;
         try (Connection conn = plugin.getConnection()) {
             MarketplaceDatabase db = plugin.getMarketplace();
             String shopId = db.createNewId(conn);
             if (shopId == null) {
-                return Messages.Command.create__failed_db.tm(sender);
+                Messages.Command.create__failed_db.tm(sender);
+                return;
             }
 
             ItemStack shopItem = item.clone();
@@ -148,7 +172,8 @@ public class CreateArguments extends AbstractArguments<Player> {
                     // 出售商店，检查玩家背包里有没有这么多的物品，并拿走这些物品
                     int invAmount = Utils.getItemAmount(sender, shopItem);
                     if (invAmount < totalAmount) {
-                        return Messages.Command.create__sell__no_enough_items.tm(sender);
+                        Messages.Command.create__sell__no_enough_items.tm(sender);
+                        return;
                     }
                     Utils.takeItem(sender, shopItem, totalAmount);
                     break;
@@ -159,15 +184,18 @@ public class CreateArguments extends AbstractArguments<Player> {
                             ? (totalPrice + createCostMoney)
                             : (totalPrice);
                     if (!currency.has(sender, totalMoney)) {
-                        return Messages.Command.create__buy__no_enough_currency.tm(sender);
+                        Messages.Command.create__buy__no_enough_currency.tm(sender);
+                        return;
                     }
                     if (!currency.takeMoney(sender, totalPrice)) {
-                        return Messages.Command.create__buy__no_enough_currency.tm(sender);
+                        Messages.Command.create__buy__no_enough_currency.tm(sender);
+                        return;
                     }
                     break;
                 }
                 default: {
-                    return Messages.Command.create__no_type_found.tm(sender);
+                    Messages.Command.create__no_type_found.tm(sender);
+                    return;
                 }
             }
 
@@ -175,31 +203,39 @@ public class CreateArguments extends AbstractArguments<Player> {
             if (costCurrency != null && createCostMoney > 0) {
                 if (!costCurrency.takeMoney(sender, createCostMoney)) {
                     // TODO: 保持事务一致性
-                    return Messages.Command.create__limitation__create_cost_failed.tm(sender,
+                    Messages.Command.create__limitation__create_cost_failed.tm(sender,
                             Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
                             Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+                    return;
                 }
             }
 
             // 将商品信息提交到数据库
-            db.putItem(conn, MarketItem.builder(shopId, sender)
+            marketItem = MarketItem.builder(shopId, sender)
                     .item(shopItem)
                     .type(type)
                     .price(price)
                     .currency(currency)
                     .amount(marketAmount)
                     .outdateTime(outdateTime.get(type))
-                    .build(plugin.itemTagResolver()));
+                    .build(plugin.itemTagResolver());
+            db.putItem(conn, marketItem);
         } catch (SQLException e) {
             plugin.warn("玩家 " + sender.getName() + " 上架商品失败", e);
-            return Messages.Command.create__failed.tm(sender);
+            Messages.Command.create__failed.tm(sender);
+            return;
         }
         // 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
         NoticeManager.inst().updateCreated();
         // 提示商品上架成功
         MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(item).build();
-        return Messages.Command.create__success.tm(miniMessage, sender,
+        Messages.Command.create__success.tm(miniMessage, sender,
                 Pair.of("%item%", plugin.displayNames().getDisplayName(item, sender)));
+
+        plugin.getScheduler().runTask(() -> {
+            MarketItemCreatedEvent e = new MarketItemCreatedEvent(marketItem, sender);
+            Bukkit.getPluginManager().callEvent(e);
+        });
     }
 
     public static CreateArguments of(CommandArguments args) {

@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -16,6 +17,7 @@ import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.IShopBuyConfirmAdapter;
+import top.mrxiaom.sweet.playermarket.api.event.MarketConfirmBuyEvent;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
@@ -172,6 +174,12 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
             parent.doSearch();
             parent.open();
             NoticeManager.inst().confirmNotice(marketItem);
+
+            double finalTotalMoney = totalMoney;
+            plugin.getScheduler().runTask(() -> {
+                MarketConfirmBuyEvent e = new MarketConfirmBuyEvent(marketItem, player, count, totalCount, finalTotalMoney, currency);
+                Bukkit.getPluginManager().callEvent(e);
+            });
         }
 
         @Override
