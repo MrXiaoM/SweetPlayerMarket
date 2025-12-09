@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 
@@ -177,6 +178,21 @@ public class MarketItem {
         config.set("item", item);
         config.set("params", params);
         return config;
+    }
+
+    public ListPair<String, Object> replacements(DisplayNames displayNames, Player player) {
+        ListPair<String, Object> r = new ListPair<>();
+        r.add("%creator%", playerName);
+        r.add("%item%", displayNames.getDisplayName(item, player));
+        r.add("%shop_type%", displayNames.getMarketTypeName(type));
+        r.add("%shop_type_raw%", type.name().toLowerCase());
+        r.add("%currency%", displayNames.getCurrencyName(currencyName));
+        r.add("%currency_raw%", currencyName);
+        r.add("%price%", String.format("%.2f", price).replace(".00", ""));
+        r.add("%price_raw%", price);
+        r.add("%amount%", amount);
+        r.add("%tag%", tag);
+        return r;
     }
 
     public MarketItemBuilder toBuilder() {

@@ -80,6 +80,35 @@ display-names:
     asc: '&a升序 &7(从&f小&7到&e大&7)'
     desc: '&b降序 &7(从&e大&7到&f小&7)'
 
+# 在事件发生时执行的操作
+# 对于绑定了玩家上下文的事件，支持使用 PAPI 变量
+# 对于与商品相关的事件，支持使用以下变量
+# %creator%       - 卖家名字
+# %item%          - 物品展示名 (MiniMessage)
+# %shop_type%     - 商店类型 (使用上方配置显示名称)
+# %shop_type_raw% - 商店类型 (原始值)
+# %currency%      - 货币类型 (使用上方配置显示名称)
+# %currency_raw%  - 货币类型 (原始值)
+# %price%         - 商品价格 (已格式化)
+# %price_raw%     - 商品价格 (原始值)
+# %amount%        - 商品份数
+# %tag%           - 商品标签
+event-actions:
+  # 上架成功时执行的操作，以卖家作为玩家上下文
+  create-shop: []
+  # 出售商店在有人购买时执行的操作，以购买者为玩家上下文
+  # 额外支持以下变量
+  # %buy_amount%       - 购买的总份数
+  # %total_item_count% - 购买的物品总数量
+  # %total_money%      - 总价格
+  sell-shop-confirm: []
+  # 收购商店在有人出售时执行的操作，以出售者为玩家上下文
+  # 额外支持以下变量
+  # %sell_amount%      - 出售的总份数
+  # %total_item_count% - 出售的物品总数量
+  # %total_money%      - 总价格
+  buy-shop-confirm: []
+
 notice:
   on-join:
     text: '&7[&e&l全球市场&r&7]&a 你有未领取的商品，点击此处前往领取'
