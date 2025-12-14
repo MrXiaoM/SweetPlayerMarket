@@ -133,12 +133,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
 
                 ConfigurationSection params = marketItem.params();
                 // 添加物品到额外参数中，让商家自行领取
-                List<ItemStack> itemList = new ArrayList<>();
-                for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {
-                    if (obj instanceof ItemStack) {
-                        itemList.add((ItemStack) obj);
-                    }
-                }
+                List<Object> itemList = new ArrayList<>(params.getList("buy.received-items", new ArrayList<>()));
                 for (int i = 0; i < count; i++) {
                     itemList.add(marketItem.item());
                 }
