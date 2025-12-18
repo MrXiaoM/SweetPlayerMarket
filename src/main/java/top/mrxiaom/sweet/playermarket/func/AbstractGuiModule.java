@@ -13,4 +13,6 @@ public abstract class AbstractGuiModule extends top.mrxiaom.pluginbase.func.Abst
     public AbstractGuiModule(SweetPlayerMarket plugin, File file, @Nullable String mainIconsKey, @Nullable String otherIconsKey) {
         super(plugin, file, mainIconsKey, otherIconsKey);
     }
+
+    public abstract String warningPrefix();
 }

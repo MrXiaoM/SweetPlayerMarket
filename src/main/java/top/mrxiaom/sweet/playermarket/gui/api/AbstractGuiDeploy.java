@@ -39,7 +39,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     }
 
     @Override
-    protected String warningPrefix() {
+    public String warningPrefix() {
         return "[" + filePath + "]";
     }
 

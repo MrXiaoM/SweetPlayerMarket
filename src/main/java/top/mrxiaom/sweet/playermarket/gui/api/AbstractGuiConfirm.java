@@ -37,7 +37,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
     }
 
     @Override
-    protected String warningPrefix() {
+    public String warningPrefix() {
         return "[" + filePath + "]";
     }
 
