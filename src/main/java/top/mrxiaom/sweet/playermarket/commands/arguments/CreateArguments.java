@@ -68,9 +68,6 @@ public class CreateArguments extends AbstractArguments<Player> {
         }
         // 商品单价
         double price = nextDouble(0.0);
-        if (price < 0.01) {
-            return Messages.Command.create__no_price_valid.tm(sender);
-        }
         // 商品货币类型
         IEconomy currency = nextOptional(currencyName -> {
             if (currencyName == null) {
@@ -105,6 +102,12 @@ public class CreateArguments extends AbstractArguments<Player> {
             double price, IEconomy currency,
             Consumer<MarketItem> callback
     ) {
+        // 商品单价
+        if (price < 0.01) {
+            Messages.Command.create__no_price_valid.tm(sender);
+            if (callback != null) callback.accept(null);
+            return;
+        }
         // 货币使用权限限制
         if (currency instanceof VaultEconomy) {
             if (!sender.hasPermission("sweet.playermarket.create.currency.vault")) {
