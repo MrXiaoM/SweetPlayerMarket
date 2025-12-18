@@ -6,7 +6,6 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -31,12 +30,7 @@ public class GuiCreateSellShop extends AbstractGuiDeploy {
 
     public class Impl extends DeployGui {
         protected Impl(Player player) {
-            super(player);
-        }
-
-        @Override
-        protected void setSampleItem(ItemStack item) {
-            setSampleItem(item, EnumMarketType.SELL);
+            super(player, EnumMarketType.SELL);
         }
 
         @Override
@@ -61,7 +55,7 @@ public class GuiCreateSellShop extends AbstractGuiDeploy {
             CreateArguments.doDeployMarketItem(
                     plugin, player,
                     sampleItem, sampleItem.getAmount(),
-                    amount, EnumMarketType.SELL,
+                    amount, type,
                     price, currency,
                     () -> player.closeInventory()
             );
