@@ -34,36 +34,34 @@ other-icons:
     display: '&f'
   数:
     material: CHEST
-    display: '&a增加数量'
+    display: '&e总份数'
     lore:
       - ''
       - '  &f总份数: %count%  '
-      - '  &f单份物品数量: %item_count%  '
       - ''
       - '&a左键&7 | &f总份数+1　　　 &7(Shift +5)'
-      - '&b右键&7 | &f单份物品数量+1 &7(Shift +5)'
+      - '&b右键&7 | &f总份数-1　　　 &7(Shift -5)'
     left-click-commands:
       - '[count:amount]+1'
     shift-left-click-commands:
       - '[count:amount]+5'
     right-click-commands:
-      - '[count:item]+1'
+      - '[count:amount]-1'
     shift-right-click-commands:
-      - '[count:item]+5'
+      - '[count:amount]-5'
   量:
-    material: CHEST
-    display: '&c减少数量'
+    material: OAK_PLANKS
+    display: '&e单份数量'
     lore:
       - ''
-      - '  &f总份数: %count%  '
       - '  &f单份物品数量: %item_count%  '
       - ''
-      - '&a左键&7 | &f总份数-1　　　 &7(Shift -5)'
+      - '&a左键&7 | &f单份物品数量+1 &7(Shift +5)'
       - '&b右键&7 | &f单份物品数量-1 &7(Shift -5)'
     left-click-commands:
-      - '[count:amount]-1'
+      - '[count:item]+1'
     shift-left-click-commands:
-      - '[count:amount]-5'
+      - '[count:item]+5'
     right-click-commands:
       - '[count:item]-1'
     shift-right-click-commands:
@@ -74,36 +72,32 @@ other-icons:
     lore:
       - ''
       - '  &f单价: &e%price% %currency%  '
-      - '  &7如需输入自定义单价，请使用以下命令代替  '
-      - '  &7/pm create sell ...'
       - ''
-      - '&a左键&7 | &f单价+1  &7(Shift +5)'
-      - '&b右键&7 | &f单价+10 &7(Shift +100)'
+      - '&a左键&7 | &f单价+1 &7(Shift +10)'
+      - '&b右键&7 | &f单价+5 &7(Shift +100)'
     left-click-commands:
       - '[price]+1'
     shift-left-click-commands:
-      - '[price]+5'
-    right-click-commands:
       - '[price]+10'
+    right-click-commands:
+      - '[price]+5'
     shift-right-click-commands:
       - '[price]+100'
   格:
-    material: GLOWSTONE_DUST
+    material: REDSTONE
     display: '&c减少价格'
     lore:
       - ''
       - '  &f单价: &e%price% %currency%  '
-      - '  &7如需输入自定义单价，请使用以下命令代替  '
-      - '  &7/pm create sell ...'
       - ''
-      - '&a左键&7 | &f单价-1  &7(Shift -5)'
-      - '&b右键&7 | &f单价-10 &7(Shift -100)'
+      - '&a左键&7 | &f单价-1 &7(Shift -10)'
+      - '&b右键&7 | &f单价-5 &7(Shift -100)'
     left-click-commands:
       - '[price]-1'
     shift-left-click-commands:
-      - '[price]-5'
-    right-click-commands:
       - '[price]-10'
+    right-click-commands:
+      - '[price]-5'
     shift-right-click-commands:
       - '[price]-100'
   币:
