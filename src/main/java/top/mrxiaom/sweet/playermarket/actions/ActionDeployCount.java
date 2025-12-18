@@ -20,7 +20,7 @@ public class ActionDeployCount implements IAction {
             return parse(s.substring(14), (operation, value) -> (gui) -> gui.modifyAmount(operation, value));
         }
         if (s.startsWith("[count:item]")) {
-            return parse(s.substring(14), (operation, value) -> (gui) -> gui.modifyItemCount(operation, value));
+            return parse(s.substring(12), (operation, value) -> (gui) -> gui.modifyItemCount(operation, value));
         }
         return null;
     };
