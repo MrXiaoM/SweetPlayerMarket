@@ -157,6 +157,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
 
         @Override
         public void modifyAmount(NumberOperation operation, int value) {
+            if (sampleItem == null) return;
             int newAmount = amount;
             switch (operation) {
                 case SET:
@@ -202,6 +203,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
 
         @Override
         public void modifyPrice(NumberOperation operation, double value) {
+            if (sampleItem == null) return;
             double newPrice = price;
             switch (operation) {
                 case SET:
@@ -223,6 +225,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
 
         @Override
         public void setCurrency(IEconomy currency) {
+            if (sampleItem == null) return;
             this.currency = currency;
             updateReplacements();
             refreshGui();
@@ -230,6 +233,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
 
         @Override
         public void switchCurrency(List<IEconomy> currencyList) {
+            if (sampleItem == null) return;
             int size = currencyList.size();
             if (size == 0) return;
             if (size == 1) {
