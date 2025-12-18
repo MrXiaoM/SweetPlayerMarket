@@ -67,7 +67,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if (!(sender instanceof Player)) {
                 return Messages.player__only.tm(sender);
             }
-            return command.into(CreateArguments::of).execute(plugin, (Player) sender);
+            return command.to(CreateArguments::of).execute(plugin, (Player) sender);
         }
         if (command.match("recalc")) {
             if (!sender.hasPermission("sweet.playermarket.recalc")) {

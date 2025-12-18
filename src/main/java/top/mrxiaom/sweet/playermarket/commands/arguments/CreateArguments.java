@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
+import top.mrxiaom.pluginbase.utils.arguments.Arguments;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.AbstractArguments;
@@ -26,27 +26,44 @@ import top.mrxiaom.sweet.playermarket.economy.VaultEconomy;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.func.OutdateTimeManager;
+import top.mrxiaom.sweet.playermarket.gui.GuiCreateSellShop;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class CreateArguments extends AbstractArguments<Player> {
-    protected CreateArguments(CommandArguments args) {
+    private static final Arguments.Builder builder = Arguments.builder()
+            .addBooleanOption("menu", "-m", "--menu");
+    private final boolean isMenu;
+    protected CreateArguments(Arguments args) {
         super(args);
+        this.isMenu = args.getOptionBoolean("menu");
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public boolean execute(SweetPlayerMarket plugin, Player sender) {
-        ItemStack item = sender.getItemInHand();
-        if (item.getType().equals(Material.AIR)) {
-            return Messages.Command.create__no_item.tm(sender);
-        }
         // 商品类型
         EnumMarketType type = nextValueOf(EnumMarketType.class);
         if (type == null) {
             return Messages.Command.create__no_type_found.tm(sender);
+        }
+        // 打开菜单
+        if (isMenu) {
+            switch (type) {
+                case SELL:
+                    GuiCreateSellShop.create(sender).open();
+                    break;
+                case BUY:
+                    // TODO: 上架收购商品菜单
+                    break;
+            }
+            return true;
+        }
+        ItemStack item = sender.getItemInHand();
+        if (item.getType().equals(Material.AIR)) {
+            return Messages.Command.create__no_item.tm(sender);
         }
         // 商品单价
         double price = nextDouble(0.0);
@@ -267,7 +284,7 @@ public class CreateArguments extends AbstractArguments<Player> {
         });
     }
 
-    public static CreateArguments of(CommandArguments args) {
-        return new CreateArguments(args);
+    public static CreateArguments of(String[] args) {
+        return builder.build(CreateArguments::new, args);
     }
 }
