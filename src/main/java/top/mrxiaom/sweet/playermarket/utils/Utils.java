@@ -1,19 +1,49 @@
 package top.mrxiaom.sweet.playermarket.utils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
+import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Utils {
+
+    @NotNull
+    public static LoadedIcon requireIconNotNull(@NotNull AbstractGuiModule module, @Nullable String resourceFile, @Nullable LoadedIcon loaded, @NotNull String key) {
+        if (loaded != null) return loaded;
+        module.warn(module.warningPrefix() + " 无法在配置中找到 " + key + "，正在尝试从默认配置中读取");
+        InputStream resource = resourceFile == null ? null : module.plugin.getResource(resourceFile);
+        if (resource == null) {
+            return LoadedIcon.load(new MemoryConfiguration());
+        }
+        YamlConfiguration config = new YamlConfiguration();
+        try (InputStream stream = resource) {
+            config.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
+        } catch (FileNotFoundException ignored) {
+        } catch (IOException | InvalidConfigurationException ex) {
+            Bukkit.getLogger().log(Level.SEVERE, "Cannot load " + resourceFile, ex);
+        }
+        ConfigurationSection section = config.getConfigurationSection(key);
+        return LoadedIcon.load(section == null ? new MemoryConfiguration() : section);
+    }
 
     @Nullable
     public static <K, V> V get(@Nullable List<Pair<K, V>> list, @NotNull K key) {

@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -16,6 +17,7 @@ import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +26,13 @@ import java.util.List;
 public class GuiMyItems extends AbstractGuiSearch {
     public GuiMyItems(SweetPlayerMarket plugin) {
         super(plugin, "my-items.yml");
+    }
+
+    @Override
+    public void reloadConfig(MemoryConfiguration cfg) {
+        String resourceFile = "gui/" + filePath;
+        super.reloadConfig(cfg);
+        iconClaim = Utils.requireIconNotNull(this, resourceFile, iconClaim, "main-icons.领");
     }
 
     LoadedIcon iconClaim;

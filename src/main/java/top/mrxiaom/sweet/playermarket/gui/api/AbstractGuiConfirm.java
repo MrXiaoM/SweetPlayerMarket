@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.gui.api;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -21,6 +22,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.function.BiConsumer;
 import static top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch.applyMarketItemPlaceholders;
 
 public abstract class AbstractGuiConfirm extends AbstractGuiModule {
-    private final String filePath;
+    protected final String filePath;
     public AbstractGuiConfirm(SweetPlayerMarket plugin, String file) {
         super(plugin, plugin.resolve("./gui/" + file));
         this.filePath = file;
@@ -43,12 +45,23 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
 
     @Override
     public void reloadConfig(MemoryConfiguration cfg) {
+        String resourceFile = "gui/" + filePath;
         File guiFolder = plugin.resolve(cfg.getString("gui-folder", "./gui"));
         this.file = new File(guiFolder, filePath);
         if (!file.exists()) {
-            plugin.saveResource("gui/" + filePath, file);
+            plugin.saveResource(resourceFile, file);
         }
         super.reloadConfig(cfg);
+        iconItem = Utils.requireIconNotNull(this, resourceFile, iconItem, "main-icons.物");
+        iconConfirm = Utils.requireIconNotNull(this, resourceFile, iconConfirm, "main-icons.确");
+        iconBack = Utils.requireIconNotNull(this, resourceFile, iconBack, "main-icons.返");
+    }
+
+    @Override
+    protected void reloadMenuConfig(YamlConfiguration config) {
+        iconItem = null;
+        iconConfirm = null;
+        iconBack = null;
     }
 
     LoadedIcon iconItem, iconConfirm, iconBack;

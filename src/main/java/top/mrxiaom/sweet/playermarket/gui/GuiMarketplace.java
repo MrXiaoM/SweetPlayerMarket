@@ -17,6 +17,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.util.List;
 
@@ -34,8 +35,10 @@ public class GuiMarketplace extends AbstractGuiSearch {
 
     @Override
     public void reloadConfig(MemoryConfiguration cfg) {
+        String resourceFile = "gui/" + filePath;
         canBuySelfItems = cfg.getBoolean("can-buy-self-items");
         super.reloadConfig(cfg);
+        iconItemSelf = Utils.requireIconNotNull(this, resourceFile, iconItemSelf, "main-icons.物_自己");
     }
 
     @Override
