@@ -227,6 +227,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             if (actionLock) return;
             Character clickedId = getClickedId(slot);
             if (clickedId == null) return;
+            checkNeedToLockAction(clickedId);
             plugin.getScheduler().runTask(() -> {
                 if (clickedId == '物') {
                     onClickMarketItem(action, click, slotType, slot, view, event);
@@ -246,6 +247,8 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
                 handleOtherClick(click, clickedId);
             });
         }
+
+        protected abstract void checkNeedToLockAction(char id);
 
         protected void onClickMarketItem(
                 InventoryAction action, ClickType click,

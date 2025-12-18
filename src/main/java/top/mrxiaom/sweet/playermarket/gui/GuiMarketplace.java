@@ -83,6 +83,13 @@ public class GuiMarketplace extends AbstractGuiSearch {
         }
 
         @Override
+        protected void checkNeedToLockAction(char id) {
+            if (id == '物') {
+                actionLock = true;
+            }
+        }
+
+        @Override
         protected void onClickMarketItem(InventoryAction action, ClickType click, InventoryType.SlotType slotType, int slot, MarketItem item, int i, InventoryView view, InventoryClickEvent event) {
             if (item.amount() == 0) {
                 actionLock = false;
