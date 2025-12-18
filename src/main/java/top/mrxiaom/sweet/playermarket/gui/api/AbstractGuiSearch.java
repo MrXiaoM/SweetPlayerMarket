@@ -58,7 +58,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         }
         super.reloadConfig(cfg);
         iconItem = Utils.requireIconNotNull(this, resourceFile, iconItem, "main-icons.物");
-        iconEmpty = Utils.requireIconNotNull(this, resourceFile, iconItem, "main-icons.空");
+        iconEmpty = Utils.requireIconNotNull(this, resourceFile, iconEmpty, "main-icons.空");
     }
 
     @Override
