@@ -71,48 +71,71 @@ public class CreateArguments extends AbstractArguments<Player> {
             return null;
         });
         if (currency == null) return true;
+        // 单份商品的物品数量
+        Integer itemCount = nextInt(item::getAmount, NULL());
+        // 商品总份数
+        Integer marketAmount = nextInt(() -> 1, NULL());
+
+        doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, () -> {});
+        return true;
+    }
+
+    public static void doDeployMarketItem(
+            SweetPlayerMarket plugin, Player sender,
+            ItemStack item, Integer itemCount,
+            Integer marketAmount, EnumMarketType type,
+            double price, IEconomy currency, Runnable successAction
+    ) {
         // 货币使用权限限制
         if (currency instanceof VaultEconomy) {
             if (!sender.hasPermission("sweet.playermarket.create.currency.vault")) {
-                return Messages.Command.create__no_currency_permission.tm(sender);
+                Messages.Command.create__no_currency_permission.tm(sender);
+                return;
             }
         }
         if (currency instanceof PlayerPointsEconomy) {
             if (!sender.hasPermission("sweet.playermarket.create.currency.playerpoints")) {
-                return Messages.Command.create__no_currency_permission.tm(sender);
+                Messages.Command.create__no_currency_permission.tm(sender);
+                return;
             }
         }
         if (currency instanceof MPointsEconomy) {
             String sign = ((MPointsEconomy) currency).sign();
             if (!sender.hasPermission("sweet.playermarket.create.currency.mpoints." + sign)) {
-                return Messages.Command.create__no_currency_permission.tm(sender);
+                Messages.Command.create__no_currency_permission.tm(sender);
+                return;
             }
         }
         // 单份商品的物品数量
-        Integer itemCount = nextInt(item::getAmount, NULL());
         if (itemCount == null) {
-            return Messages.Command.create__no_item_count_valid.tm(sender);
+            Messages.Command.create__no_item_count_valid.tm(sender);
+            return;
         }
         if (itemCount > item.getMaxStackSize()) {
-            return Messages.Command.create__no_item_count_valid_stack.tm(sender);
+            Messages.Command.create__no_item_count_valid_stack.tm(sender);
+            return;
         }
         if (itemCount > item.getAmount()) {
-            return Messages.Command.create__no_item_count_valid_held.tm(sender);
+            Messages.Command.create__no_item_count_valid_held.tm(sender);
+            return;
         }
+
         // 商品总份数
-        Integer marketAmount = nextInt(() -> 1, NULL());
         if (marketAmount == null || marketAmount < 1 || marketAmount > 64) {
-            return Messages.Command.create__no_amount_valid.tm(sender);
+            Messages.Command.create__no_amount_valid.tm(sender);
+            return;
         }
 
         // 检查商品上架条件
         BaseLimitation limitation = LimitationManager.inst().getLimitByItem(item);
         if (!sender.hasPermission("sweet.playermarket.create.bypass.type") && !limitation.canUseMarketType(type)) {
-            return Messages.Command.create__limitation__type_not_allow.tm(sender);
+            Messages.Command.create__limitation__type_not_allow.tm(sender);
+            return;
         }
         if (!sender.hasPermission("sweet.playermarket.create.bypass.currency") && !limitation.canUseCurrency(currency)) {
-            return Messages.Command.create__limitation__currency_not_allow.tm(sender,
+            Messages.Command.create__limitation__currency_not_allow.tm(sender,
                     Pair.of("%currency%", plugin.displayNames().getCurrencyName(currency)));
+            return;
         }
         // 检查玩家是否有足够的手续费
         double totalPrice = price * marketAmount;
@@ -123,9 +146,10 @@ public class CreateArguments extends AbstractArguments<Player> {
             costCurrency = createCost.currency(currency);
             createCostMoney = createCost.money(totalPrice);
             if (createCostMoney > 0 && !costCurrency.has(sender, createCostMoney)) {
-                return Messages.Command.create__limitation__create_cost_failed.tm(sender,
+                Messages.Command.create__limitation__create_cost_failed.tm(sender,
                         Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
                         Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+                return;
             }
         } else {
             costCurrency = null;
@@ -134,25 +158,26 @@ public class CreateArguments extends AbstractArguments<Player> {
 
         OutdateTime outdateTime = OutdateTimeManager.inst().get(sender);
 
+        // 上架操作需要调用数据库，异步执行以免卡服
         plugin.getScheduler().runTaskAsync(() -> doDeployMarketItem(
-                    plugin, sender,
-                    item, itemCount,
-                    marketAmount, type,
-                    createCost, currency,
-                    totalPrice, createCostMoney,
-                    costCurrency, price, outdateTime
+                plugin, sender,
+                item, itemCount,
+                marketAmount, type,
+                createCost, currency,
+                totalPrice, createCostMoney,
+                costCurrency, price, outdateTime,
+                successAction
         ));
-        return true;
     }
 
-    private void doDeployMarketItem(
+    private static void doDeployMarketItem(
             SweetPlayerMarket plugin, Player sender,
             ItemStack item, int itemCount,
             int marketAmount, EnumMarketType type,
             CreateCost createCost, IEconomy currency,
             double totalPrice, double createCostMoney,
             IEconomy costCurrency, double price,
-            OutdateTime outdateTime
+            OutdateTime outdateTime, Runnable successAction
     ) {
         MarketItem marketItem;
         try (Connection conn = plugin.getConnection()) {
@@ -231,6 +256,10 @@ public class CreateArguments extends AbstractArguments<Player> {
         MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(item).build();
         Messages.Command.create__success.tm(miniMessage, sender,
                 Pair.of("%item%", plugin.displayNames().getDisplayName(item, sender)));
+
+        if (successAction != null) {
+            successAction.run();
+        }
 
         plugin.getScheduler().runTask(() -> {
             MarketItemCreatedEvent e = new MarketItemCreatedEvent(marketItem, sender);

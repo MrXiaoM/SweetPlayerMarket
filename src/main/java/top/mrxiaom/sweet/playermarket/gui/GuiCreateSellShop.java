@@ -1,0 +1,70 @@
+package top.mrxiaom.sweet.playermarket.gui;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
+import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.sweet.playermarket.Messages;
+import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.commands.arguments.CreateArguments;
+import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
+import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiDeploy;
+
+@AutoRegister
+public class GuiCreateSellShop extends AbstractGuiDeploy {
+    public GuiCreateSellShop(SweetPlayerMarket plugin) {
+        super(plugin, "create-sell-shop.yml");
+    }
+
+    public static GuiCreateSellShop inst() {
+        return instanceOf(GuiCreateSellShop.class);
+    }
+
+    public static Impl create(Player player) {
+        GuiCreateSellShop self = inst();
+        return self.new Impl(player);
+    }
+
+    public class Impl extends DeployGui {
+        protected Impl(Player player) {
+            super(player);
+        }
+
+        @Override
+        protected void setSampleItem(ItemStack item) {
+            setSampleItem(item, EnumMarketType.SELL);
+        }
+
+        @Override
+        protected void checkNeedToLockAction(char id) {
+            if (id == '确') {
+                actionLock = true;
+            }
+        }
+
+        @Override
+        protected void onClickConfirm(
+                InventoryAction action, ClickType click,
+                InventoryType.SlotType slotType, int slot,
+                InventoryView view, InventoryClickEvent event
+        ) {
+            actionLock = true;
+            if (sampleItem == null) {
+                Messages.Command.create__no_item_selected.tm(player);
+                return;
+            }
+            // 上架流程与命令保持一致
+            CreateArguments.doDeployMarketItem(
+                    plugin, player,
+                    sampleItem, sampleItem.getAmount(),
+                    amount, EnumMarketType.SELL,
+                    price, currency,
+                    () -> player.closeInventory()
+            );
+        }
+    }
+}

@@ -16,6 +16,7 @@ public class Messages {
         public static final Message no_permission = field("&c你没有执行该命令的权限");
 
         public static final Message create__no_item = field("&e请手持你要上架的物品");
+        public static final Message create__no_item_selected = field("&e请选择你要上架的物品");
         public static final Message create__no_type_found = field("&e请输入正确的商品类型");
         public static final Message create__no_price_valid = field("&e请输入正确的价格");
         public static final Message create__no_currency_default = field("&e找不到默认货币类型，请联系服务器管理员");
