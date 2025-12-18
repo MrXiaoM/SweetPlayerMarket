@@ -16,6 +16,7 @@ import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
@@ -198,6 +199,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
         @Override
         public void refreshGui() {
             updateInventory(getInventory());
+            Util.submitInvUpdate(player);
         }
 
         @Override

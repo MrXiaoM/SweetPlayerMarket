@@ -141,7 +141,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         }
 
         protected void setSampleItem(ItemStack item) {
-            sampleItem = item.clone();
+            sampleItem = item == null ? null : item.clone();
         }
 
         @Override
@@ -234,6 +234,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         @Override
         public void refreshGui() {
             updateInventory(getInventory());
+            Util.submitInvUpdate(player);
         }
 
         @Override
@@ -310,6 +311,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             if (event.getClickedInventory() instanceof PlayerInventory) {
                 setSampleItem(currentItem);
                 updateReplacements();
+                refreshGui();
                 return;
             }
             Character clickedId = getClickedId(slot);
