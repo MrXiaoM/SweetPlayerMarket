@@ -27,6 +27,7 @@ import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -57,10 +58,14 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     }
 
     LoadedIcon iconEmptyItem, iconConfirm;
+    List<String> limitMessagesHeader;
+    String limitMessagesLine;
     @Override
     protected void loadMainIcon(ConfigurationSection section, String id, LoadedIcon icon) {
         if (id.equals("物")) {
             iconEmptyItem = icon;
+            limitMessagesHeader = section.getStringList(id + ".limit-messages.header");
+            limitMessagesLine = section.getString(id + ".limit-messages.line", "  %message%  ");
         }
         if (id.equals("确")) {
             iconConfirm = icon;
@@ -83,7 +88,23 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         if (id == '确') {
             ListPair<String, Object> r = gui.commonReplacements;
             IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
-            IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, r);
+            IModifier<List<String>> loreModifier = oldLore -> {
+                List<String> lore = new ArrayList<>();
+                for (String s : oldLore) {
+                    if (s.equals("limit messages")) {
+                        List<String> messages = gui.getLimitMessages();
+                        if (!messages.isEmpty()) {
+                            lore.addAll(limitMessagesHeader);
+                            for (String message : messages) {
+                                lore.add(limitMessagesLine.replace("%message%", message));
+                            }
+                        }
+                        continue;
+                    }
+                    lore.add(s);
+                }
+                return Pair.replace(lore, r);
+            };
             return iconConfirm.generateIcon(player, displayModifier, loreModifier);
         }
         return null;
@@ -99,7 +120,8 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     }
 
     public abstract class DeployGui extends Gui implements IGuiRefreshable, IGuiDeploy {
-        protected final ListPair<String, Object> commonReplacements = new ListPair<>(), baseReplacements = new ListPair<>();
+        protected final ListPair<String, Object> commonReplacements = new ListPair<>();
+        protected final EnumMarketType type;
         protected @Nullable ItemStack sampleItem = null;
         protected int amount = 1;
         protected double price = 0;
@@ -107,37 +129,19 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         protected IEconomy currency = getDefaultCurrency();
         protected int currencyIndex = 0;
         protected boolean actionLock = false;
+        protected List<String> limitMessages;
 
-        protected DeployGui(Player player) {
+        protected DeployGui(Player player, EnumMarketType type) {
             super(player, guiTitle, guiInventory);
-
-            updateBaseReplacements();
+            this.type = type;
         }
 
-        protected void updateBaseReplacements() {
-            ListPair<String, Object> r = baseReplacements;
-            // TODO: 添加最基本的固定变量
+        public List<String> getLimitMessages() {
+            return limitMessages;
         }
 
-        protected abstract void setSampleItem(ItemStack item);
-
-        protected void setSampleItem(ItemStack item, EnumMarketType type) {
-            sampleItem = null;
-            createCost = null;
-            if (item != null) {
-                BaseLimitation limitation = LimitationManager.inst().getLimitByItem(item);
-                if (!player.hasPermission("sweet.playermarket.create.bypass.type") && !limitation.canUseMarketType(type)) {
-                    Messages.Command.create__limitation__type_not_allow.tm(player);
-                    return;
-                }
-                if (!player.hasPermission("sweet.playermarket.create.bypass.currency") && !limitation.canUseCurrency(currency)) {
-                    Messages.Command.create__limitation__currency_not_allow.tm(player,
-                            Pair.of("%currency%", plugin.displayNames().getCurrencyName(currency)));
-                    return;
-                }
-                sampleItem = item.clone();
-                createCost = limitation.getCreateCost(type);
-            }
+        protected void setSampleItem(ItemStack item) {
+            sampleItem = item.clone();
         }
 
         @Override
@@ -242,7 +246,6 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         protected void updateReplacements() {
             ListPair<String, Object> r = commonReplacements;
             r.clear();
-            r.addAll(baseReplacements);
             int itemCount = sampleItem == null ? 1 : sampleItem.getAmount();
             double totalMoney = amount * price;
             r.add("%currency%", plugin.displayNames().getCurrencyName(currency));
@@ -251,6 +254,23 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             r.add("%count%", amount);
             r.add("%price%", String.format("%.2f", price).replace(".00", ""));
             r.add("%total_money%", String.format("%.2f", totalMoney).replace(".00", ""));
+
+            List<String> limitMessages = new ArrayList<>();
+            if (sampleItem != null) {
+                BaseLimitation limitation = LimitationManager.inst().getLimitByItem(sampleItem);
+                if (!player.hasPermission("sweet.playermarket.create.bypass.type") && !limitation.canUseMarketType(type)) {
+                    limitMessages.add(Messages.Command.create__limitation__type_not_allow.str());
+                }
+                if (!player.hasPermission("sweet.playermarket.create.bypass.currency") && !limitation.canUseCurrency(currency)) {
+                    limitMessages.add(Messages.Command.create__limitation__currency_not_allow.str(
+                            Pair.of("%currency%", plugin.displayNames().getCurrencyName(currency))));
+                }
+                createCost = !limitMessages.isEmpty() ? null : limitation.getCreateCost(type);
+            } else {
+                createCost = null;
+            }
+            this.limitMessages = limitMessages;
+
             if (createCost == null) {
                 r.add("%create_cost_money%", "");
                 r.add("%create_cost_currency%", "");
@@ -276,7 +296,6 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
                     r.add("%create_cost_currency%", "");
                 }
             }
-            // TODO: 可能需要添加更多通用变量，暂定这么多
         }
 
         @Override

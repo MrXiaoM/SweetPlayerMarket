@@ -22,8 +22,12 @@ main-icons:
       - '  &f卖出: &e%count% 件&7 (共 %total_count% 个物品)  '
       - '  &f获得: &e%total_money% %currency%  '
       - '  &f手续费: &e%create_cost_money% %create_cost_currency%  '
+      - limit messages
       - ''
       - '&a左键 &7| &f确认上架'
+    limit-messages:
+      header: ['']
+      line: '  %message%  '
 other-icons:
   框:
     material: WHITE_STAINED_GLASS_PANE
