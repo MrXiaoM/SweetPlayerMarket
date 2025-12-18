@@ -116,6 +116,10 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                             list.add(type.name().toLowerCase());
                         }
                     }
+                } else {
+                    for (EnumMarketType type : EnumMarketType.values()) {
+                        list.add(type.name().toLowerCase());
+                    }
                 }
                 return startsWith(list, args[1]);
             }
