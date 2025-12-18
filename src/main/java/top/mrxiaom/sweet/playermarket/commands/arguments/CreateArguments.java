@@ -26,6 +26,7 @@ import top.mrxiaom.sweet.playermarket.economy.VaultEconomy;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.func.OutdateTimeManager;
+import top.mrxiaom.sweet.playermarket.gui.GuiCreateBuyShop;
 import top.mrxiaom.sweet.playermarket.gui.GuiCreateSellShop;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
@@ -57,7 +58,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                     GuiCreateSellShop.create(sender).open();
                     break;
                 case BUY:
-                    // TODO: 上架收购商品菜单
+                    GuiCreateBuyShop.create(sender).open();
                     break;
             }
             return true;

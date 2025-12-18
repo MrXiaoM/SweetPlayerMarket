@@ -45,20 +45,33 @@ public class Messages {
         public static final Message help__player = field(
                 "",
                 "&d&lSweetPlayerMarket 全球市场&r",
-                "&f/pm open &7-- &e打开全球市场首页",
-                "&f/pm me &7-- &e查看自己的已上架商品",
-                "&f/pm create <商店类型> <价格> <货币> [单份商品的物品数量] [总份数] &7-- &e上架商品到全球市场",
+                "&f/pm open",
+                "  &7-- &e打开全球市场首页",
+                "&f/pm me",
+                "  &7-- &e查看自己的已上架商品",
+                "&f/pm create <商店类型> <价格> <货币> [单份商品的物品数量] [总份数]",
+                "  &7-- &e上架商品到全球市场",
+                "&f/pm create <商店类型> --menu",
+                "  &7-- &e打开上架菜单",
                 ""
         );
         public static final Message help__admin = field(
                 "",
                 "&d&lSweetPlayerMarket 全球市场&r",
-                "&f/pm open [玩家] &7-- &e为自己或某人打开全球市场首页",
-                "&f/pm me [玩家] &7-- &e为自己或某人查看已上架商品",
-                "&f/pm create <商店类型> <价格> <货币> [单份商品的物品数量] [总份数] &7-- &e上架商品到全球市场",
-                "&f/pm recalc &7-- &e重新计算所有商品的标签",
-                "&f/pm reload database &7-- &e重新链接数据库",
-                "&f/pm reload &7-- &e重载插件配置文件",
+                "&f/pm open [玩家]",
+                "  &7-- &e为自己或某人打开全球市场首页",
+                "&f/pm me [玩家]",
+                "  &7-- &e为自己或某人查看已上架商品",
+                "&f/pm create <商店类型> <价格> <货币> [单份商品的物品数量] [总份数]",
+                "  &7-- &e上架商品到全球市场",
+                "&f/pm create <商店类型> --menu",
+                "  &7-- &e打开上架菜单",
+                "&f/pm recalc",
+                "  &7-- &e重新计算所有商品的标签",
+                "&f/pm reload database",
+                "  &7-- &e重新链接数据库",
+                "&f/pm reload",
+                "  &7-- &e重载插件配置文件",
                 ""
         );
     }
