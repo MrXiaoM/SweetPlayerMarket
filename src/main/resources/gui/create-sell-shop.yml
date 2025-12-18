@@ -18,6 +18,7 @@ main-icons:
     display: '&e&l确认'
     lore:
       - ''
+      - '  &f物品: &e%item%  '
       - '  &f单价: &e%price% %currency%  '
       - '  &f卖出: &e%count% 件&7 (共 %total_count% 个物品)  '
       - '  &f获得: &e%total_money% %currency%  '

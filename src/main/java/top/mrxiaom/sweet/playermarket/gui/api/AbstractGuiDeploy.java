@@ -15,9 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
-import top.mrxiaom.pluginbase.utils.ListPair;
-import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.*;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
@@ -272,6 +270,11 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             r.add("%count%", amount);
             r.add("%price%", String.format("%.2f", price).replace(".00", ""));
             r.add("%total_money%", String.format("%.2f", totalMoney).replace(".00", ""));
+            if (sampleItem != null) {
+                r.add("%item%", plugin.displayNames().getDisplayName(sampleItem, player));
+            } else {
+                r.add("%item%", Messages.Gui.common__empty.str());
+            }
 
             List<String> limitMessages = new ArrayList<>();
             if (sampleItem != null) {
