@@ -11,6 +11,7 @@ import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.commands.arguments.CreateArguments;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
+import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiDeploy;
 
 @AutoRegister
@@ -49,6 +50,7 @@ public class GuiCreateSellShop extends AbstractGuiDeploy {
             actionLock = true;
             if (sampleItem == null) {
                 Messages.Command.create__no_item_selected.tm(player);
+                actionLock = false;
                 return;
             }
             // 上架流程与命令保持一致
@@ -57,8 +59,16 @@ public class GuiCreateSellShop extends AbstractGuiDeploy {
                     sampleItem, sampleItem.getAmount(),
                     amount, type,
                     price, currency,
-                    () -> player.closeInventory()
+                    this::callback
             );
+        }
+
+        private void callback(MarketItem marketItem) {
+            if (marketItem != null) {
+                player.closeInventory();
+            } else {
+                actionLock = false;
+            }
         }
     }
 }

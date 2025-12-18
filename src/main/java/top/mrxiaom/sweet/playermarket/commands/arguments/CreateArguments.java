@@ -31,6 +31,7 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 public class CreateArguments extends AbstractArguments<Player> {
     private static final Arguments.Builder builder = Arguments.builder()
@@ -93,7 +94,7 @@ public class CreateArguments extends AbstractArguments<Player> {
         // 商品总份数
         Integer marketAmount = nextInt(() -> 1, NULL());
 
-        doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, () -> {});
+        doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, (marketItem) -> {});
         return true;
     }
 
@@ -101,18 +102,21 @@ public class CreateArguments extends AbstractArguments<Player> {
             SweetPlayerMarket plugin, Player sender,
             ItemStack item, Integer itemCount,
             Integer marketAmount, EnumMarketType type,
-            double price, IEconomy currency, Runnable successAction
+            double price, IEconomy currency,
+            Consumer<MarketItem> callback
     ) {
         // 货币使用权限限制
         if (currency instanceof VaultEconomy) {
             if (!sender.hasPermission("sweet.playermarket.create.currency.vault")) {
                 Messages.Command.create__no_currency_permission.tm(sender);
+                if (callback != null) callback.accept(null);
                 return;
             }
         }
         if (currency instanceof PlayerPointsEconomy) {
             if (!sender.hasPermission("sweet.playermarket.create.currency.playerpoints")) {
                 Messages.Command.create__no_currency_permission.tm(sender);
+                if (callback != null) callback.accept(null);
                 return;
             }
         }
@@ -120,26 +124,31 @@ public class CreateArguments extends AbstractArguments<Player> {
             String sign = ((MPointsEconomy) currency).sign();
             if (!sender.hasPermission("sweet.playermarket.create.currency.mpoints." + sign)) {
                 Messages.Command.create__no_currency_permission.tm(sender);
+                if (callback != null) callback.accept(null);
                 return;
             }
         }
         // 单份商品的物品数量
         if (itemCount == null) {
             Messages.Command.create__no_item_count_valid.tm(sender);
+            if (callback != null) callback.accept(null);
             return;
         }
         if (itemCount > item.getMaxStackSize()) {
             Messages.Command.create__no_item_count_valid_stack.tm(sender);
+            if (callback != null) callback.accept(null);
             return;
         }
         if (itemCount > item.getAmount()) {
             Messages.Command.create__no_item_count_valid_held.tm(sender);
+            if (callback != null) callback.accept(null);
             return;
         }
 
         // 商品总份数
         if (marketAmount == null || marketAmount < 1 || marketAmount > 64) {
             Messages.Command.create__no_amount_valid.tm(sender);
+            if (callback != null) callback.accept(null);
             return;
         }
 
@@ -147,11 +156,13 @@ public class CreateArguments extends AbstractArguments<Player> {
         BaseLimitation limitation = LimitationManager.inst().getLimitByItem(item);
         if (!sender.hasPermission("sweet.playermarket.create.bypass.type") && !limitation.canUseMarketType(type)) {
             Messages.Command.create__limitation__type_not_allow.tm(sender);
+            if (callback != null) callback.accept(null);
             return;
         }
         if (!sender.hasPermission("sweet.playermarket.create.bypass.currency") && !limitation.canUseCurrency(currency)) {
             Messages.Command.create__limitation__currency_not_allow.tm(sender,
                     Pair.of("%currency%", plugin.displayNames().getCurrencyName(currency)));
+            if (callback != null) callback.accept(null);
             return;
         }
         // 检查玩家是否有足够的手续费
@@ -166,6 +177,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                 Messages.Command.create__limitation__create_cost_failed.tm(sender,
                         Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
                         Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+                if (callback != null) callback.accept(null);
                 return;
             }
         } else {
@@ -183,7 +195,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                 createCost, currency,
                 totalPrice, createCostMoney,
                 costCurrency, price, outdateTime,
-                successAction
+                callback
         ));
     }
 
@@ -194,7 +206,7 @@ public class CreateArguments extends AbstractArguments<Player> {
             CreateCost createCost, IEconomy currency,
             double totalPrice, double createCostMoney,
             IEconomy costCurrency, double price,
-            OutdateTime outdateTime, Runnable successAction
+            OutdateTime outdateTime, Consumer<MarketItem> callback
     ) {
         MarketItem marketItem;
         try (Connection conn = plugin.getConnection()) {
@@ -202,6 +214,7 @@ public class CreateArguments extends AbstractArguments<Player> {
             String shopId = db.createNewId(conn);
             if (shopId == null) {
                 Messages.Command.create__failed_db.tm(sender);
+                if (callback != null) callback.accept(null);
                 return;
             }
 
@@ -215,6 +228,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                     int invAmount = Utils.getItemAmount(sender, shopItem);
                     if (invAmount < totalAmount) {
                         Messages.Command.create__sell__no_enough_items.tm(sender);
+                        if (callback != null) callback.accept(null);
                         return;
                     }
                     Utils.takeItem(sender, shopItem, totalAmount);
@@ -227,16 +241,19 @@ public class CreateArguments extends AbstractArguments<Player> {
                             : (totalPrice);
                     if (!currency.has(sender, totalMoney)) {
                         Messages.Command.create__buy__no_enough_currency.tm(sender);
+                        if (callback != null) callback.accept(null);
                         return;
                     }
                     if (!currency.takeMoney(sender, totalPrice)) {
                         Messages.Command.create__buy__no_enough_currency.tm(sender);
+                        if (callback != null) callback.accept(null);
                         return;
                     }
                     break;
                 }
                 default: {
                     Messages.Command.create__no_type_found.tm(sender);
+                    if (callback != null) callback.accept(null);
                     return;
                 }
             }
@@ -248,6 +265,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                     Messages.Command.create__limitation__create_cost_failed.tm(sender,
                             Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
                             Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+                    if (callback != null) callback.accept(null);
                     return;
                 }
             }
@@ -265,6 +283,7 @@ public class CreateArguments extends AbstractArguments<Player> {
         } catch (SQLException e) {
             plugin.warn("玩家 " + sender.getName() + " 上架商品失败", e);
             Messages.Command.create__failed.tm(sender);
+            if (callback != null) callback.accept(null);
             return;
         }
         // 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
@@ -274,9 +293,7 @@ public class CreateArguments extends AbstractArguments<Player> {
         Messages.Command.create__success.tm(miniMessage, sender,
                 Pair.of("%item%", plugin.displayNames().getDisplayName(item, sender)));
 
-        if (successAction != null) {
-            successAction.run();
-        }
+        if (callback != null) callback.accept(marketItem);
 
         plugin.getScheduler().runTask(() -> {
             MarketItemCreatedEvent e = new MarketItemCreatedEvent(marketItem, sender);

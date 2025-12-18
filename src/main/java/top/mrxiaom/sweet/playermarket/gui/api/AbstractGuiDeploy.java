@@ -213,6 +213,8 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         @Override
         public void setCurrency(IEconomy currency) {
             this.currency = currency;
+            updateReplacements();
+            refreshGui();
         }
 
         @Override
@@ -291,7 +293,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
                 }
                 if (createCostMoney != null) {
                     r.add("%create_cost_money%", String.format("%.2f", createCostMoney).replace(".00", ""));
-                    r.add("%create_cost_currency%", plugin.displayNames().getCurrencyName(createCostCurrency));
+                    r.add("%create_cost_currency%", createCostCurrency == null ? "" : plugin.displayNames().getCurrencyName(createCostCurrency));
                 } else {
                     r.add("%create_cost_money%", "");
                     r.add("%create_cost_currency%", "");

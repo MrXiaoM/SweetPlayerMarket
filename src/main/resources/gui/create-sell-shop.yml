@@ -40,7 +40,7 @@ other-icons:
       - '  &f总份数: %count%  '
       - '  &f单份物品数量: %item_count%  '
       - ''
-      - '&a左键&7 | &f总份数+1 &7(Shift +5)'
+      - '&a左键&7 | &f总份数+1　　　 &7(Shift +5)'
       - '&b右键&7 | &f单份物品数量+1 &7(Shift +5)'
     left-click-commands:
       - '[count:amount]+1'
@@ -58,7 +58,7 @@ other-icons:
       - '  &f总份数: %count%  '
       - '  &f单份物品数量: %item_count%  '
       - ''
-      - '&a左键&7 | &f总份数-1 &7(Shift -5)'
+      - '&a左键&7 | &f总份数-1　　　 &7(Shift -5)'
       - '&b右键&7 | &f单份物品数量-1 &7(Shift -5)'
     left-click-commands:
       - '[count:amount]-1'
@@ -73,12 +73,12 @@ other-icons:
     display: '&a增加价格'
     lore:
       - ''
-      - '  &f单价: %price% %currency%  '
+      - '  &f单价: &e%price% %currency%  '
       - '  &7如需输入自定义单价，请使用以下命令代替  '
       - '  &7/pm create sell ...'
       - ''
-      - '&a左键&7 | &f单价+1 (Shift +5)'
-      - '&b右键&7 | &f单价+10 (Shift +100)'
+      - '&a左键&7 | &f单价+1  &7(Shift +5)'
+      - '&b右键&7 | &f单价+10 &7(Shift +100)'
     left-click-commands:
       - '[price]+1'
     shift-left-click-commands:
@@ -92,12 +92,12 @@ other-icons:
     display: '&c减少价格'
     lore:
       - ''
-      - '  &f单价: %price% %currency%  '
+      - '  &f单价: &e%price% %currency%  '
       - '  &7如需输入自定义单价，请使用以下命令代替  '
       - '  &7/pm create sell ...'
       - ''
-      - '&a左键&7 | &f单价-1 (Shift -5)'
-      - '&b右键&7 | &f单价-10 (Shift -100)'
+      - '&a左键&7 | &f单价-1  &7(Shift -5)'
+      - '&b右键&7 | &f单价-10 &7(Shift -100)'
     left-click-commands:
       - '[price]-1'
     shift-left-click-commands:
@@ -111,7 +111,7 @@ other-icons:
     display: '&e设置货币'
     lore:
       - ''
-      - '  &f货币: &e%price% %currency%  '
+      - '  &f货币: &e%currency%  '
       - ''
       - '&a左键 &7| &f切换货币类型'
       - '&eShift+左键 &7| &f指定使用金币出售'
