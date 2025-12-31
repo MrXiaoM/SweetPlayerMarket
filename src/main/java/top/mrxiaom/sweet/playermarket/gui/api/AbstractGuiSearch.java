@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.gui.api;
 
+import com.ezylang.evalex.Expression;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,10 +17,8 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
-import top.mrxiaom.pluginbase.utils.AdventureItemStack;
-import top.mrxiaom.pluginbase.utils.ListPair;
-import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.*;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumSort;
@@ -38,6 +37,7 @@ import java.util.function.BiConsumer;
 public abstract class AbstractGuiSearch extends AbstractGuiModule {
     protected final String filePath;
     protected LoadedIcon iconItem, iconEmpty;
+
     public AbstractGuiSearch(SweetPlayerMarket plugin, String file) {
         super(plugin, plugin.resolve("./gui/" + file));
         this.filePath = file;
@@ -111,6 +111,13 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                             lore.addAll(itemLore);
                             continue;
                         }
+                        String result = gui.replaceOrNull(s, r);
+                        if (result != null) {
+                            if (!result.isEmpty()) {
+                                lore.add(result);
+                            }
+                            continue;
+                        }
                         lore.add(Pair.replace(s, r));
                     }
                     return lore;
@@ -141,6 +148,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         protected boolean actionLock = false;
         protected final ListPair<String, Object> commonReplacements = new ListPair<>();
         protected int columnIndex = -1;
+
         protected SearchGui(Player player, Searching searching) {
             super(player, guiTitle, guiInventory);
             int itemsSize = 0;
@@ -154,6 +162,37 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         protected void postInit() {
             doSearch();
         }
+
+        public String replaceOrNull(String input, ListPair<String, Object> r) {
+            if (input.startsWith("$")) {
+                String substring = input.substring(1);
+                int index = substring.indexOf('$');
+                if (index < 0) return null;
+                String front = substring.substring(0, index);
+                String newInput = substring.substring(index + 1);
+                return doReplace(front, newInput, r);
+            }
+            return null;
+        }
+
+        private @Nullable String doReplace(String front, String input, ListPair<String, Object> r) {
+            if (front.startsWith("if:")) {
+                String conditionStr = PAPI.setPlaceholders(player, Pair.replace(front.substring(3), r));
+                Boolean condition = null;
+                try {
+                    condition = new Expression(conditionStr)
+                            .evaluate()
+                            .getBooleanValue();
+                } catch (Exception ignored) {
+                }
+                if (condition == Boolean.TRUE) {
+                    return Pair.replace(input.trim(), r);
+                }
+                return "";
+            }
+            return null;
+        }
+
 
         @Nullable
         public MarketItem getItem(int index) {

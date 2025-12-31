@@ -19,7 +19,7 @@ main-icons:
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
       - ''
-      - '&b右键 &7| &f下架商品'
+      - '$if:(%amount% > 0)$ &b右键 &7| &f下架商品'
     right-click-commands:
       - '[take-down]'
   领:
@@ -35,7 +35,7 @@ main-icons:
       - '  &f过期时间: &e%outdate_time%  '
       - ''
       - '&a左键 &7| &f领取商品 &7(%amount_can_take% 份)'
-      - '&b右键 &7| &f下架商品'
+      - '$if:(%amount% > 0)$ &b右键 &7| &f下架商品'
     left-click-commands:
       - '[claim]'
     right-click-commands:

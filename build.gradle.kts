@@ -7,7 +7,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.1")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.2")
 }
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
@@ -44,6 +44,7 @@ dependencies {
     base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
     base.library("com.zaxxer:HikariCP:4.0.3")
 
+    implementation("top.mrxiaom:EvalEx-j8:3.4.0")
     implementation("de.tr7zw:item-nbt-api:2.15.5")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
@@ -73,6 +74,7 @@ tasks {
     shadowJar {
         mapOf(
             "top.mrxiaom.pluginbase" to "base",
+            "com.ezylang.evalex" to "evalex",
             "de.tr7zw.changeme.nbtapi" to "nbtapi",
             "com.tcoded.folialib" to "folialib",
         ).forEach { (original, target) ->

@@ -33,7 +33,7 @@ main-icons:
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
       - ''
-      - '&a左键 &7| &f下架商品'
+      - '$if:(%amount% > 0)$ &a左键 &7| &f下架商品'
     left-click-commands:
       - '[take-down]'
   空:
