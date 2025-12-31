@@ -9,6 +9,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.utils.ListPair;
@@ -99,7 +100,8 @@ public class GuiMarketplace extends AbstractGuiSearch {
                 Messages.Gui.common__item_not_found.tm(player);
                 return;
             }
-            if (click.isLeftClick()) {
+            List<IAction> actions = getIconItemsClickActions(click);
+            if (!actions.isEmpty()) {
                 MarketItem marketItem = refreshItem(item);
                 if (marketItem == null || marketItem.amount() == 0) {
                     items.set(i, item.toBuilder().amount(0).build());
@@ -115,7 +117,9 @@ public class GuiMarketplace extends AbstractGuiSearch {
                     actionLock = false;
                     return;
                 }
-                iconItem.click(player, click, r);
+                for (IAction a : actions) {
+                    a.run(player, r);
+                }
                 actionLock = false;
                 return;
             }

@@ -115,6 +115,7 @@ public class Messages {
         public static final Message me__take_down__item_not_found = field("&e该商品已下架，无需再进行下架操作");
         public static final Message me__take_down__submit_failed = field("&e数据库更改提交失败，请联系服务器管理员");
         public static final Message me__take_down__success = field("&a商品已下架，剩余商品或货币已归还到你的账户");
+        public static final Message me__take_down__success_admin = field("&a商品已下架，剩余商品或货币不会归还给你或店主");
     }
 
 }

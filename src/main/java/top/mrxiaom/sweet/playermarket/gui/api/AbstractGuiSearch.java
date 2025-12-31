@@ -14,6 +14,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
@@ -59,6 +60,23 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         super.reloadConfig(cfg);
         iconItem = Utils.requireIconNotNull(this, resourceFile, iconItem, "main-icons.物");
         iconEmpty = Utils.requireIconNotNull(this, resourceFile, iconEmpty, "main-icons.空");
+    }
+
+    @NotNull
+    public List<IAction> getIconItemsClickActions(@NotNull ClickType type) {
+        switch (type) {
+            case LEFT:
+                return iconItem.leftClickCommands;
+            case RIGHT:
+                return iconItem.rightClickCommands;
+            case SHIFT_LEFT:
+                return iconItem.shiftLeftClickCommands;
+            case SHIFT_RIGHT:
+                return iconItem.shiftRightClickCommands;
+            case DROP:
+                return iconItem.dropCommands;
+        }
+        return new ArrayList<>();
     }
 
     @Override
@@ -291,6 +309,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             r.add("%search_out_of_stock%", bool(searching.onlyOutOfStock()));
             Integer notice = searching.notice();
             r.add("%search_notice%", bool(notice != null && notice == 1));
+            r.add("%is_market_admin%", player.hasPermission("sweet.playermarket.admin"));
         }
 
         private String bool(boolean b) {
