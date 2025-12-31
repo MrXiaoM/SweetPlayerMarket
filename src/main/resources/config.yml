@@ -116,12 +116,12 @@ notice:
       - '&e点击打开个人商品菜单'
     click: '/playermarket me --notice'
   buy:
-    text: '&7[&e&l全球市场]&a 有人向你的商店卖出了&e %item%&r&a，点击此处前往领取物品'
+    text: '&7[&e&l全球市场&r&7]&a 有人向你的商店卖出了&e %item%&r&a，点击此处前往领取物品'
     hover:
       - '&e点击打开个人商品菜单'
     click: '/playermarket me --notice'
   sell:
-    text: '&7[&e&l全球市场]&a 有人在你的商店购买了&e %item%&r&a，点击此处前往领取%currency%'
+    text: '&7[&e&l全球市场&r&7]&a 有人在你的商店购买了&e %item%&r&a，点击此处前往领取%currency%'
     hover:
       - '&e点击打开个人商品菜单'
     click: '/playermarket me --notice'
