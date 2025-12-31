@@ -162,12 +162,13 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
      * @return 搜索结果
      */
     public ListX<MarketItem> getItems(int page, int size, Searching searching) {
+        String sql = null;
         try (Connection conn = plugin.getConnection()) {
             String conditions = searching.generateConditions();
             String order = searching.generateOrder();
             ListX<MarketItem> list;
             int startIndex = (page - 1) * size;
-            String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
+            sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
                     + "WHERE " + conditions + order
                     + "LIMIT " + startIndex + ", " + size + ";";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -187,7 +188,11 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             }
             return list;
         } catch (SQLException e) {
-            warn(e);
+            if (e instanceof SQLSyntaxErrorException) {
+                warn("在运行数据库语句 { " + sql + " } 时出现异常", e);
+            } else {
+                warn(e);
+            }
             return new ListX<>();
         }
     }
