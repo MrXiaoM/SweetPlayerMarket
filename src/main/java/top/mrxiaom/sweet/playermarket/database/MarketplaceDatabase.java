@@ -65,8 +65,18 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             return this;
         }
 
+        public SearchHolder noticeFlag(@Nullable NoticeFlag flag, boolean noticeReversed) {
+            searching.noticeFlag(flag, noticeReversed);
+            return this;
+        }
+
         public SearchHolder notice(@Nullable Integer notice) {
             searching.notice(notice);
+            return this;
+        }
+
+        public SearchHolder notice(@Nullable Integer notice, boolean noticeReversed) {
+            searching.notice(notice, noticeReversed);
             return this;
         }
 

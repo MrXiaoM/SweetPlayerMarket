@@ -11,6 +11,12 @@ public class Messages {
     public static final Message player__not_online = field("&e玩家不在线 (或不存在)");
     public static final Message player__only = field("只有玩家可以执行该命令");
 
+    @Language(prefix="messages.notice")
+    public static class Notice {
+        public static final Message takedown_by_admin__content = field("&7[&e&l全球市场]&e 你的%type%&e商品&b %item% &r已被&b %admin_name% &e下架");
+        public static final Message takedown_by_admin__unknown_admin = field("管理员");
+    }
+
     @Language(prefix="messages.command.")
     public static class Command {
         public static final Message no_permission = field("&c你没有执行该命令的权限");

@@ -16,13 +16,19 @@ import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.*;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
+import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
+import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,14 +100,58 @@ public class NoticeManager extends AbstractModule implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
         if (noticeOnJoin.isEmpty()) return;
-        List<MarketItem> items = plugin.getMarketplace()
-                .queryItems(1, 1)
-                .player(player)
-                .notice(1)
-                .search();
-        if (!items.isEmpty()) {
-            noticeOnJoin.send(player, null);
-        }
+        plugin.getScheduler().runTaskAsync(() -> {
+            MarketplaceDatabase marketplace = plugin.getMarketplace();
+            List<MarketItem> items = marketplace
+                    .queryItems(1, 1)
+                    .player(player)
+                    .noticeFlag(NoticeFlag.NOTHING, true)
+                    .search();
+            int noticeClaim = 0;
+            List<MarketItem> noticeTakedown = new ArrayList<>();
+            for (MarketItem item : items) {
+                if (item.noticeFlag() == NoticeFlag.CAN_CLAIM_ITEMS.getIntValue()) {
+                    noticeClaim++;
+                }
+                // 如果物品已下架，修改提醒标记为空
+                if (item.noticeFlag() == NoticeFlag.TAKE_DOWN_BY_ADMIN.getIntValue()) {
+                    noticeTakedown.add(item.toBuilder()
+                            .noticeFlag(NoticeFlag.NOTHING)
+                            .build());
+                }
+            }
+            // 提醒玩家有物品可领取
+            if (noticeClaim > 0) {
+                noticeOnJoin.send(player, null);
+            }
+            if (!noticeTakedown.isEmpty()) {
+                // 发送商品被管理员下架提醒
+                for (MarketItem item : noticeTakedown) {
+                    takeDownByAdminNotice(item, player);
+                }
+                // 提交已下架物品的提醒标记修改到数据库
+                try (Connection conn = plugin.getConnection()) {
+                    for (MarketItem item : noticeTakedown) {
+                        marketplace.modifyItem(conn, item);
+                    }
+                } catch (SQLException ex) {
+                    warn(ex);
+                }
+            }
+        });
+    }
+
+    /**
+     * 当玩家的商品被管理员下架时，立即或下次上线时提醒
+     * @param item 商品
+     * @param player 在线玩家
+     */
+    public void takeDownByAdminNotice(MarketItem item, Player player) {
+        ListPair<String, Object> r = new ListPair<>();
+        r.add("%item%", plugin.displayNames().getDisplayName(item.item(), player));
+        r.add("%admin_name%", item.params().getString("take-down-by", Messages.Notice.takedown_by_admin__unknown_admin.str()));
+        AbstractGuiSearch.applyMarketItemPlaceholders(plugin, item, r);
+        Messages.Notice.takedown_by_admin__content.tm(player, r);
     }
 
     /**

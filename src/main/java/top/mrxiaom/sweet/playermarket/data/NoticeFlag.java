@@ -14,6 +14,10 @@ public enum NoticeFlag {
      * 有物品可以领取
      */
     CAN_CLAIM_ITEMS(1),
+    /**
+     * 商品被管理员下架
+     */
+    TAKE_DOWN_BY_ADMIN(2),
 
     ;
     private final int value;

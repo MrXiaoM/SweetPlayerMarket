@@ -21,6 +21,7 @@ public class Searching {
     private @NotNull EnumSort orderType = EnumSort.DESC;
     private boolean onlyOutOfStock = false;
     private @Nullable Integer notice;
+    private boolean noticeReversed = false;
 
     private Searching(boolean outdated) {
         this.outdated = outdated;
@@ -109,11 +110,20 @@ public class Searching {
     }
 
     public Searching noticeFlag(@Nullable NoticeFlag flag) {
-        return notice(flag == null ? null : flag.getIntValue());
+        return noticeFlag(flag, false);
+    }
+
+    public Searching noticeFlag(@Nullable NoticeFlag flag, boolean noticeReversed) {
+        return notice(flag == null ? null : flag.getIntValue(), noticeReversed);
     }
 
     public Searching notice(@Nullable Integer notice) {
+        return notice(notice, false);
+    }
+
+    public Searching notice(@Nullable Integer notice, boolean noticeReversed) {
         this.notice = notice;
+        this.noticeReversed = noticeReversed;
         return this;
     }
 
@@ -135,7 +145,13 @@ public class Searching {
         if (currency != null) conditions.add("`currency`=?");
         if (tag != null) conditions.add("`tag`=?");
         if (playerId != null) conditions.add("`player`=?");
-        if (notice != null) conditions.add("`notice_flag`=?");
+        if (notice != null) {
+            if (noticeReversed) {
+                conditions.add("`notice_flag`!=?");
+            } else {
+                conditions.add("`notice_flag`=?");
+            }
+        }
         return conditions + " ";
     }
 

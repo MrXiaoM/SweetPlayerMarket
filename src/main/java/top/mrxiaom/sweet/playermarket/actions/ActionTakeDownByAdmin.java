@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.api.IActionProvider;
@@ -9,6 +10,7 @@ import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
@@ -34,6 +36,7 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
             AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
             SweetPlayerMarket plugin = gm.plugin;
 
+            NoticeManager noticeManager = NoticeManager.inst();
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
                 MarketItem marketItem = db.getItem(conn, item.shopId());
@@ -58,10 +61,24 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
 //                    // 归还上架所需货币，不退手续费
 //                    if (!ActionTakeDown.takeDownBuy(marketItem, player, marketItem.amount())) return;
 //                }
+                ConfigurationSection params = marketItem.params();
+                params.set("take-down-by", player.getName());
+
+                // 如果玩家在线，当场提醒他；不在线就下次上线再提醒
+                boolean hasNotice;
+                Player owner = plugin.getPlayer(item.playerId());
+                if (owner != null) {
+                    hasNotice = true;
+                    noticeManager.takeDownByAdminNotice(item, owner);
+                } else {
+                    hasNotice = false;
+                }
+
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
-                        .noticeFlag(0)
+                        .noticeFlag(hasNotice ? NoticeFlag.NOTHING : NoticeFlag.TAKE_DOWN_BY_ADMIN)
                         .amount(0)
+                        .params(params)
                         .build()
                 )) {
                     Messages.Gui.me__take_down__submit_failed.tm(player);
@@ -75,7 +92,7 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
             }
             gm.doSearch();
             gm.open();
-            NoticeManager.inst().updateCreated();
+            noticeManager.updateCreated();
             Messages.Gui.me__take_down__success_admin.tm(player);
         }
     }
