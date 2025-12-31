@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.StringJoiner;
 
 @SuppressWarnings("UnusedReturnValue")
 public class Searching {
@@ -113,21 +114,25 @@ public class Searching {
     }
 
     public String generateConditions() {
-        StringBuilder sb = new StringBuilder(onlyOutOfStock ? "`amount`=0 " : "`amount`>0 ");
-        String now = LocalDateTime.now().format(formatter);
-        if (outdated) {
-            // 获取过时商品，应该筛选 outdate_time 不为 NULL 且 outdate_time 小于现在的商品
-            sb.append("AND (`outdate_time` IS NOT NULL AND `outdate_time` < '").append(now).append("') ");
-        } else {
-            // 获取未过时商品，应该筛选 outdate_time 为 NULL (无期限) 或者 outdate_time 大于现在的商品
-            sb.append("AND (`outdate_time` IS NULL OR `outdate_time` >= '").append(now).append("') ");
+        StringJoiner conditions = new StringJoiner(" AND ");
+        // 如果设置了查询条件 notice_flag，则忽略 outdate_time 和 onlyOutOfStock 选项
+        if (notice == null) {
+            String now = LocalDateTime.now().format(formatter);
+            conditions.add(onlyOutOfStock ? "`amount`=0 " : "`amount`>0");
+            if (outdated) {
+                // 获取过时商品，应该筛选 outdate_time 不为 NULL 且 outdate_time 小于现在的商品
+                conditions.add("(`outdate_time` IS NOT NULL AND `outdate_time` < '" + now + ")");
+            } else {
+                // 获取未过时商品，应该筛选 outdate_time 为 NULL (无期限) 或者 outdate_time 大于现在的商品
+                conditions.add("AND (`outdate_time` IS NULL OR `outdate_time` >= '" + now + ")");
+            }
         }
-        if (type != null) sb.append("AND `shop_type`=? ");
-        if (currency != null) sb.append("AND `currency`=? ");
-        if (tag != null) sb.append("AND `tag`=? ");
-        if (playerId != null) sb.append("AND `player`=? ");
-        if (notice != null) sb.append("AND `notice_flag`=? ");
-        return sb.toString();
+        if (type != null) conditions.add("`shop_type`=?");
+        if (currency != null) conditions.add("`currency`=?");
+        if (tag != null) conditions.add("`tag`=?");
+        if (playerId != null) conditions.add("`player`=?");
+        if (notice != null) conditions.add("`notice_flag`=?");
+        return conditions + " ";
     }
 
     public String generateOrder() {
