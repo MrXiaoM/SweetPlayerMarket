@@ -7,10 +7,7 @@ import top.mrxiaom.pluginbase.database.IDatabase;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
-import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
-import top.mrxiaom.sweet.playermarket.data.EnumSort;
-import top.mrxiaom.sweet.playermarket.data.MarketItem;
-import top.mrxiaom.sweet.playermarket.data.Searching;
+import top.mrxiaom.sweet.playermarket.data.*;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractPluginHolder;
 import top.mrxiaom.sweet.playermarket.utils.ListX;
@@ -60,6 +57,11 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
 
         public SearchHolder onlyOutOfStock(boolean onlyOutOfStock) {
             searching.onlyOutOfStock(onlyOutOfStock);
+            return this;
+        }
+
+        public SearchHolder noticeFlag(@Nullable NoticeFlag flag) {
+            searching.noticeFlag(flag);
             return this;
         }
 

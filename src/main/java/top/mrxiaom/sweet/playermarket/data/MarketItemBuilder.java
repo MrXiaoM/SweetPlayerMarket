@@ -217,6 +217,13 @@ public class MarketItemBuilder {
     /**
      * @see MarketItem#noticeFlag()
      */
+    public MarketItemBuilder noticeFlag(NoticeFlag noticeFlag) {
+        return noticeFlag(noticeFlag.getIntValue());
+    }
+
+    /**
+     * @see MarketItem#noticeFlag()
+     */
     public MarketItemBuilder noticeFlag(int noticeFlag) {
         this.noticeFlag = noticeFlag;
         return this;

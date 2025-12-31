@@ -16,6 +16,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.IShopSellConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
@@ -149,7 +150,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                 }
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
-                        .noticeFlag(0)
+                        .noticeFlag(NoticeFlag.NOTHING)
                         .amount(amount)
                         .params(params)
                         .build()

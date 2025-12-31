@@ -7,6 +7,7 @@ import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.util.List;
@@ -26,9 +27,9 @@ public class ActionSearchNotice implements IAction {
                 AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
                 Integer old = gm.searching().notice();
                 if (old == null) {
-                    gm.searching().notice(1);
+                    gm.searching().noticeFlag(NoticeFlag.CAN_CLAIM_ITEMS);
                 } else {
-                    gm.searching().notice(null);
+                    gm.searching().noticeFlag(null);
                 }
                 gm.refreshGui();
             }

@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import top.mrxiaom.pluginbase.utils.arguments.Arguments;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.AbstractArguments;
+import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.GuiMyItems;
 
@@ -35,7 +36,7 @@ public class MeArguments extends AbstractArguments<CommandSender> {
         }
         GuiMyItems.create(player, Searching.of(false)
                 .playerId(plugin.getKey(player))
-                .notice(notice() ? 1 : null)
+                .noticeFlag(notice() ? NoticeFlag.CAN_CLAIM_ITEMS : null)
                 .onlyOutOfStock(onlyOutOfStock())
         ).open();
         return true;

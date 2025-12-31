@@ -108,6 +108,10 @@ public class Searching {
         return this;
     }
 
+    public Searching noticeFlag(@Nullable NoticeFlag flag) {
+        return notice(flag == null ? null : flag.getIntValue());
+    }
+
     public Searching notice(@Nullable Integer notice) {
         this.notice = notice;
         return this;

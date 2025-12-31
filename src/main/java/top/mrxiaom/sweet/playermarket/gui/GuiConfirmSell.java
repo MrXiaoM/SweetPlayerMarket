@@ -19,6 +19,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.IShopSellConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.api.event.MarketConfirmSellEvent;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
@@ -129,7 +130,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 shouldReturnMoneyWhenException = currency;
                 // 提交更改到数据库
                 if (!db.modifyItem(conn, marketItem.toBuilder()
-                        .noticeFlag(1)
+                        .noticeFlag(NoticeFlag.CAN_CLAIM_ITEMS)
                         .amount(finalAmount)
                         .params(params)
                         .build()
