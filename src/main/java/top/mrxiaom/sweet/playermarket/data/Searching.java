@@ -121,10 +121,10 @@ public class Searching {
             conditions.add(onlyOutOfStock ? "`amount`=0 " : "`amount`>0");
             if (outdated) {
                 // 获取过时商品，应该筛选 outdate_time 不为 NULL 且 outdate_time 小于现在的商品
-                conditions.add("(`outdate_time` IS NOT NULL AND `outdate_time` < '" + now + ")");
+                conditions.add("(`outdate_time` IS NOT NULL AND `outdate_time` < '" + now + "')");
             } else {
                 // 获取未过时商品，应该筛选 outdate_time 为 NULL (无期限) 或者 outdate_time 大于现在的商品
-                conditions.add("AND (`outdate_time` IS NULL OR `outdate_time` >= '" + now + ")");
+                conditions.add("AND (`outdate_time` IS NULL OR `outdate_time` >= '" + now + "')");
             }
         }
         if (type != null) conditions.add("`shop_type`=?");
