@@ -61,6 +61,12 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             return command.to(MeArguments::of).execute(plugin, sender);
         }
+        if (command.match("server")) {
+            if (!sender.hasPermission("sweet.playermarket.server")) {
+                return Messages.Command.no_permission.tm(sender);
+            }
+            return command.into(ServerArguments::of).execute(plugin, sender);
+        }
         if (command.match("create")) {
             if (!sender.hasPermission("sweet.playermarket.create")) {
                 return Messages.Command.no_permission.tm(sender);
@@ -99,6 +105,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             add(sender, list, "sweet.playermarket.open", "open");
             add(sender, list, "sweet.playermarket.create", "create");
             add(sender, list, "sweet.playermarket.me", "me");
+            add(sender, list, "sweet.playermarket.server", "server");
             add(sender, list, "sweet.playermarket.recalc", "recalc");
             add(sender, list, "sweet.playermarket.auto-deploy", "auto-deploy");
             if (sender.isOp()) {
@@ -135,6 +142,9 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return null;
             }
             if ("me".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.me.other")) {
+                return null;
+            }
+            if ("server".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.server.other")) {
                 return null;
             }
             if ("auto-deploy".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.auto-deploy")) {
