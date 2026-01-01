@@ -37,6 +37,9 @@ public class AutoDeployArguments extends AbstractArguments<CommandSender> {
             return true;
         }
         if ("condition".equalsIgnoreCase(operation)) {
+            if (property.getSuccessRunRound() >= 0 && property.getData().getSuccessRoundCount() >= property.getSuccessRunRound()) {
+                return t(sender, "&e自动上架配置 &b" + property.getId() + " &e已到达允许运行次数上限");
+            }
             int reason = property.doConditionCheckWithReason(LocalDateTime.now());
             switch (reason) {
                 case 0:
