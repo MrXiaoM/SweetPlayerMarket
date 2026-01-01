@@ -19,6 +19,7 @@ import top.mrxiaom.sweet.playermarket.commands.arguments.*;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
+import top.mrxiaom.sweet.playermarket.func.AutoDeployManager;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 
 import java.util.*;
@@ -75,6 +76,12 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             return command.into(RecalcArguments::of).execute(plugin, sender);
         }
+        if (command.match("auto-deploy")) {
+            if (!sender.hasPermission("sweet.playermarket.auto-deploy")) {
+                return Messages.Command.no_permission.tm(sender);
+            }
+            return command.into(AutoDeployArguments::of).execute(plugin, sender);
+        }
         if (command.match("reload")) {
             if (!sender.isOp()) {
                 return Messages.Command.no_permission.tm(sender);
@@ -93,6 +100,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             add(sender, list, "sweet.playermarket.create", "create");
             add(sender, list, "sweet.playermarket.me", "me");
             add(sender, list, "sweet.playermarket.recalc", "recalc");
+            add(sender, list, "sweet.playermarket.auto-deploy", "auto-deploy");
             if (sender.isOp()) {
                 list.add("reload");
             }
@@ -129,6 +137,9 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if ("me".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.me.other")) {
                 return null;
             }
+            if ("auto-deploy".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.auto-deploy")) {
+                return startsWith(AutoDeployManager.inst().keys(), args[1]);
+            }
         }
         if (args.length == 3) {
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
@@ -137,6 +148,9 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 } else {
                     return Collections.emptyList();
                 }
+            }
+            if ("auto-deploy".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.auto-deploy")) {
+                return startsWith(Lists.newArrayList("print", "condition", "test"), args[2]);
             }
         }
         if (args.length == 4) {

@@ -202,37 +202,40 @@ public class AutoDeployProperty {
         return startTime.plusSeconds((currentPassRound + 1) * periodDuration.getTotalSeconds());
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     public boolean doConditionCheck(LocalDateTime now) {
+        return doConditionCheckWithReason(now) == 0;
+    }
+
+    public int doConditionCheckWithReason(LocalDateTime now) {
         if (!conditionEval.isEmpty()) {
             // eval
             String expression = PAPI.setPlaceholders(null, conditionEval);
             try {
                 if (new Expression(expression).evaluate().getBooleanValue() != Boolean.TRUE) {
-                    return false;
+                    return 1;
                 }
             } catch (Throwable t) {
                 plugin.warn("执行 " + id + " 定时器的表达式条件 '" + expression + "' 时出现异常", t);
-                return false;
+                return 1;
             }
         }
         if (conditionRate < 1.0) {
             // rate
             double rand = new Random().nextInt(1919810) / 1919811.0;
             if (rand > conditionRate) {
-                return false;
+                return 2;
             }
         }
         if (!conditionWeeks.contains(now.getDayOfWeek())) {
             // weeks
-            return false;
+            return 3;
         }
         if (!conditionMonths.contains(now.getMonth().getValue())) {
             // months
-            return false;
+            return 4;
         }
 
-        return true;
+        return 0;
     }
 
     public DeployContext createContext(LocalDateTime now) {

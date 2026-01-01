@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @AutoRegister
 public class AutoDeployManager extends AbstractModule {
@@ -34,6 +31,10 @@ public class AutoDeployManager extends AbstractModule {
 
     public boolean isEnable() {
         return enable;
+    }
+
+    public Set<String> keys() {
+        return configList.keySet();
     }
 
     public AutoDeployProperty get(String id) {
