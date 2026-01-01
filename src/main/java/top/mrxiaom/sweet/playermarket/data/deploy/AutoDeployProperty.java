@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.data.deploy;
 
 import com.ezylang.evalex.Expression;
 import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +13,8 @@ import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.event.MarketItemAutoCreatedEvent;
+import top.mrxiaom.sweet.playermarket.api.event.MarketItemCreatedEvent;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
@@ -264,14 +267,16 @@ public class AutoDeployProperty {
                 .build();
         marketplace.putItem(conn, marketItem);
         plugin.info("已自动上架商品 " + id + " 到全球市场");
-        if (!successCommands.isEmpty()) {
-            // 执行上架成功命令
-            plugin.getScheduler().runTask(() -> {
+        plugin.getScheduler().runTask(() -> {
+            if (!successCommands.isEmpty()) {
+                // 执行上架成功命令
                 ListPair<String, Object> r = new ListPair<>();
                 AbstractGuiSearch.applyMarketItemPlaceholders(plugin, marketItem, r);
                 ActionProviders.run(plugin, null, successCommands, r);
-            });
-        }
+            }
+            MarketItemAutoCreatedEvent e = new MarketItemAutoCreatedEvent(marketItem, this);
+            Bukkit.getPluginManager().callEvent(e);
+        });
     }
 
     public void print(CommandSender sender) {
