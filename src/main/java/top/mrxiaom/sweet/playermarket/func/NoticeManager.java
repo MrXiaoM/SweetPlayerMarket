@@ -158,7 +158,9 @@ public class NoticeManager extends AbstractModule implements Listener {
      * 玩家已下单时，向店主发送提示
      */
     public void confirmNotice(MarketItem item) {
-        Player online = plugin.getPlayer(item.playerId());
+        String key = item.playerId();
+        if (key.equals("#server#")) return;
+        Player online = plugin.getPlayer(key);
         if (online != null) {
             confirmNotice(item, online);
             return;
@@ -166,7 +168,7 @@ public class NoticeManager extends AbstractModule implements Listener {
         Bytes.sendByWhoeverOrNot("BungeeCord", Bytes.build(out -> {
             out.writeLong(System.currentTimeMillis() + 3000L);
             out.writeUTF(item.shopId());
-            out.writeUTF(item.playerId());
+            out.writeUTF(key);
         }, "Forward", "ALL", "SweetPlayerMarket_Notice"));
     }
 

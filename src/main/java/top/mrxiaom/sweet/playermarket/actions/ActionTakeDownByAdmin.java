@@ -66,12 +66,17 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
 
                 // 如果玩家在线，当场提醒他；不在线就下次上线再提醒
                 boolean hasNotice;
-                Player owner = plugin.getPlayer(item.playerId());
-                if (owner != null) {
+                String key = item.playerId();
+                if (key.equals("#server#")) {
                     hasNotice = true;
-                    noticeManager.takeDownByAdminNotice(item, owner);
                 } else {
-                    hasNotice = false;
+                    Player owner = plugin.getPlayer(key);
+                    if (owner != null) {
+                        hasNotice = true;
+                        noticeManager.takeDownByAdminNotice(item, owner);
+                    } else {
+                        hasNotice = false;
+                    }
                 }
 
                 // 提交更改到数据库
@@ -85,7 +90,7 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
                     return;
                 }
             } catch (SQLException e) {
-                plugin.warn("管理员 " + player.getName() + " 在下架玩家 " + item.playerName() + " 的商品 " + item.shopId() + " 时出现异常", e);
+                plugin.warn("管理员 " + player.getName() + " 在下架玩家 " + Messages.getPlayerName(item) + " 的商品 " + item.shopId() + " 时出现异常", e);
                 player.closeInventory();
                 Messages.Gui.me__take_down__exception.tm(player);
                 return;

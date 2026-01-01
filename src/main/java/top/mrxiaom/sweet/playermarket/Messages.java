@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket;
 
 import top.mrxiaom.pluginbase.func.language.Language;
 import top.mrxiaom.pluginbase.func.language.Message;
+import top.mrxiaom.sweet.playermarket.data.MarketItem;
 
 import static top.mrxiaom.pluginbase.func.language.LanguageFieldAutoHolder.field;
 
@@ -10,6 +11,16 @@ public class Messages {
 
     public static final Message player__not_online = field("&e玩家不在线 (或不存在)");
     public static final Message player__only = field("只有玩家可以执行该命令");
+
+    public static final Message server_owner_name = field("#服务器#");
+
+    public static String getPlayerName(MarketItem item) {
+        if (item.playerId().equals("#server#") && item.playerName().isEmpty()) {
+            return server_owner_name.str();
+        } else {
+            return item.playerName();
+        }
+    }
 
     @Language(prefix="messages.notice.")
     public static class Notice {

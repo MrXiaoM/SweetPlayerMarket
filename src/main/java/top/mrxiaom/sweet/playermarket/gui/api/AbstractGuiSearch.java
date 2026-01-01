@@ -370,7 +370,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
     }
 
     public static void applyMarketItemPlaceholders(SweetPlayerMarket plugin, MarketItem item, ListPair<String, Object> r) {
-        r.add("%player%", item.playerName());
+        r.add("%player%", Messages.getPlayerName(item));
         r.add("%type%", plugin.displayNames().getMarketTypeName(item.type()));
         r.add("%amount%", item.amount());
         r.add("%amount_original%", item.params().getInt("original-amount"));
