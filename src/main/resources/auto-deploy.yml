@@ -1,0 +1,78 @@
+# 是否启用自动上架物品功能
+# 只需要在一个子服配置即可，在哪个子服配置，就在哪个子服运行任务检查
+enable: false
+# 是否输出调试信息
+debug: false
+
+# 异步的定时器检查粒度 (ticks)
+# 都是简单的数学运算，还是异步运行，不会太占用性能
+check-period: 20
+
+# 自动上架配置列表
+# 插件会把定时器轮次等持久化数据存在 auto-deploy.data.yml 里，不要修改数据文件
+auto-deploy-properties:
+  # 示例自动上架配置，名称为 example，可以向下复制添加更多配置
+  # 名称不要包含字符 点.
+  example:
+    # 默认定时器设置你可以粗浅地理解为每天 8:00 执行一次
+    schedule-time:
+      # 起始时刻，不填默认为本地时间 2026年元旦零点
+      start-time: '2026-01-01 00:00:00'
+      # 结束时刻，不填默认为本地时间 2099年
+      end-time: '2099-12-31 23:59:59'
+      # 定时器间隔时间，不填则默认为 24 小时
+      period-duration: '24h'
+      # 如果这一轮已经与目标轮次错过了，且超过多长时间，则放弃执行，等待下一轮运行
+      giving-up-gap: '5m'
+      # 允许总共成功运行轮次，-1 为无限制
+      success-run-round: -1
+    # 每次执行定时器之前，进行的条件判断
+    conditions:
+      # 表达式条件，留空（不输入或者使用空字符串）则代表不执行表达式判定
+      # 可以使用 PAPI 变量（不指定玩家），例如 %server_online%
+      # 相关文档：https://ezylang.github.io/EvalEx/references/operators.html
+      # 示例：'%server_online% > 0'
+      eval: ''
+      # 概率条件，有多少概率可以判定通过
+      # 可以使用小数格式（1.0=100%），或者百分比格式，超过 100% 将自动限制
+      # 使用 100% 或 1.0 则代表不进行概率判定
+      rate: '100%'
+      # 星期条件，只有星期几可以判定通过，不区分大小写
+      # Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+      # 分为正向星期条件和反向星期条件，正向星期前面没有感叹号(!)，反向星期前面有感叹号(!)
+      # 当没有任何一个正向星期存在时，自动填充所有星期，然后解析反向星期，获得星期条件列表
+      # 换句话说:
+      #   [ !Monday ] 代表只有周一不判定通过
+      #   [] 代表不管星期几都能判定通过
+      weeks: [ Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday ]
+      # 月份条件，只有哪个月可以判定通过
+      # 跟星期条件一样，分为正向条件和反向条件，不多赘述
+      months: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+    # 上架商品配置
+    # 如果输入参数有误，导致上架失败，会在控制台中打印日志提示原因
+    market-item:
+      # 商品类型，SELL 出售，BUY 收购
+      type: SELL
+      # 商品所用货币
+      currency:
+        # 货币类型
+        type: Vault
+        # 商品单价，支持先替换 PAPI 变量，支持 min to max 使用随机数
+        price: 100.0 to 150.0
+      # 商品数量，支持先替换 PAPI 变量，支持 min to max 使用随机数
+      amount: 1 to 3
+      # 使用什么标签，支持先替换 PAPI 变量（留空则由插件决定，一般是 default）
+      tag: ''
+      # 自定义卖家名称,支持先替换 PAPI 变量，不填则默认使用 messages.yml 中的名称
+      custom-owner-name: ''
+      # 物品来源，支持先替换 PAPI 变量
+      # 物品 - 使用原版物品
+      # mythic:物品 - 使用 MythicMobs 物品
+      item-source: STONE
+      # 商品到期时间，支持先替换 PAPI 变量，不填则默认为 24h
+      outdate-time: '24h'
+    # 上架成功执行命令
+    # 支持使用上架后的商品变量，变量与菜单中一致
+    success-commands:
+      # 使用 SweetMessages 插件广播上架通知
+      - '[console]smsgs m @a &7[&e&l全球市场&r&7] &a系统已将示例商品上架到全球，单价&e %price% %currency%&a，快去看看吧!'
