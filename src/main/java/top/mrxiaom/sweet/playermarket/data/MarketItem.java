@@ -226,4 +226,8 @@ public class MarketItem {
         String playerId = SweetPlayerMarket.getInstance().getKey(player);
         return builder(playerId, player.getName());
     }
+
+    public static MarketItemBuilder builder(String serverCustomName) {
+        return builder("#server#", serverCustomName);
+    }
 }
