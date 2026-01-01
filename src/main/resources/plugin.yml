@@ -8,6 +8,8 @@ softdepend:
   - MPoints
   - PlaceholderAPI
   - LangUtils
+  - MythicLib
+  - MythicMobs
 authors: [ MrXiaoM ]
 folia-supported: true
 libraries:

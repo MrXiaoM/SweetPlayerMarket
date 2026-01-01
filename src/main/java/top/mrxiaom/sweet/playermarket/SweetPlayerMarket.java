@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +27,8 @@ import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.api.MarketAPI;
+import top.mrxiaom.sweet.playermarket.api.item.ItemProvider;
+import top.mrxiaom.sweet.playermarket.api.item.VanillaItem;
 import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
@@ -82,6 +85,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     }
     private final MarketAPI api = new API();
     private final List<IEconomyResolver> economyResolvers = new ArrayList<>();
+    private final List<ItemProvider> itemProviders = new ArrayList<>();
     private boolean onlineMode;
     private IEconomy vault;
     private IEconomy playerPoints;
@@ -138,6 +142,26 @@ public class SweetPlayerMarket extends BukkitPlugin {
         return displayNames;
     }
 
+    public void registerItemProvider(@NotNull ItemProvider provider) {
+        itemProviders.add(provider);
+        itemProviders.sort(Comparator.comparingInt(ItemProvider::priority));
+    }
+
+    public void unregisterItemProvider(@NotNull ItemProvider provider) {
+        itemProviders.remove(provider);
+        itemProviders.sort(Comparator.comparingInt(ItemProvider::priority));
+    }
+
+    public @Nullable ItemStack getItem(String inputText) {
+        for (ItemProvider provider : itemProviders) {
+            ItemStack item = provider.get(inputText);
+            if (item != null) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     @NotNull
     public MarketplaceDatabase getMarketplace() {
         return marketplaceDatabase;
@@ -159,6 +183,8 @@ public class SweetPlayerMarket extends BukkitPlugin {
         MinecraftVersion.disableUpdateCheck();
         MinecraftVersion.disableBStats();
         MinecraftVersion.getVersion();
+
+        registerItemProvider(VanillaItem.INSTANCE);
     }
 
     @Override

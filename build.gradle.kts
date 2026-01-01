@@ -22,6 +22,7 @@ repositories {
     mavenCentral()
     maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://mvn.lumine.io/repository/maven/")
     maven("https://repo.helpch.at/releases/")
     maven("https://jitpack.io")
     maven("https://repo.rosewooddev.io/repository/public/")
@@ -37,6 +38,11 @@ dependencies {
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly(files("libs/MPoints-1.2.2.jar"))
     compileOnly("org.jetbrains:annotations:24.0.0")
+    // MythicMobs
+    compileOnly("io.lumine:Mythic-Dist:4.13.0")
+    compileOnly("io.lumine:Mythic:5.6.2")
+    compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
+
 
     base.library("net.kyori:adventure-api:4.22.0")
     base.library("net.kyori:adventure-platform-bukkit:4.4.0")
