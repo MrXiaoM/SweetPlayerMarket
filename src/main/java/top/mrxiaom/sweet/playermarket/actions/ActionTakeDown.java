@@ -39,49 +39,63 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
             AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
             SweetPlayerMarket plugin = gm.plugin;
 
-            try (Connection conn = plugin.getConnection()) {
-                MarketplaceDatabase db = plugin.getMarketplace();
-                MarketItem marketItem = db.getItem(conn, item.shopId());
-                if (marketItem == null || marketItem.amount() == 0 || !marketItem.playerId().equals(plugin.getKey(player))) {
-                    Object i = Utils.get(replacements, "__internal__index");
-                    if (i instanceof Integer) {
-                        if (marketItem != null) {
-                            gm.setItem((int) i, marketItem);
-                        } else {
-                            gm.setItem((int) i, item.toBuilder().amount(0).build());
-                        }
+            gm.setActionLock(true);
+            plugin.getScheduler().runTaskAsync(() -> {
+                run(plugin, gm, player, item, replacements);
+                gm.setActionLock(false);
+            });
+        }
+    }
+
+    private void run(
+            SweetPlayerMarket plugin,
+            AbstractGuiSearch.SearchGui gm,
+            Player player,
+            MarketItem item,
+            List<Pair<String, Object>> replacements
+    ) {
+        try (Connection conn = plugin.getConnection()) {
+            MarketplaceDatabase db = plugin.getMarketplace();
+            MarketItem marketItem = db.getItem(conn, item.shopId());
+            if (marketItem == null || marketItem.amount() == 0 || !marketItem.playerId().equals(plugin.getKey(player))) {
+                Object i = Utils.get(replacements, "__internal__index");
+                if (i instanceof Integer) {
+                    if (marketItem != null) {
+                        gm.setItem((int) i, marketItem);
+                    } else {
+                        gm.setItem((int) i, item.toBuilder().amount(0).build());
                     }
-                    Messages.Gui.me__take_down__item_not_found.tm(player);
-                    return;
                 }
-                if (marketItem.type().equals(EnumMarketType.SELL)) {
-                    // 归还上架所需物品，不退手续费
-                    if (!takeDownSell(marketItem, player, marketItem.amount())) return;
-                }
-                if (marketItem.type().equals(EnumMarketType.BUY)) {
-                    // 归还上架所需货币，不退手续费
-                    if (!takeDownBuy(marketItem, player, marketItem.amount())) return;
-                }
-                // 提交更改到数据库
-                if (!db.modifyItem(conn, marketItem.toBuilder()
-                        .noticeFlag(NoticeFlag.NOTHING)
-                        .amount(0)
-                        .build()
-                )) {
-                    Messages.Gui.me__take_down__submit_failed.tm(player);
-                    return;
-                }
-            } catch (SQLException e) {
-                plugin.warn("玩家 " + player.getName() + " 在下架自己的商品 " + item.shopId() + " 时出现异常", e);
-                player.closeInventory();
-                Messages.Gui.me__take_down__exception.tm(player);
+                Messages.Gui.me__take_down__item_not_found.tm(player);
                 return;
             }
-            gm.doSearch();
-            gm.open();
-            NoticeManager.inst().updateCreated();
-            Messages.Gui.me__take_down__success.tm(player);
+            if (marketItem.type().equals(EnumMarketType.SELL)) {
+                // 归还上架所需物品，不退手续费
+                if (!takeDownSell(marketItem, player, marketItem.amount())) return;
+            }
+            if (marketItem.type().equals(EnumMarketType.BUY)) {
+                // 归还上架所需货币，不退手续费
+                if (!takeDownBuy(marketItem, player, marketItem.amount())) return;
+            }
+            // 提交更改到数据库
+            if (!db.modifyItem(conn, marketItem.toBuilder()
+                    .noticeFlag(NoticeFlag.NOTHING)
+                    .amount(0)
+                    .build()
+            )) {
+                Messages.Gui.me__take_down__submit_failed.tm(player);
+                return;
+            }
+        } catch (SQLException e) {
+            plugin.warn("玩家 " + player.getName() + " 在下架自己的商品 " + item.shopId() + " 时出现异常", e);
+            player.closeInventory();
+            Messages.Gui.me__take_down__exception.tm(player);
+            return;
         }
+        gm.doSearch();
+        gm.open();
+        NoticeManager.inst().updateCreated();
+        Messages.Gui.me__take_down__success.tm(player);
     }
 
     protected static boolean takeDownSell(MarketItem marketItem, Player player, int count) {

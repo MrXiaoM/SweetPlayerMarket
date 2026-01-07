@@ -81,12 +81,19 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 InventoryType.SlotType slotType, int slot,
                 InventoryView view, InventoryClickEvent event
         ) {
+            actionLock = true;
+            plugin.getScheduler().runTaskAsync(() -> {
+                confirmBuy();
+                actionLock = false;
+            });
+        }
+
+        protected void confirmBuy() {
             MarketItem marketItem;
             IEconomy currency;
             String currencyName;
             double totalMoney;
             int totalCount;
-            actionLock = true;
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
                 marketItem = db.getItem(conn, this.marketItem.shopId());
@@ -100,13 +107,11 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
                 if (currency == null) {
                     Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
-                    actionLock = false;
                     return;
                 }
                 int finalAmount = marketItem.amount() - count;
                 if (finalAmount < 0) {
                     Messages.Gui.buy__amount_not_enough.tm(player);
-                    actionLock = false;
                     return;
                 }
                 // 检查商品适配器设置
@@ -133,7 +138,6 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                     int invCount = getInvCount(sample);
                     if (invCount < totalCount) {
                         Messages.Gui.buy__item_not_enough.tm(player);
-                        actionLock = false;
                         return;
                     }
                     Utils.takeItem(player, sample, totalCount);
@@ -155,7 +159,6 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                         .build()
                 )) {
                     Messages.Gui.buy__submit_failed.tm(player);
-                    actionLock = false;
                     return;
                 }
             } catch (Throwable e) {

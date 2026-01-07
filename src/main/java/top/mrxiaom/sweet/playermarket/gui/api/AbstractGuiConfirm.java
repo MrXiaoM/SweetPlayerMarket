@@ -148,6 +148,10 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             entry.updateReplacements(marketItem, player, r);
         }
 
+        public void setActionLock(boolean actionLock) {
+            this.actionLock = actionLock;
+        }
+
         public int count() {
             return count;
         }

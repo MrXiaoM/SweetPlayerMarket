@@ -184,6 +184,10 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             doSearch();
         }
 
+        public void setActionLock(boolean actionLock) {
+            this.actionLock = actionLock;
+        }
+
         public String replaceOrNull(String input, ListPair<String, Object> r) {
             if (input.startsWith("$")) {
                 String substring = input.substring(1);

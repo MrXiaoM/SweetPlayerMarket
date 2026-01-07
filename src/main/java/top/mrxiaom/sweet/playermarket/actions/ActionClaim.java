@@ -45,129 +45,143 @@ public class ActionClaim extends AbstractActionWithMarketItem {
             SweetPlayerMarket plugin = gm.plugin;
             if (item.noticeFlag() == 0) return;
 
-            Runnable successAction = null;
-            try (Connection conn = plugin.getConnection()) {
-                MarketplaceDatabase db = plugin.getMarketplace();
-                MarketItem marketItem = db.getItem(conn, item.shopId(), true);
-                if (marketItem == null || !marketItem.playerId().equals(plugin.getKey(player))) {
-                    Object i = Utils.get(replacements, "__internal__index");
-                    if (i instanceof Integer) {
-                        gm.setItem((int) i, item.toBuilder().amount(0).build());
-                    }
-                    Messages.Gui.common__item_not_found.tm(player);
+            gm.setActionLock(true);
+            plugin.getScheduler().runTaskAsync(() -> {
+                run(plugin, gm, player, item, replacements);
+                gm.setActionLock(false);
+            });
+        }
+    }
+
+    private void run(
+            SweetPlayerMarket plugin,
+            AbstractGuiSearch.SearchGui gm,
+            Player player,
+            MarketItem item,
+            List<Pair<String, Object>> replacements
+    ) {
+        Runnable successAction = null;
+        try (Connection conn = plugin.getConnection()) {
+            MarketplaceDatabase db = plugin.getMarketplace();
+            MarketItem marketItem = db.getItem(conn, item.shopId(), true);
+            if (marketItem == null || !marketItem.playerId().equals(plugin.getKey(player))) {
+                Object i = Utils.get(replacements, "__internal__index");
+                if (i instanceof Integer) {
+                    gm.setItem((int) i, item.toBuilder().amount(0).build());
+                }
+                Messages.Gui.common__item_not_found.tm(player);
+                return;
+            }
+            int amount = marketItem.amount();
+            boolean outdated = LocalDateTime.now().isAfter(marketItem.outdateTime());
+            String currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
+            ConfigurationSection params = marketItem.params();
+            if (marketItem.type().equals(EnumMarketType.SELL)) {
+                IEconomy currency = marketItem.currency();
+                if (currency == null) {
+                    Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
                     return;
                 }
-                int amount = marketItem.amount();
-                boolean outdated = LocalDateTime.now().isAfter(marketItem.outdateTime());
-                String currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
-                ConfigurationSection params = marketItem.params();
-                if (marketItem.type().equals(EnumMarketType.SELL)) {
-                    IEconomy currency = marketItem.currency();
+                double receivedMoney = params.getDouble("sell.received-currency");
+                IShopSellConfirmAdapter shopAdapter;
+                ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
+                if (entry.hasFactoryParams()) {
+                    shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
+                    if (shopAdapter == null) {
+                        Messages.Gui.sell__adapter_not_found.tm(player);
+                        return;
+                    }
+                    receivedMoney = shopAdapter.overrideRewardMoney(receivedMoney);
+                } else {
+                    shopAdapter = null;
+                }
+                int outdatedReturnAmount = outdated ? amount : 0;
+                if (outdated) {
+                    // 到期领取商品之后，设置可购买数量为 0
+                    amount = 0;
+                }
+                double money = receivedMoney;
+                params.set("sell.received-currency", null);
+                params.set("sell.received-count", null);
+                successAction = () -> {
+                    if (outdatedReturnAmount > 0) {
+                        // 已到期归还商品
+                        takeBackSell(marketItem, shopAdapter, player, outdatedReturnAmount);
+                    }
+                    if (money > 0) {
+                        currency.giveMoney(player, money);
+                        Messages.Gui.me__claim__sell__success.tm(player,
+                                Pair.of("%money%", String.format("%.2f", money).replace(".00", "")),
+                                Pair.of("%currency%", currencyName));
+                    }
+                };
+            }
+            if (marketItem.type().equals(EnumMarketType.BUY)) {
+                IEconomy currency = marketItem.currency();
+                List<ItemStack> itemList = new ArrayList<>();
+                int totalCount = 0;
+                ItemStack sampleItem = null;
+                for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {
+                    if (obj instanceof ItemStack) {
+                        ItemStack itemStack = (ItemStack) obj;
+                        totalCount += itemStack.getAmount();
+                        if (sampleItem == null) {
+                            sampleItem = itemStack;
+                        }
+                        itemList.add(itemStack);
+                    }
+                }
+                if (sampleItem == null) {
+                    return;
+                }
+                ItemStack _item = sampleItem;
+                int _total = totalCount;
+                int outdatedReturnAmount = outdated ? amount : 0;
+                if (outdated) {
+                    amount = 0;
                     if (currency == null) {
                         Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
                         return;
                     }
-                    double receivedMoney = params.getDouble("sell.received-currency");
-                    IShopSellConfirmAdapter shopAdapter;
-                    ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
-                    if (entry.hasFactoryParams()) {
-                        shopAdapter = entry.getSellConfirmAdapter(marketItem, player);
-                        if (shopAdapter == null) {
-                            Messages.Gui.sell__adapter_not_found.tm(player);
-                            return;
-                        }
-                        receivedMoney = shopAdapter.overrideRewardMoney(receivedMoney);
-                    } else {
-                        shopAdapter = null;
-                    }
-                    int outdatedReturnAmount = outdated ? amount : 0;
-                    if (outdated) {
-                        // 到期领取商品之后，设置可购买数量为 0
-                        amount = 0;
-                    }
-                    double money = receivedMoney;
-                    params.set("sell.received-currency", null);
-                    params.set("sell.received-count", null);
-                    successAction = () -> {
-                        if (outdatedReturnAmount > 0) {
-                            // 已到期归还商品
-                            takeBackSell(marketItem, shopAdapter, player, outdatedReturnAmount);
-                        }
-                        if (money > 0) {
-                            currency.giveMoney(player, money);
-                            Messages.Gui.me__claim__sell__success.tm(player,
-                                    Pair.of("%money%", String.format("%.2f", money).replace(".00", "")),
-                                    Pair.of("%currency%", currencyName));
-                        }
-                    };
                 }
-                if (marketItem.type().equals(EnumMarketType.BUY)) {
-                    IEconomy currency = marketItem.currency();
-                    List<ItemStack> itemList = new ArrayList<>();
-                    int totalCount = 0;
-                    ItemStack sampleItem = null;
-                    for (Object obj : params.getList("buy.received-items", new ArrayList<>())) {
-                        if (obj instanceof ItemStack) {
-                            ItemStack itemStack = (ItemStack) obj;
-                            totalCount += itemStack.getAmount();
-                            if (sampleItem == null) {
-                                sampleItem = itemStack;
-                            }
-                            itemList.add(itemStack);
-                        }
+                params.set("buy.received-items", null);
+                successAction = () -> {
+                    if (outdatedReturnAmount > 0) {
+                        // 已到期归还货币
+                        takeBackBuy(marketItem, player, outdatedReturnAmount);
                     }
-                    if (sampleItem == null) {
-                        return;
+                    if (!itemList.isEmpty()) {
+                        ItemStackUtil.giveItemToPlayer(player, itemList);
+                        MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(_item).build();
+                        Messages.Gui.me__claim__buy__success.tm(miniMessage, player,
+                                Pair.of("%item%", plugin.displayNames().getDisplayName(_item, player)),
+                                Pair.of("%total_count%", _total));
                     }
-                    ItemStack _item = sampleItem;
-                    int _total = totalCount;
-                    int outdatedReturnAmount = outdated ? amount : 0;
-                    if (outdated) {
-                        amount = 0;
-                        if (currency == null) {
-                            Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
-                            return;
-                        }
-                    }
-                    params.set("buy.received-items", null);
-                    successAction = () -> {
-                        if (outdatedReturnAmount > 0) {
-                            // 已到期归还货币
-                            takeBackBuy(marketItem, player, outdatedReturnAmount);
-                        }
-                        if (!itemList.isEmpty()) {
-                            ItemStackUtil.giveItemToPlayer(player, itemList);
-                            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(_item).build();
-                            Messages.Gui.me__claim__buy__success.tm(miniMessage, player,
-                                    Pair.of("%item%", plugin.displayNames().getDisplayName(_item, player)),
-                                    Pair.of("%total_count%", _total));
-                        }
-                    };
-                }
-                if (successAction == null) {
-                    Messages.Gui.me__claim__plugin_too_old.tm(player);
-                    return;
-                }
-                // 提交更改到数据库
-                if (!db.modifyItem(conn, marketItem.toBuilder()
-                        .noticeFlag(NoticeFlag.NOTHING)
-                        .amount(amount)
-                        .params(params)
-                        .build()
-                )) {
-                    Messages.Gui.me__claim__submit_failed.tm(player);
-                    return;
-                }
-            } catch (SQLException e) {
-                plugin.warn("玩家 " + player.getName() + " 在领取自己的商品 " + item.shopId() + " 时出现异常", e);
-                player.closeInventory();
-                Messages.Gui.me__claim__exception.tm(player);
+                };
+            }
+            if (successAction == null) {
+                Messages.Gui.me__claim__plugin_too_old.tm(player);
                 return;
             }
-            successAction.run();
-            gm.doSearch();
-            gm.open();
+            // 提交更改到数据库
+            if (!db.modifyItem(conn, marketItem.toBuilder()
+                    .noticeFlag(NoticeFlag.NOTHING)
+                    .amount(amount)
+                    .params(params)
+                    .build()
+            )) {
+                Messages.Gui.me__claim__submit_failed.tm(player);
+                return;
+            }
+        } catch (SQLException e) {
+            plugin.warn("玩家 " + player.getName() + " 在领取自己的商品 " + item.shopId() + " 时出现异常", e);
+            player.closeInventory();
+            Messages.Gui.me__claim__exception.tm(player);
+            return;
         }
+        successAction.run();
+        gm.doSearch();
+        gm.open();
     }
 
     protected static void takeBackSell(MarketItem marketItem, IShopSellConfirmAdapter shopAdapter, Player player, int count) {

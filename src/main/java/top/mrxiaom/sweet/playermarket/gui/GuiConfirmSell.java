@@ -68,12 +68,19 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 InventoryType.SlotType slotType, int slot,
                 InventoryView view, InventoryClickEvent event
         ) {
+            actionLock = true;
+            plugin.getScheduler().runTaskAsync(() -> {
+                confirmSell();
+                actionLock = false;
+            });
+        }
+
+        protected void confirmSell() {
             MarketItem marketItem;
             IEconomy currency;
             String currencyName;
             double totalMoney = 0;
             IShopSellConfirmAdapter shopAdapter = null;
-            actionLock = true;
             IEconomy shouldReturnMoneyWhenException = null;
             try (Connection conn = plugin.getConnection()) {
                 MarketplaceDatabase db = plugin.getMarketplace();
@@ -88,19 +95,16 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
                 if (currency == null) {
                     Messages.Gui.common__currency_not_found.tm(player, Pair.of("%currency%", currencyName));
-                    actionLock = false;
                     return;
                 }
                 int finalAmount = marketItem.amount() - count;
                 if (finalAmount < 0) {
                     Messages.Gui.sell__amount_not_enough.tm(player);
-                    actionLock = false;
                     return;
                 }
                 totalMoney = count * marketItem.price();
                 if (!currency.has(player, totalMoney)) {
                     Messages.Gui.sell__currency_not_enough.tm(player, Pair.of("%currency%", currencyName));
-                    actionLock = false;
                     return;
                 }
 
@@ -124,7 +128,6 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 // 拿走玩家的指定数量货币。由于上方已添加货币到额外参数中，不需要给予卖家货币
                 if (!currency.takeMoney(player, totalMoney)) {
                     Messages.Gui.sell__currency_not_enough.tm(player, Pair.of("%currency%", currencyName));
-                    actionLock = false;
                     return;
                 }
                 shouldReturnMoneyWhenException = currency;
@@ -136,7 +139,6 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                         .build()
                 )) {
                     Messages.Gui.sell__submit_failed.tm(player);
-                    actionLock = false;
                     return;
                 }
             } catch (Throwable e) {

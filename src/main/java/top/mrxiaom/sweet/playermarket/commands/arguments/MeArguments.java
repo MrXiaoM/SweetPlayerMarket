@@ -34,11 +34,11 @@ public class MeArguments extends AbstractArguments<CommandSender> {
         if (player == null) {
             return true;
         }
-        GuiMyItems.create(player, Searching.of(false)
+        plugin.getScheduler().runTaskAsync(() -> GuiMyItems.create(player, Searching.of(false)
                 .playerId(plugin.getKey(player))
                 .noticeFlag(notice() ? NoticeFlag.CAN_CLAIM_ITEMS : null)
                 .onlyOutOfStock(onlyOutOfStock())
-        ).open();
+        ).open());
         return true;
     }
 

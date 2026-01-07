@@ -92,7 +92,7 @@ public class CreateArguments extends AbstractArguments<Player> {
         // 商品总份数
         Integer marketAmount = nextInt(() -> 1, NULL());
 
-        doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, (marketItem) -> {});
+        plugin.getScheduler().runTaskAsync(() -> doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, (marketItem) -> {}));
         return true;
     }
 

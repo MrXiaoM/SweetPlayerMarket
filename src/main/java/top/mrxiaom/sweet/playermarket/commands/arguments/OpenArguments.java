@@ -38,9 +38,9 @@ public class OpenArguments extends AbstractArguments<CommandSender> {
             return true;
         }
         IEconomy currency = plugin.parseEconomy(currency());
-        GuiMarketplace.create(player, Searching.of(false)
+        plugin.getScheduler().runTaskAsync(() -> GuiMarketplace.create(player, Searching.of(false)
                 .type(Util.valueOr(EnumMarketType.class, type(), null))
-                .currency(currency == null ? null : currency.id())).open();
+                .currency(currency == null ? null : currency.id())).open());
         return true;
     }
 
