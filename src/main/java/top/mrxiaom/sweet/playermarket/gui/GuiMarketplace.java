@@ -9,6 +9,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
@@ -117,10 +118,10 @@ public class GuiMarketplace extends AbstractGuiSearch {
                     actionLock = false;
                     return;
                 }
-                for (IAction a : actions) {
-                    a.run(player, r);
-                }
-                actionLock = false;
+                plugin.getScheduler().runTask(() -> {
+                    ActionProviders.run(plugin, player, actions, r);
+                    actionLock = false;
+                });
                 return;
             }
             actionLock = false;
