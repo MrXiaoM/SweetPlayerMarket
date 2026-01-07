@@ -96,7 +96,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private IEconomy vault;
     private IEconomy playerPoints;
     private IEconomyWithSign mPoints;
-    private ItemTagResolver itemTagResolver = item -> "default"; // TODO 商品分类
+    private ItemTagResolver itemTagResolver = item -> "default";
     private MarketplaceDatabase marketplaceDatabase;
     private DisplayNames displayNames;
     private DateTimeFormatter datetimeFormatter;
