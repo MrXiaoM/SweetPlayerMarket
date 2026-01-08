@@ -3,7 +3,7 @@ inventory:
   - '框框框框框框框框框'
   - '框　物　数价币　框'
   - '框　　　量格确　框'
-  - '框框框框框框框框框'
+  - '返框框框框框框框框'
 main-icons:
   物:
     material: BARRIER
@@ -33,6 +33,15 @@ other-icons:
   框:
     material: WHITE_STAINED_GLASS_PANE
     display: '&f'
+  返:
+    material: LIGHT_BLUE_STAINED_GLASS_PANE
+    display: '&e&l返回'
+    lore:
+      - ''
+      - '  &f回到全球市场首页  '
+      - ''
+    left-click-commands:
+      - '[player]playermarket open'
   数:
     material: CHEST
     display: '&e总份数'

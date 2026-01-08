@@ -5,7 +5,7 @@ inventory:
   - '框物物物物物物物框'
   - '框物物物物物物物框'
   - '框框框框框框框框框'
-  - '上　类币刷　序　下'
+  - '上　类币刷序发　下'
 main-icons:
   物:
     display: '&e&l%display%'
@@ -106,3 +106,16 @@ other-icons:
       - '[search:sort]column'
     right-click-commands:
       - '[search:sort]type'
+  发:
+    material: HOPPER
+    display: '&e&l上架商品'
+    lore:
+      - ''
+      - '  &f将商品上架到全球市场  '
+      - ''
+      - '&a左键 &7| &f我要出售物品'
+      - '&b右键 &7| &f我要收购物品'
+    left-click-commands:
+      - '[player]playermarket create sell --menu'
+    right-click-commands:
+      - '[player]playermarket create buy --menu'
