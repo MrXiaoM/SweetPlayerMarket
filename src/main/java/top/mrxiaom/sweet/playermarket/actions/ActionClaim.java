@@ -111,7 +111,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     if (money > 0) {
                         currency.giveMoney(player, money);
                         Messages.Gui.me__claim__sell__success.tm(player,
-                                Pair.of("%money%", String.format("%.2f", money).replace(".00", "")),
+                                Pair.of("%money%", plugin.displayNames().formatMoney(money)),
                                 Pair.of("%currency%", currencyName));
                     }
                 };

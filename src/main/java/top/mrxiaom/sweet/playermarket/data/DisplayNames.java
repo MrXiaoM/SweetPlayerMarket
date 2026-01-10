@@ -114,6 +114,16 @@ public class DisplayNames extends AbstractModule {
         return s != null ? s : sort.name();
     }
 
+    /**
+     * 格式化金钱数值为字符串
+     * @param money 输入的金额
+     * @return 格式化后的金额
+     */
+    public String formatMoney(double money) {
+        // TODO: 支持自定义简写（例如 1.23万）的同时，保证数值准确性
+        return String.format("%.2f", money).replace(".00", "");
+    }
+
     @Override
     public void reloadConfig(MemoryConfiguration config) {
         ConfigurationSection section;

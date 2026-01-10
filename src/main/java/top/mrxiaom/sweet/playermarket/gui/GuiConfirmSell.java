@@ -171,7 +171,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             Messages.Gui.sell__success.tm(miniMessage, player,
                     Pair.of("%item%", plugin.displayNames().getDisplayName(itemDisplay, player)),
                     Pair.of("%total_count%", totalCount),
-                    Pair.of("%money%", String.format("%.2f", totalMoney).replace(".00", "")),
+                    Pair.of("%money%", plugin.displayNames().formatMoney(totalMoney)),
                     Pair.of("%currency%", currencyName));
             parent.doSearch();
             parent.open();

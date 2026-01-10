@@ -180,7 +180,7 @@ public class CreateArguments extends AbstractArguments<Player> {
             if (createCostMoney > 0 && !costCurrency.has(sender, createCostMoney)) {
                 Messages.Command.create__limitation__create_cost_failed.tm(sender,
                         Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
-                        Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+                        Pair.of("%money%", plugin.displayNames().formatMoney(createCostMoney)));
                 if (callback != null) callback.accept(null);
                 return;
             }
@@ -268,7 +268,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                     // TODO: 保持事务一致性
                     Messages.Command.create__limitation__create_cost_failed.tm(sender,
                             Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
-                            Pair.of("%money%", String.format("%.2f", createCostMoney).replace(".00", "")));
+                            Pair.of("%money%", plugin.displayNames().formatMoney(createCostMoney)));
                     if (callback != null) callback.accept(null);
                     return;
                 }

@@ -46,7 +46,7 @@ public class EventActionsManager extends AbstractModule implements Listener {
         ListPair<String, Object> r = e.getMarketItem().replacements(plugin.displayNames(), player);
         r.add("buy_amount", e.getBuyAmount());
         r.add("%total_item_count%", e.getTotalItemCount());
-        r.add("%total_money%", String.format("%.2f", e.getTotalMoney()).replace(".00", ""));
+        r.add("%total_money%", plugin.displayNames().formatMoney(e.getTotalMoney()));
         r.add("%total_money_raw%", e.getTotalMoney());
         plugin.getScheduler().runTask(() -> ActionProviders.run(plugin, player, actionsAfterSell, r));
     }
@@ -58,7 +58,7 @@ public class EventActionsManager extends AbstractModule implements Listener {
         ListPair<String, Object> r = e.getMarketItem().replacements(plugin.displayNames(), player);
         r.add("sell_amount", e.getSellAmount());
         r.add("%total_item_count%", e.getTotalItemCount());
-        r.add("%total_money%", String.format("%.2f", e.getTotalMoney()).replace(".00", ""));
+        r.add("%total_money%", plugin.displayNames().formatMoney(e.getTotalMoney()));
         r.add("%total_money_raw%", e.getTotalMoney());
         plugin.getScheduler().runTask(() -> ActionProviders.run(plugin, player, actionsAfterBuy, r));
     }

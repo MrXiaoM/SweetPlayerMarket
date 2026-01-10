@@ -115,9 +115,10 @@ public class BaseLimitation {
     }
 
     public void addDescriptionReplacements(List<Pair<String, Object>> r, CreateCost cost, IEconomy economy, double totalMoney) {
+        DisplayNames displayNames = DisplayNames.inst();
         IEconomy currency = cost.currency(economy);
-        String currencyName = DisplayNames.inst().getCurrencyName(currency);
-        String money = String.format("%.2f", cost.money(totalMoney)).replace(".00", "");
+        String currencyName = displayNames.getCurrencyName(currency);
+        String money = displayNames.formatMoney(cost.money(totalMoney));
         r.add(Pair.of("%currency%", currencyName));
         r.add(Pair.of("%money%", money));
     }

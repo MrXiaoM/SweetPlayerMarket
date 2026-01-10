@@ -270,8 +270,8 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             r.add("%item_count%", itemCount);
             r.add("%total_count%", amount * itemCount);
             r.add("%count%", amount);
-            r.add("%price%", String.format("%.2f", price).replace(".00", ""));
-            r.add("%total_money%", String.format("%.2f", totalMoney).replace(".00", ""));
+            r.add("%price%", plugin.displayNames().formatMoney(price));
+            r.add("%total_money%", plugin.displayNames().formatMoney(totalMoney));
             if (sampleItem != null) {
                 r.add("%item%", plugin.displayNames().getDisplayName(sampleItem, player));
             } else {
@@ -312,7 +312,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
                     createCostMoney = 0.0;
                 }
                 if (createCostMoney != null) {
-                    r.add("%create_cost_money%", String.format("%.2f", createCostMoney).replace(".00", ""));
+                    r.add("%create_cost_money%", plugin.displayNames().formatMoney(createCostMoney));
                     r.add("%create_cost_currency%", createCostCurrency == null ? "" : plugin.displayNames().getCurrencyName(createCostCurrency));
                 } else {
                     r.add("%create_cost_money%", "");

@@ -188,7 +188,7 @@ public class MarketItem {
         r.add("%shop_type_raw%", type.name().toLowerCase());
         r.add("%currency%", displayNames.getCurrencyName(currencyName));
         r.add("%currency_raw%", currencyName);
-        r.add("%price%", String.format("%.2f", price).replace(".00", ""));
+        r.add("%price%", displayNames.formatMoney(price));
         r.add("%price_raw%", price);
         r.add("%amount%", amount);
         r.add("%tag%", tag);
