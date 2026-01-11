@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 
+/**
+ * 收购商品被某人购买成功后触发事件
+ */
 public class MarketConfirmBuyEvent extends AbstractPlayerMarketEvent {
     private static final HandlerList handlers = new HandlerList();
     private final int sellAmount, totalItemCount;

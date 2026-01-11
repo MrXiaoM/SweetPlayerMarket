@@ -5,12 +5,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.arguments.Arguments;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.AbstractArguments;
+import top.mrxiaom.sweet.playermarket.api.event.MarketItemBeforeCreateEvent;
 import top.mrxiaom.sweet.playermarket.api.event.MarketItemCreatedEvent;
 import top.mrxiaom.sweet.playermarket.commands.CommandMain;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
@@ -92,7 +94,7 @@ public class CreateArguments extends AbstractArguments<Player> {
         // 商品总份数
         Integer marketAmount = nextInt(() -> 1, NULL());
 
-        plugin.getScheduler().runTaskAsync(() -> doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, (marketItem) -> {}));
+        plugin.getScheduler().runTask(() -> doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, null));
         return true;
     }
 
@@ -101,7 +103,7 @@ public class CreateArguments extends AbstractArguments<Player> {
             ItemStack item, Integer itemCount,
             Integer marketAmount, EnumMarketType type,
             double price, IEconomy currency,
-            Consumer<MarketItem> callback
+            @Nullable Consumer<MarketItem> callback
     ) {
         // 商品单价
         if (price < 0.01) {
@@ -191,6 +193,22 @@ public class CreateArguments extends AbstractArguments<Player> {
 
         OutdateTime outdateTime = OutdateTimeManager.inst().get(sender);
 
+        ItemStack shopItem = item.clone();
+        shopItem.setAmount(itemCount);
+        MarketItemBeforeCreateEvent event = new MarketItemBeforeCreateEvent(MarketItem.builder("not-deployed", sender)
+                .item(shopItem)
+                .type(type)
+                .price(price)
+                .currency(currency)
+                .amount(marketAmount)
+                .outdateTime(outdateTime.get(type))
+                .build(plugin.itemTagResolver()), sender);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            if (callback != null) callback.accept(null);
+            return;
+        }
+
         // 上架操作需要调用数据库，异步执行以免卡服
         plugin.getScheduler().runTaskAsync(() -> doDeployMarketItem(
                 plugin, sender,
@@ -210,7 +228,7 @@ public class CreateArguments extends AbstractArguments<Player> {
             CreateCost createCost, IEconomy currency,
             double totalPrice, double createCostMoney,
             IEconomy costCurrency, double price,
-            OutdateTime outdateTime, Consumer<MarketItem> callback
+            OutdateTime outdateTime, @Nullable Consumer<MarketItem> callback
     ) {
         MarketItem marketItem;
         try (Connection conn = plugin.getConnection()) {

@@ -54,13 +54,13 @@ public class GuiCreateBuyShop extends AbstractGuiDeploy {
                 return;
             }
             // 上架流程与命令保持一致
-            CreateArguments.doDeployMarketItem(
+            plugin.getScheduler().runTask(() -> CreateArguments.doDeployMarketItem(
                     plugin, player,
                     sampleItem, sampleItem.getAmount(),
                     amount, type,
                     price, currency,
                     this::callback
-            );
+            ));
         }
 
         private void callback(MarketItem marketItem) {

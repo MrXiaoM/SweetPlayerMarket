@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.deploy.AutoDeployProperty;
 
+/**
+ * 商品自动上架成功后触发事件
+ */
 public class MarketItemAutoCreatedEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     private final MarketItem marketItem;
