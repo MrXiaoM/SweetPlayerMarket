@@ -61,3 +61,11 @@ by-items:
 #    currency-blacklist: [ PlayerPoints, MPoints ]
 #    # 限制匹配的物品只允许使用指定货币上架，其中，MPoints 不输入冒号则允许所有
 #    currency-whitelist: [ Vault, 'MPoints:sign' ]
+
+  - matcher-type: ANY
+    matchers:
+        # 禁止上架 SweetCheckout 的二维码地图
+      - any-nbt-tag: [ SWEET_CHECKOUT_MAP ]
+    description:
+      - '  &7● &f该物品禁止上架'
+    shop-type-blacklist: [ BUY, SELL ]
