@@ -159,7 +159,7 @@ public class CreateArguments extends AbstractArguments<Player> {
         }
 
         // 检查商品上架条件
-        BaseLimitation limitation = LimitationManager.inst().getLimitByItem(item);
+        BaseLimitation limitation = LimitationManager.inst().getLimitation(item, currency);
         if (!sender.hasPermission("sweet.playermarket.create.bypass.type") && !limitation.canUseMarketType(type)) {
             Messages.Command.create__limitation__type_not_allow.tm(sender);
             if (callback != null) callback.accept(null);

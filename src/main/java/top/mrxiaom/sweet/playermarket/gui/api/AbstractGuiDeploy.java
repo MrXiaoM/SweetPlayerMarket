@@ -280,7 +280,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
 
             List<String> limitMessages = new ArrayList<>();
             if (sampleItem != null) {
-                BaseLimitation limitation = LimitationManager.inst().getLimitByItem(sampleItem);
+                BaseLimitation limitation = LimitationManager.inst().getLimitation(sampleItem, currency);
                 if (!player.hasPermission("sweet.playermarket.create.bypass.type") && !limitation.canUseMarketType(type)) {
                     limitMessages.add(Messages.Command.create__limitation__type_not_allow.str());
                 }

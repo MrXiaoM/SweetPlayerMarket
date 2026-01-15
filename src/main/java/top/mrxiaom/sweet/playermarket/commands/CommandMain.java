@@ -213,7 +213,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if (item.getType().equals(Material.AIR)) {
                 return null;
             }
-            return LimitationManager.inst().getLimitByItem(item);
+            return LimitationManager.inst().getLimitation(item, null);
         }
         return null;
     }
