@@ -61,6 +61,11 @@ display-names:
     buy: '&a收购'
     sell: '&b出售'
 
+  # 金额显示缩写
+  money-format:
+    '10000': '万'
+    '100000000': '亿'
+
   # 货币类型名称
   currency-types:
     all: '&a所有'

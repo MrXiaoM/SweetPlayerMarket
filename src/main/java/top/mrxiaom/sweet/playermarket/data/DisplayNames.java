@@ -14,10 +14,7 @@ import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @AutoRegister
 public class DisplayNames extends AbstractModule {
@@ -26,6 +23,8 @@ public class DisplayNames extends AbstractModule {
     private final Map<String, String> currencyMPoints = new HashMap<>();
     private final Map<String, String> columnNames = new HashMap<>();
     private final List<String> columnList = new ArrayList<>();
+    private final Map<Long, String> moneyFormat = new HashMap<>();
+    private final List<Long> moneyKeys = new ArrayList<>();
     private String currencyVault, currencyPlayerPoints, currencyAll, marketTypeAll;
     private final boolean supportTranslatable = Util.isPresent("org.bukkit.Translatable");
     private final boolean supportLangUtils = Util.isPresent("com.meowj.langutils.lang.LanguageHelper");
@@ -120,7 +119,18 @@ public class DisplayNames extends AbstractModule {
      * @return 格式化后的金额
      */
     public String formatMoney(double money) {
-        // TODO: 支持自定义简写（例如 1.23万）的同时，保证数值准确性
+        for (long key : moneyKeys) {
+            if (money >= key) {
+                double shortMoney = money / key;
+                String[] split = String.valueOf(shortMoney).split("\\.");
+                // 支持自定义简写的同时，确保数值准确性，小数点超过2位不使用简写
+                if (split.length == 1 || split[1].length() <= 2) {
+                    String moneyStr = String.format("%.2f", shortMoney).replace(".00", "");
+                    return moneyStr + moneyFormat.get(key);
+                }
+            }
+        }
+        // 默认保留两位小数显示
         return String.format("%.2f", money).replace(".00", "");
     }
 
@@ -141,6 +151,23 @@ public class DisplayNames extends AbstractModule {
                 marketTypeNames.put(type, section.getString(key));
             }
         }
+
+        moneyFormat.clear();
+        moneyKeys.clear();
+        section = config.getConfigurationSection("display-names.money-format");
+        if (section != null) for (String key : section.getKeys(false)) {
+            Long value = Util.parseLong(key).orElse(null);
+            if (value == null) {
+                warn("[money-format] 无法解析 " + key + " 为整数");
+                continue;
+            }
+            String format = section.getString(key);
+            moneyFormat.put(value, format);
+            moneyKeys.add(value);
+        }
+        moneyKeys.sort(Comparator.comparingLong(it -> it));
+        moneyKeys.sort(Comparator.reverseOrder());
+
         currencyAll = config.getString("display-names.currency-types.all");
         currencyVault = config.getString("display-names.currency-types.vault");
         currencyPlayerPoints = config.getString("display-names.currency-types.points");
