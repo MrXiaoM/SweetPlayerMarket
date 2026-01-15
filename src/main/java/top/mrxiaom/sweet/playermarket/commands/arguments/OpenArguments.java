@@ -14,13 +14,16 @@ import top.mrxiaom.sweet.playermarket.gui.GuiMarketplace;
 public class OpenArguments extends AbstractArguments<CommandSender> {
     private static final Arguments.Builder builder = Arguments.builder()
             .addStringOptions("type", "-t", "--type")
-            .addStringOptions("currency", "-c", "--currency");
+            .addStringOptions("currency", "-c", "--currency")
+            .addStringOptions("tag", "-t", "--tag");
     private final String type;
     private final String currency;
+    private final String tag;
     protected OpenArguments(Arguments arguments) {
         super(arguments);
         this.type = arguments.getOptionString("type", null);
         this.currency = arguments.getOptionString("currency", null);
+        this.tag = arguments.getOptionString("tag", null);
     }
 
     public String type() {
@@ -31,6 +34,10 @@ public class OpenArguments extends AbstractArguments<CommandSender> {
         return currency;
     }
 
+    public String tag() {
+        return tag;
+    }
+
     @Override
     public boolean execute(SweetPlayerMarket plugin, CommandSender sender) {
         Player player = getPlayerOrSelf(sender, "sweet.playermarket.open.other");
@@ -38,9 +45,11 @@ public class OpenArguments extends AbstractArguments<CommandSender> {
             return true;
         }
         IEconomy currency = plugin.parseEconomy(currency());
-        plugin.getScheduler().runTaskAsync(() -> GuiMarketplace.create(player, Searching.of(false)
+        Searching searching = Searching.of(false)
                 .type(Util.valueOr(EnumMarketType.class, type(), null))
-                .currency(currency == null ? null : currency.id())).open());
+                .currency(currency == null ? null : currency.id())
+                .tag(tag());
+        plugin.getScheduler().runTaskAsync(() -> GuiMarketplace.create(player, searching).open());
         return true;
     }
 
