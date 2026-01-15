@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
@@ -64,7 +65,9 @@ public class LimitationByItem extends BaseLimitation {
         return null;
     }
 
-    private static ItemMatcher parseMatcher(ConfigurationSection config) {
+    @Nullable
+    @ApiStatus.Internal
+    public static ItemMatcher parseMatcher(@NotNull ConfigurationSection config) {
         if (config.contains("any-nbt-tag")) {
             List<String> nbtTags = config.getStringList("any-nbt-tag");
             if (!nbtTags.isEmpty()) {

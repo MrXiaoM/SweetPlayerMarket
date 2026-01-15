@@ -1,0 +1,158 @@
+
+# 标签过滤器列表
+# 默认的过滤器配置为高版本制作，可能不太适用于低版本，需要作出调整
+# 修改此配置之后，需要执行命令 /pm recalc 以重新计算所有商品的标签
+#
+# 在全球市场菜单中，使用
+# - '[search:tag]标签名' 来过滤只查看某个标签的商品
+# - '[search:tag]' 来取消过滤标签，查看所有商品
+tag-filter-map:
+  # 标签名
+  tools:
+    # 按物品 ID 匹配
+    material:
+      - WOODEN_AXE
+      - WOODEN_HOE
+      - WOODEN_PICKAXE
+      - WOODEN_SHOVEL
+      - STONE_AXE
+      - STONE_HOE
+      - STONE_PICKAXE
+      - STONE_SHOVEL
+      - COPPER_AXE
+      - COPPER_HOE
+      - COPPER_PICKAXE
+      - COPPER_SHOVEL
+      - IRON_AXE
+      - IRON_HOE
+      - IRON_PICKAXE
+      - IRON_SHOVEL
+      - GOLDEN_AXE
+      - GOLDEN_HOE
+      - GOLDEN_PICKAXE
+      - GOLDEN_SHOVEL
+      - DIAMOND_AXE
+      - DIAMOND_HOE
+      - DIAMOND_PICKAXE
+      - DIAMOND_SHOVEL
+      - NETHERITE_AXE
+      - NETHERITE_HOE
+      - NETHERITE_PICKAXE
+      - NETHERITE_SHOVEL
+  mythic:
+    # 优先级，数字越小越先匹配，默认优先级为 1000
+    priority: 999
+    # 按物品匹配器匹配
+    matchers:
+        # 有任意类型的指定名称 NBT 时，物品匹配，此处示例为 MythicMobs 物品
+      - any-nbt-tag: [ MYTHIC_TYPE ]
+#        # 所有字符串类型，指定名称的 NBT 值匹配时，物品匹配
+#      - nbt-strings:
+#          MYTHIC_TYPE: ExampleItem
+#        # 所有整数类型，指定名称的 NBT 值匹配时，物品匹配
+#      - nbt-ints:
+#          CustomModelData: 10001
+#        # 有任意名称符合物品ID时，物品匹配
+#      - any-materials: [ DIAMOND, IRON_INGOT ]
+#        # 有任意名称在物品名中包含时，物品匹配
+#      - contains-name: [ '神器' ]
+#        # 有任意内容在物品Lore的任意一行中包含时，物品匹配
+#      - contains-lore: [ '神器' ]
+  weapon:
+    priority: 999
+    # 多种匹配方式可以同时使用
+    material:
+      - WOODEN_SPEAR
+      - WOODEN_SWORD
+      - STONE_SPEAR
+      - STONE_SWORD
+      - COPPER_SPEAR
+      - COPPER_SWORD
+      - IRON_SPEAR
+      - IRON_SWORD
+      - GOLDEN_SPEAR
+      - GOLDEN_SWORD
+      - DIAMOND_SPEAR
+      - DIAMOND_SWORD
+      - NETHERITE_SPEAR
+      - NETHERITE_SWORD
+      - TRIDENT
+      - CROSSBOW
+      - BOW
+    # 示例，匹配 MMOItems 的部分自带的武器分类
+    matchers:
+      - nbt-strings:
+          MMOITEMS_ITEM_TYPE: AXE
+      - nbt-strings:
+          MMOITEMS_ITEM_TYPE: SWORD
+      - nbt-strings:
+          MMOITEMS_ITEM_TYPE: LONG_SWORD
+      - nbt-strings:
+          MMOITEMS_ITEM_TYPE: DAGGER
+      - nbt-strings:
+          MMOITEMS_ITEM_TYPE: SPEAR
+      - nbt-strings:
+          MMOITEMS_ITEM_TYPE: BOW
+      - nbt-strings:
+          MMOITEMS_ITEM_TYPE: CROSSBOW
+  block:
+    # 按服务端定义的物品特性来匹配，低版本可能不支持某些特性
+    # 只要任意包含一项即可匹配
+    material-meta:
+      - is-block
+      #- is-air
+      #- is-burnable
+      #- is-compostable
+      #- is-editable
+      #- is-flammable
+      #- is-fuel
+      #- is-interactable
+      #- is-item
+      #- is-occluding
+      #- is-record
+      #- is-solid
+      #- is-transparent
+  food:
+    material:
+      - APPLE
+      - GOLDEN_APPLE
+      - ENCHANTED_GOLDEN_APPLE
+      - MELON_SLICE
+      - SWEET_BERRIES
+      - GLOW_BERRIES
+      - CHORUS_FRUIT
+      - CARROT
+      - GOLDEN_CARROT
+      - POTATO
+      - BAKED_POTATO
+      - POISONOUS_POTATO
+      - BEETROOT
+      - DRIED_KELP
+      - BEEF
+      - COOKED_BEEF
+      - PORKCHOP
+      - COOKED_PORKCHOP
+      - MUTTON
+      - COOKED_MUTTON
+      - CHICKEN
+      - COOKED_CHICKEN
+      - RABBIT
+      - COOKED_RABBIT
+      - COD
+      - COOKED_COD
+      - SALMON
+      - COOKED_SALMON
+      - TROPICAL_FISH
+      - PUFFERFISH
+      - BREAD
+      - COOKIE
+      - CAKE
+      - PUMPKIN_PIE
+      - ROTTEN_FLESH
+      - SPIDER_EYE
+      - MUSHROOM_STEW
+      - BEETROOT_SOUP
+      - RABBIT_STEW
+      - SUSPICIOUS_STEW
+      - MILK_BUCKET
+      - HONEY_BOTTLE
