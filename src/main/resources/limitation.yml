@@ -93,6 +93,8 @@ by-items:
     matchers:
         # 禁止上架 SweetCheckout 的二维码地图
       - any-nbt-tag: [ SWEET_CHECKOUT_MAP ]
+        # 禁止上架 MinePay 的二维码地图
+      - contains-name: [ '请核对支付金额' ]
     description:
       - '  &7● &f该物品禁止上架'
     shop-type-blacklist: [ BUY, SELL ]
