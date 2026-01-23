@@ -212,7 +212,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         initEconomy();
 
         ActionProviders.registerActionProviders(
-                ActionPage.PROVIDER, ActionRefresh.PROVIDER,
+                ActionPage.PROVIDER, ActionRefresh.PROVIDER, ActionBack.PROVIDER,
                 ActionSearchCurrency.PROVIDER, ActionSearchNotice.PROVIDER,
                 ActionSearchOutdate.PROVIDER, ActionSearchOutOfStock.PROVIDER,
                 ActionSearchSort.PROVIDER, ActionSearchTag.PROVIDER,
