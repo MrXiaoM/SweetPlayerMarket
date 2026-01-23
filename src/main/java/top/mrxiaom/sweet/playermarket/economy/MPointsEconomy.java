@@ -73,6 +73,7 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
     public IEconomy of(String sign) {
         IEconomy cache = caches.get(sign);
         if (cache != null) return cache;
+        if (!api.getpointslist().contains(sign)) return null;
         IEconomy economy = new MPointsEconomy(api, sign);
         caches.put(sign, economy);
         return economy;
@@ -80,7 +81,7 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
 
     @Override
     public String id() {
-        return "MPoints:" + sign;
+        return sign == null ? "MPoints" : ("MPoints:" + sign);
     }
 
     @Override
