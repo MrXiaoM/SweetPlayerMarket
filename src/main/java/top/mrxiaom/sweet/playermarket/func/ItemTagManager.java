@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.func;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +32,7 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
         if (!file.exists()) {
             plugin.saveResource("tag-filter.yml", file);
         }
-        YamlConfiguration config = ConfigUtils.load(file);
+        FileConfiguration config = plugin.resolveGotoFlag(ConfigUtils.load(file));
 
         noTagDisplayName = config.getString("no-tag-display-name", "");
         tagFilterList.clear();

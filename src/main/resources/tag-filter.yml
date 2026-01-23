@@ -1,3 +1,5 @@
+# 重定向该配置文件到某个路径，如果设置了这个，以下配置均无效
+#goto: '/path/to/limitation.yml'
 
 # 无筛选标签时显示的名称
 no-tag-display-name: '&7所有商品'
