@@ -58,14 +58,14 @@ other-icons:
       - '[page]+1'
   类:
     material: DIAMOND
-    display: '&e&l分类'
+    display: '&e&l商店类型'
     lore:
       - ''
-      - '  &f当前分类: &e%search_type%  '
+      - '  &f查看%search_type%&f商店  '
       - ''
-      - '&a左键 &7| &f切换出售分类'
-      - '&b右键 &7| &f切换收购分类'
-      - '&eShift+左键 &7| &f切换所有分类'
+      - '&a左键 &7| &f查看出售类型'
+      - '&b右键 &7| &f查看收购类型'
+      - '&eShift+左键 &7| &f查看所有类型'
     left-click-commands:
       - '[search:type]sell'
     right-click-commands:

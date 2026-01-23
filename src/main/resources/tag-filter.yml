@@ -1,15 +1,25 @@
 
+# 无筛选标签时显示的名称
+no-tag-display-name: '&7所有商品'
+
 # 标签过滤器列表
 # 默认的过滤器配置为高版本制作，可能不太适用于低版本，需要作出调整
 # 修改此配置之后，需要执行命令 /pm recalc 以重新计算所有商品的标签
 #
 # 在全球市场菜单中，使用
+# - '[search:tag]::list:: 打开商品分类菜单'
 # - '[search:tag]标签名' 来过滤只查看某个标签的商品
 # - '[search:tag]' 来取消过滤标签，查看所有商品
 # 也可以使用 /pm open --tag=标签名 命令来在打开全球市场时，过滤某个标签
 tag-filter-map:
+  # 特殊标签 default 不允许配置过滤器，仅供设置标签显示名称等元数据
+  default:
+    # 标签显示名称
+    display-name: '其它'
   # 标签名
   tools:
+    # 标签显示名称
+    display-name: '工具'
     # 按物品 ID 匹配
     material:
       - WOODEN_AXE
@@ -41,6 +51,8 @@ tag-filter-map:
       - NETHERITE_PICKAXE
       - NETHERITE_SHOVEL
   mythic:
+    # 标签显示名称
+    display-name: '材料'
     # 优先级，数字越小越先匹配，默认优先级为 1000
     priority: 999
     # 按物品匹配器匹配
@@ -60,6 +72,8 @@ tag-filter-map:
 #        # 有任意内容在物品Lore的任意一行中包含时，物品匹配
 #      - contains-lore: [ '神器' ]
   weapon:
+    # 标签显示名称
+    display-name: '武器'
     priority: 999
     # 多种匹配方式可以同时使用
     material:
@@ -97,6 +111,8 @@ tag-filter-map:
       - nbt-strings:
           MMOITEMS_ITEM_TYPE: CROSSBOW
   block:
+    # 标签显示名称
+    display-name: '方块'
     # 按服务端定义的物品特性来匹配，低版本可能不支持某些特性
     # 只要任意包含一项即可匹配
     material-meta:
@@ -114,6 +130,8 @@ tag-filter-map:
       #- is-solid
       #- is-transparent
   food:
+    # 标签显示名称
+    display-name: '食物'
     material:
       - APPLE
       - GOLDEN_APPLE

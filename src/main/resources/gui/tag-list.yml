@@ -1,0 +1,94 @@
+title: '商品分类'
+inventory:
+  - '框框框框框框框框框'
+  - '框　全工材武方　框'
+  - '框　食默　　　　框'
+  - '框框框框返框框框框'
+main-icons: {}
+other-icons:
+  框:
+    material: WHITE_STAINED_GLASS_PANE
+    display: '&f'
+  返:
+    material: LIGHT_BLUE_STAINED_GLASS_PANE
+    display: '&e&l返回'
+    lore:
+      - ''
+      - '&a左键 &7 &f返回全球市场'
+    left-click-commands:
+      - '[back]'
+  全:
+    material: CHEST
+    display: '&e&l显示所有商品'
+    lore:
+      - ''
+      - '&a左键&7 | &f取消筛选分类'
+    left-click-commands:
+      - '[search:tag]'
+      - '[back]'
+  工:
+    material: IRON_PICKAXE
+    display: '&e&l工具'
+    lore:
+      - ''
+      - '  &f镐子、斧头、楸、锄头等物品  '
+      - ''
+      - '&a左键&7 | &f切换筛选分类'
+    left-click-commands:
+      - '[search:tag]tools'
+      - '[back]'
+  材:
+    material: IRON_INGOT
+    display: '&e&l材料'
+    lore:
+      - ''
+      - '  &fRPG 合成素材  '
+      - ''
+      - '&a左键&7 | &f切换筛选分类'
+    left-click-commands:
+      - '[search:tag]mythic'
+      - '[back]'
+  武:
+    material: IRON_SWORD
+    display: '&e&l武器'
+    lore:
+      - ''
+      - '  &f用于战斗的趁手武器  '
+      - ''
+      - '&a左键&7 | &f切换筛选分类'
+    left-click-commands:
+      - '[search:tag]weapon'
+      - '[back]'
+  方:
+    material: STONE
+    display: '&e&l方块'
+    lore:
+      - ''
+      - '  &f垫脚石？建筑材料？都在这里  '
+      - ''
+      - '&a左键&7 | &f切换筛选分类'
+    left-click-commands:
+      - '[search:tag]block'
+      - '[back]'
+  食:
+    material: APPLE
+    display: '&e&l食物'
+    lore:
+      - ''
+      - '  &f一些可以吃的东西  '
+      - ''
+      - '&a左键&7 | &f切换筛选分类'
+    left-click-commands:
+      - '[search:tag]food'
+      - '[back]'
+  默:
+    material: GOLD_NUGGET
+    display: '&e&l其它分类'
+    lore:
+      - ''
+      - '  &f暂无分类的其他物品  '
+      - ''
+      - '&a左键&7 | &f切换筛选分类'
+    left-click-commands:
+      - '[search:tag]default'
+      - '[back]'

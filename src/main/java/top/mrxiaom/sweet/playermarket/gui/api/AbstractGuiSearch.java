@@ -29,6 +29,7 @@ import top.mrxiaom.sweet.playermarket.data.EnumSort;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
+import top.mrxiaom.sweet.playermarket.func.ItemTagManager;
 import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.utils.ListX;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
@@ -246,6 +247,10 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             Util.submitInvUpdate(player);
         }
 
+        public void resetPage() {
+            this.pages = 1;
+        }
+
         @Override
         public void turnPageUp(int pages) {
             if (this.pages - pages < 1) return;
@@ -314,6 +319,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             r.add("%search_sort_type%", plugin.displayNames().getSortName(searching.orderType()));
             r.add("%search_outdate%", bool(searching.outdated()));
             r.add("%search_out_of_stock%", bool(searching.onlyOutOfStock()));
+            r.add("%search_tag%", ItemTagManager.inst().getTagDisplayName(searching.tag()));
             Integer notice = searching.notice();
             r.add("%search_notice%", bool(notice != null && notice == 1));
             r.add("%is_market_admin%", player.hasPermission("sweet.playermarket.admin"));

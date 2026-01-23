@@ -13,13 +13,13 @@ import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.tag.TagFilter;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @AutoRegister
 public class ItemTagManager extends AbstractModule implements ItemTagResolver {
     private final List<TagFilter> tagFilterList = new ArrayList<>();
+    private final Map<String, String> tagDisplayNames = new HashMap<>();
+    private String noTagDisplayName = "";
     public ItemTagManager(SweetPlayerMarket plugin) {
         super(plugin);
         plugin.itemTagResolver(this);
@@ -33,11 +33,18 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
         }
         YamlConfiguration config = ConfigUtils.load(file);
 
+        noTagDisplayName = config.getString("no-tag-display-name", "");
         tagFilterList.clear();
+        tagDisplayNames.clear();
         ConfigurationSection section = config.getConfigurationSection("tag-filter-map");
         if (section != null) for (String tag : section.getKeys(false)) {
             ConfigurationSection properties = section.getConfigurationSection(tag);
             if (properties == null) continue;
+            String displayName = properties.getString("display-name");
+            if (displayName != null) {
+                tagDisplayNames.put(tag, displayName);
+            }
+            if (tag.equalsIgnoreCase("default")) continue;
             try {
                 tagFilterList.add(new TagFilter(plugin, tag, properties));
             } catch (Throwable t) {
@@ -55,6 +62,14 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
             }
         }
         return "default";
+    }
+
+    @NotNull
+    public String getTagDisplayName(@Nullable String tag) {
+        if (tag == null) {
+            return noTagDisplayName;
+        }
+        return tagDisplayNames.getOrDefault(tag, tag);
     }
 
     public static ItemTagManager inst() {

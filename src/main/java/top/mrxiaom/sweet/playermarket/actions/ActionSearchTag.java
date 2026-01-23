@@ -7,6 +7,7 @@ import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.sweet.playermarket.gui.GuiTagList;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
 import java.util.List;
@@ -34,8 +35,19 @@ public class ActionSearchTag implements IAction {
             IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
             if (gui instanceof AbstractGuiSearch.SearchGui) {
                 AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
-                gm.searching().tag(tag.isEmpty() ? null : tag);
-                gm.refreshGui();
+                if (tag.equals("::list::")) {
+                    GuiTagList.create(player, gm).open();
+                } else {
+                    gm.searching().tag(tag.isEmpty() ? null : tag);
+                    gm.resetPage();
+                    gm.refreshGui();
+                }
+            }
+            if (gui instanceof GuiTagList.Impl) {
+                if (tag.equals("::list::")) {
+                    return;
+                }
+                ((GuiTagList.Impl) gui).setTag(tag.isEmpty() ? null : tag);
             }
         }
     }
