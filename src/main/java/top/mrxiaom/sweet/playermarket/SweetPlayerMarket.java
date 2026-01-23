@@ -84,10 +84,6 @@ public class SweetPlayerMarket extends BukkitPlugin {
         for (URL library : libraries) {
             this.classLoader.addURL(library);
         }
-
-        economyResolvers.add(new VaultEconomy.Resolver(this));
-        economyResolvers.add(new PlayerPointsEconomy.Resolver(this));
-        economyResolvers.add(new MPointsEconomy.Resolver(this));
     }
     private final MarketAPI api = new API();
     private final List<IEconomyResolver> economyResolvers = new ArrayList<>();
@@ -96,6 +92,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private IEconomy vault;
     private IEconomy playerPoints;
     private IEconomyWithSign mPoints;
+    private IEconomyWithSign coinsEngine;
     private ItemTagResolver itemTagResolver = item -> "default";
     private MarketplaceDatabase marketplaceDatabase;
     private DisplayNames displayNames;
@@ -117,6 +114,10 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @Nullable
     public IEconomyWithSign getMPoints() {
         return mPoints;
+    }
+    @Nullable
+    public IEconomyWithSign getCoinsEngine() {
+        return coinsEngine;
     }
     @Nullable
     public IEconomy parseEconomy(@Nullable String str) {
@@ -223,34 +224,49 @@ public class SweetPlayerMarket extends BukkitPlugin {
     }
 
     private void initEconomy() {
+        List<String> loadedEconomies = new ArrayList<>();
         try {
             if (Util.isPresent("net.milkbowl.vault.economy.Economy")) {
                 RegisteredServiceProvider<Economy> service = Bukkit.getServicesManager().getRegistration(Economy.class);
                 Economy provider = service == null ? null : service.getProvider();
                 if (provider != null) {
                     vault = new VaultEconomy(provider);
+                    economyResolvers.add(new VaultEconomy.Resolver(this));
+                    loadedEconomies.add(vault.getName());
                 } else {
                     warn("已发现 Vault，但经济插件未加载，无法挂钩经济插件");
                 }
             }
-        } catch (NoClassDefFoundError ignored) {
+        } catch (LinkageError ignored) {
         }
         try {
             if (Util.isPresent("org.black_ixx.playerpoints.PlayerPointsAPI")) {
                 PlayerPointsAPI api = PlayerPoints.getInstance().getAPI();
                 playerPoints = new PlayerPointsEconomy(api);
+                economyResolvers.add(new PlayerPointsEconomy.Resolver(this));
+                loadedEconomies.add(playerPoints.getName());
             }
-        } catch (NoClassDefFoundError ignored) {
+        } catch (LinkageError ignored) {
         }
         try {
             if (Util.isPresent("me.yic.mpoints.MPointsAPI")) {
                 mPoints = new MPointsEconomy(new MPointsAPI(), null);
+                economyResolvers.add(new MPointsEconomy.Resolver(this));
+                loadedEconomies.add(mPoints.getName());
             }
-        } catch (NoClassDefFoundError ignored) {
+        } catch (LinkageError ignored) {
         }
-        if (vault != null) info("已挂钩经济插件 " + vault.getName());
-        if (playerPoints != null) info("已挂钩经济插件 " + playerPoints.getName());
-        if (mPoints != null) info("已挂钩经济插件 " + mPoints.getName());
+        try {
+            if (Util.isPresent("su.nightexpress.coinsengine.api.CoinsEngineAPI")) {
+                coinsEngine = new CoinsEngineEconomy(null);
+                economyResolvers.add(new CoinsEngineEconomy.Resolver(this));
+                loadedEconomies.add(coinsEngine.getName());
+            }
+        } catch (LinkageError ignored) {
+        }
+        for (String name : loadedEconomies) {
+            info("已挂钩经济插件 " + name);
+        }
     }
 
     @Override

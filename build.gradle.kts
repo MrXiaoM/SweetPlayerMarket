@@ -37,6 +37,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly(files("libs/MPoints-1.2.2.jar"))
+    compileOnly("com.github.nulli0n:CoinsEngine-spigot:c32f037025")
     compileOnly("org.jetbrains:annotations:24.0.0")
     // MythicMobs
     compileOnly("io.lumine:Mythic-Dist:4.13.0")
