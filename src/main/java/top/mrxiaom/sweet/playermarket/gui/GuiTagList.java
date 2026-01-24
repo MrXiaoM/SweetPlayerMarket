@@ -60,14 +60,17 @@ public class GuiTagList extends AbstractGuiCanGoBack {
 
         @Override
         public void goBack() {
-            if (parent != null) {
-                parent.doSearch();
-                parent.open();
-            } else {
-                GuiMarketplace
-                        .create(player, Searching.of(false).tag(tag))
-                        .open();
-            }
+            actionLock = true;
+            plugin.getScheduler().runTaskAsync(() -> {
+                if (parent != null) {
+                    parent.doSearch();
+                    parent.open();
+                } else {
+                    GuiMarketplace
+                            .create(player, Searching.of(false).tag(tag))
+                            .open();
+                }
+            });
         }
     }
 }

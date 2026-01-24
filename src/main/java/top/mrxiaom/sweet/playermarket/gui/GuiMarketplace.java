@@ -103,24 +103,26 @@ public class GuiMarketplace extends AbstractGuiSearch {
             }
             List<IAction> actions = getIconItemsClickActions(click);
             if (!actions.isEmpty()) {
-                MarketItem marketItem = refreshItem(item);
-                if (marketItem == null || marketItem.amount() == 0) {
-                    items.set(i, item.toBuilder().amount(0).build());
-                    actionLock = false;
-                    Messages.Gui.common__item_not_found.tm(player);
-                    return;
-                }
-                ListPair<String, Object> r = new ListPair<>();
-                r.add("__internal__index", i);
-                r.add("__internal__market_item", marketItem);
-                if (!canBuySelfItems && marketItem.playerId().equals(plugin.getKey(player))) {
-                    iconItemSelf.click(player, click, r);
-                    actionLock = false;
-                    return;
-                }
-                plugin.getScheduler().runTask(() -> {
-                    ActionProviders.run(plugin, player, actions, r);
-                    actionLock = false;
+                plugin.getScheduler().runTaskAsync(() -> {
+                    MarketItem marketItem = refreshItem(item);
+                    if (marketItem == null || marketItem.amount() == 0) {
+                        items.set(i, item.toBuilder().amount(0).build());
+                        actionLock = false;
+                        Messages.Gui.common__item_not_found.tm(player);
+                        return;
+                    }
+                    ListPair<String, Object> r = new ListPair<>();
+                    r.add("__internal__index", i);
+                    r.add("__internal__market_item", marketItem);
+                    if (!canBuySelfItems && marketItem.playerId().equals(plugin.getKey(player))) {
+                        iconItemSelf.click(player, click, r);
+                        actionLock = false;
+                        return;
+                    }
+                    plugin.getScheduler().runTask(() -> {
+                        ActionProviders.run(plugin, player, actions, r);
+                        actionLock = false;
+                    });
                 });
                 return;
             }

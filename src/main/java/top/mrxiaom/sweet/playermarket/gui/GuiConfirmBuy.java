@@ -195,8 +195,10 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 InventoryView view, InventoryClickEvent event
         ) {
             actionLock = true;
-            parent.doSearch();
-            parent.open();
+            plugin.getScheduler().runTaskAsync(() -> {
+                parent.doSearch();
+                parent.open();
+            });
         }
 
         private int getInvCount(ItemStack sample) {

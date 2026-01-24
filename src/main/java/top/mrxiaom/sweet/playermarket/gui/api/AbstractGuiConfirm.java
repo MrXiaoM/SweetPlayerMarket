@@ -247,24 +247,22 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             Character clickedId = getClickedId(slot);
             if (clickedId == null) return;
             checkNeedToLockAction(clickedId);
-            plugin.getScheduler().runTask(() -> {
-                if (clickedId == '物') {
-                    onClickMarketItem(action, click, slotType, slot, view, event);
-                    return;
-                }
-                if (clickedId == '确') {
-                    onClickConfirm(action, click, slotType, slot, view, event);
-                    return;
-                }
-                if (clickedId == '返') {
-                    onClickBack(action, click, slotType, slot, view, event);
-                    return;
-                }
-                if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
-                    return;
-                }
-                handleOtherClick(click, clickedId);
-            });
+            if (clickedId == '物') {
+                onClickMarketItem(action, click, slotType, slot, view, event);
+                return;
+            }
+            if (clickedId == '确') {
+                onClickConfirm(action, click, slotType, slot, view, event);
+                return;
+            }
+            if (clickedId == '返') {
+                onClickBack(action, click, slotType, slot, view, event);
+                return;
+            }
+            if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
+                return;
+            }
+            plugin.getScheduler().runTask(() -> handleOtherClick(click, clickedId));
         }
 
         protected abstract void checkNeedToLockAction(char id);

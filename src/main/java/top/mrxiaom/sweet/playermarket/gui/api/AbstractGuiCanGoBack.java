@@ -13,6 +13,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 
 import java.io.File;
+import java.util.function.BiConsumer;
 
 public abstract class AbstractGuiCanGoBack extends AbstractGuiModule {
     protected final String filePath;
@@ -41,9 +42,16 @@ public abstract class AbstractGuiCanGoBack extends AbstractGuiModule {
     public abstract class CanGoBackGui<ParentGui extends IGuiHolder> extends Gui implements IGuiCanGoBack {
         public final SweetPlayerMarket plugin = AbstractGuiCanGoBack.this.plugin;
         protected final ParentGui parent;
+        protected boolean actionLock = false;
         protected CanGoBackGui(Player player, ParentGui parent) {
             super(player, guiTitle, guiInventory);
             this.parent = parent;
+        }
+
+        @Override
+        public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
+            super.updateInventory(setItem);
+            actionLock = false;
         }
 
         @Override
@@ -54,6 +62,7 @@ public abstract class AbstractGuiCanGoBack extends AbstractGuiModule {
                 InventoryView view, InventoryClickEvent event
         ) {
             event.setCancelled(true);
+            if (actionLock) return;
             Character clickedId = getClickedId(slot);
             if (clickedId == null) return;
             plugin.getScheduler().runTask(() -> handleOtherClick(click, clickedId));
@@ -62,6 +71,7 @@ public abstract class AbstractGuiCanGoBack extends AbstractGuiModule {
         @Override
         public void goBack() {
             if (parent != null) {
+                actionLock = true;
                 parent.open();
             }
         }

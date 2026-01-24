@@ -242,9 +242,12 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
 
         @Override
         public void refreshGui() {
-            doSearch();
-            updateInventory(getInventory());
-            Util.submitInvUpdate(player);
+            actionLock = true;
+            plugin.getScheduler().runTaskAsync(() -> {
+                doSearch();
+                updateInventory(getInventory());
+                Util.submitInvUpdate(player);
+            });
         }
 
         public void resetPage() {
@@ -254,19 +257,25 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         @Override
         public void turnPageUp(int pages) {
             if (this.pages - pages < 1) return;
-            this.pages -= pages;
-            doSearch();
-            open();
+            actionLock = true;
+            plugin.getScheduler().runTaskAsync(() -> {
+                this.pages -= pages;
+                doSearch();
+                open();
+            });
         }
 
         @Override
         public void turnPageDown(int pages) {
-            ListX<MarketItem> items = plugin.getMarketplace().getItems(this.pages + pages, slotsSize, searching);
-            if (items.isEmpty()) return;
-            this.pages += pages;
-            this.items.clear();
-            items.copyTo(this.items);
-            open();
+            actionLock = true;
+            plugin.getScheduler().runTaskAsync(() -> {
+                ListX<MarketItem> items = plugin.getMarketplace().getItems(this.pages + pages, slotsSize, searching);
+                if (items.isEmpty()) return;
+                this.pages += pages;
+                this.items.clear();
+                items.copyTo(this.items);
+                open();
+            });
         }
 
         public void switchOrderColumn() {
@@ -341,23 +350,20 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             Character clickedId = getClickedId(slot);
             if (clickedId == null) return;
             checkNeedToLockAction(clickedId);
-            plugin.getScheduler().runTask(() -> {
-                if (clickedId == '物') {
-                    actionLock = true;
-                    int i = getAppearTimes(clickedId, slot) - 1;
-                    MarketItem item = getItem(i);
-                    if (item == null) {
-                        actionLock = false;
-                        return;
-                    }
-                    onClickMarketItem(action, click, slotType, slot, item, i, view, event);
+            if (clickedId == '物') {
+                actionLock = true;
+                int i = getAppearTimes(clickedId, slot) - 1;
+                MarketItem item = getItem(i);
+                if (item == null) {
+                    actionLock = false;
                     return;
                 }
-                if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
-                    return;
-                }
-                handleOtherClick(click, clickedId);
-            });
+                onClickMarketItem(action, click, slotType, slot, item, i, view, event);
+            }
+            if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
+                return;
+            }
+            plugin.getScheduler().runTask(() -> handleOtherClick(click, clickedId));
         }
 
         protected abstract void checkNeedToLockAction(char id);

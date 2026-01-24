@@ -106,12 +106,14 @@ public class GuiMyItems extends AbstractGuiSearch {
             ListPair<String, Object> r = new ListPair<>();
             r.add("__internal__market_item", item);
             r.add("__internal__index", i);
-            if (item.noticeFlag() == 1) {
-                iconClaim.click(player, click, r);
-            } else {
-                iconItem.click(player, click, r);
-            }
-            actionLock = false;
+            plugin.getScheduler().runTask(() -> {
+                if (item.noticeFlag() == 1) {
+                    iconClaim.click(player, click, r);
+                } else {
+                    iconItem.click(player, click, r);
+                }
+                actionLock = false;
+            });
         }
     }
 }
