@@ -95,8 +95,11 @@ other-icons:
       - '  &f状态: &e%search_notice%'
       - ''
       - '&a左键 &7| &f切换状态'
+      - '&b右键 &7| &f返回全球市场商品列表'
     left-click-commands:
       - '[search:notice]'
+    right-click-commands:
+      - '[player]sweetplayermarket open'
   序:
     material: COMPASS
     display: '&e&l排序'
