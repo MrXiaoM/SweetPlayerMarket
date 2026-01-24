@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiCanGoBack;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
@@ -24,19 +25,26 @@ public class GuiTagList extends AbstractGuiCanGoBack {
         return instanceOf(GuiTagList.class);
     }
 
-    public static Impl create(Player player, AbstractGuiSearch.SearchGui parent) {
+    public static Impl create(Player player, @Nullable AbstractGuiSearch.SearchGui parent) {
         GuiTagList self = inst();
         return self.new Impl(player, parent);
     }
 
     public class Impl extends CanGoBackGui<AbstractGuiSearch.SearchGui> {
-        protected Impl(Player player, AbstractGuiSearch.SearchGui parent) {
+        private @Nullable String tag = null;
+        protected Impl(Player player, @Nullable AbstractGuiSearch.SearchGui parent) {
             super(player, parent);
+            if (parent != null) {
+                tag = parent.searching().tag();
+            }
         }
 
         public void setTag(@Nullable String tag) {
-            parent.searching().tag(tag);
-            parent.resetPage();
+            this.tag = tag;
+            if (parent != null) {
+                parent.searching().tag(tag);
+                parent.resetPage();
+            }
         }
 
         @Override
@@ -44,6 +52,10 @@ public class GuiTagList extends AbstractGuiCanGoBack {
             if (parent != null) {
                 parent.doSearch();
                 parent.open();
+            } else {
+                GuiMarketplace
+                        .create(player, Searching.of(false).tag(tag))
+                        .open();
             }
         }
     }

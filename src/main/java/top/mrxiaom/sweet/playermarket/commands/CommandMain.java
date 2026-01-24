@@ -76,6 +76,12 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             return command.to(CreateArguments::of).execute(plugin, (Player) sender);
         }
+        if (command.match("tags")) {
+            if (!sender.hasPermission("sweet.playermarket.tags")) {
+                return Messages.Command.no_permission.tm(sender);
+            }
+            return command.into(TagsArguments::of).execute(plugin, sender);
+        }
         if (command.match("recalc")) {
             if (!sender.hasPermission("sweet.playermarket.recalc")) {
                 return Messages.Command.no_permission.tm(sender);
@@ -104,6 +110,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             List<String> list = new ArrayList<>();
             add(sender, list, "sweet.playermarket.open", "open");
             add(sender, list, "sweet.playermarket.create", "create");
+            add(sender, list, "sweet.playermarket.tags", "tags");
             add(sender, list, "sweet.playermarket.me", "me");
             add(sender, list, "sweet.playermarket.server", "server");
             add(sender, list, "sweet.playermarket.recalc", "recalc");
@@ -139,6 +146,9 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return startsWith(list, args[1]);
             }
             if ("open".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.open.other")) {
+                return null;
+            }
+            if ("tags".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.tags.other")) {
                 return null;
             }
             if ("me".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.me.other")) {
