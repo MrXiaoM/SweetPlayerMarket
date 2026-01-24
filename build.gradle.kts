@@ -12,7 +12,7 @@ buildscript {
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.playermarket"
-version = "1.0.0"
+version = "1.0.1"
 
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, gui, actions, l10n, commands, paper, misc) }
@@ -87,9 +87,6 @@ tasks {
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
         }
-        listOf(
-            "top/mrxiaom/pluginbase/temporary/*",
-        ).forEach(this::exclude)
     }
     val copyTask = create<Copy>("copyBuildArtifact") {
         dependsOn(shadowJar)
