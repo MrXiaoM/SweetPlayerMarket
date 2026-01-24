@@ -2,11 +2,16 @@ package top.mrxiaom.sweet.playermarket.gui;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
+import top.mrxiaom.pluginbase.utils.ListPair;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.Searching;
+import top.mrxiaom.sweet.playermarket.func.ItemTagManager;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiCanGoBack;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
@@ -19,6 +24,12 @@ public class GuiTagList extends AbstractGuiCanGoBack {
     @Override
     protected void loadMainIcon(ConfigurationSection section, String id, LoadedIcon icon) {
 
+    }
+
+    @Override
+    protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
+        ListPair<String, Object> r = ItemTagManager.inst().getTagDisplayNames();
+        return icon.generateIcon(player, s -> Pair.replace(s, r), l -> Pair.replace(l, r));
     }
 
     public static GuiTagList inst() {

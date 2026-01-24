@@ -3,11 +3,11 @@ package top.mrxiaom.sweet.playermarket.func;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
@@ -20,6 +20,7 @@ import java.util.*;
 public class ItemTagManager extends AbstractModule implements ItemTagResolver {
     private final List<TagFilter> tagFilterList = new ArrayList<>();
     private final Map<String, String> tagDisplayNames = new HashMap<>();
+    private final ListPair<String, Object> tagDisplayNamesReplacement = new ListPair<>();
     private String noTagDisplayName = "";
     public ItemTagManager(SweetPlayerMarket plugin) {
         super(plugin);
@@ -37,6 +38,7 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
         noTagDisplayName = config.getString("no-tag-display-name", "");
         tagFilterList.clear();
         tagDisplayNames.clear();
+        tagDisplayNamesReplacement.clear();
         ConfigurationSection section = config.getConfigurationSection("tag-filter-map");
         if (section != null) for (String tag : section.getKeys(false)) {
             ConfigurationSection properties = section.getConfigurationSection(tag);
@@ -44,6 +46,9 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
             String displayName = properties.getString("display-name");
             if (displayName != null) {
                 tagDisplayNames.put(tag, displayName);
+                tagDisplayNamesReplacement.add("%tag_" + tag + "%", displayName);
+            } else {
+                tagDisplayNamesReplacement.add("%tag_" + tag + "%", tag);
             }
             if (tag.equalsIgnoreCase("default")) continue;
             try {
@@ -71,6 +76,11 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
             return noTagDisplayName;
         }
         return tagDisplayNames.getOrDefault(tag, tag);
+    }
+
+    @NotNull
+    public ListPair<String, Object> getTagDisplayNames() {
+        return tagDisplayNamesReplacement;
     }
 
     public static ItemTagManager inst() {

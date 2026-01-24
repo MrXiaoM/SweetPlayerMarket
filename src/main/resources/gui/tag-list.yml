@@ -28,7 +28,7 @@ other-icons:
       - '[back]'
   工:
     material: IRON_PICKAXE
-    display: '&e&l工具'
+    display: '&e&l%tag_tools%'
     lore:
       - ''
       - '  &f镐子、斧头、楸、锄头等物品  '
@@ -39,7 +39,7 @@ other-icons:
       - '[back]'
   材:
     material: IRON_INGOT
-    display: '&e&l材料'
+    display: '&e&l%tag_mythic%'
     lore:
       - ''
       - '  &fRPG 合成素材  '
@@ -50,7 +50,7 @@ other-icons:
       - '[back]'
   武:
     material: IRON_SWORD
-    display: '&e&l武器'
+    display: '&e&l%tag_weapon%'
     lore:
       - ''
       - '  &f用于战斗的趁手武器  '
@@ -61,7 +61,7 @@ other-icons:
       - '[back]'
   方:
     material: STONE
-    display: '&e&l方块'
+    display: '&e&l%tag_block%'
     lore:
       - ''
       - '  &f垫脚石？建筑材料？都在这里  '
@@ -72,7 +72,7 @@ other-icons:
       - '[back]'
   食:
     material: APPLE
-    display: '&e&l食物'
+    display: '&e&l%tag_food%'
     lore:
       - ''
       - '  &f一些可以吃的东西  '
@@ -83,7 +83,7 @@ other-icons:
       - '[back]'
   默:
     material: GOLD_NUGGET
-    display: '&e&l其它分类'
+    display: '&e&l%tag_default%'
     lore:
       - ''
       - '  &f暂无分类的其他物品  '
