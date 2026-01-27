@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.database;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.database.IDatabase;
 import top.mrxiaom.pluginbase.utils.Util;
@@ -94,8 +95,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         TABLE_MARKETPLACE = tablePrefix + "marketplace";
         try (PreparedStatement ps = conn.prepareStatement(
                 "CREATE TABLE if NOT EXISTS `" + TABLE_MARKETPLACE + "`(" +
-                        "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品ID
-                        "`player` VARCHAR(48)," +              // 商家的玩家ID
+                        "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品 ID
+                        "`player` VARCHAR(48)," +              // 商家的玩家 ID
                         "`shop_type` INT," +                   // 商品类型
                         "`create_time` DATETIME," +            // 商品上架时间
                         "`outdate_time` DATETIME NULL," +      // 商品到期时间 (NULL 代表永不过期)
@@ -173,7 +174,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
      * @param searching 搜素参数
      * @return 搜索结果
      */
-    public ListX<MarketItem> getItems(int page, int size, Searching searching) {
+    public ListX<MarketItem> getItems(int page, int size, @NotNull Searching searching) {
         String sql = null;
         try (Connection conn = plugin.getConnection()) {
             String conditions = searching.generateConditions();
@@ -187,17 +188,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                 searching.setValues(ps, 1);
                 list = new ListX<>(queryAndLoadItems(ps));
             }
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` "
-                    + "WHERE " + conditions + ";"
-            )) {
-                searching.setValues(ps, 1);
-                try (ResultSet result = ps.executeQuery()) {
-                    if (result.next()) {
-                        list.setTotalCount(result.getInt(1));
-                    }
-                }
-            }
+            list.setTotalCount(getTotalCount(conn, searching));
             return list;
         } catch (SQLException e) {
             if (e instanceof SQLSyntaxErrorException) {
@@ -209,12 +200,40 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
+    public int getTotalCount(Connection conn, @NotNull Searching searching) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` WHERE " + searching.generateConditions() + ";"
+        )) {
+            searching.setValues(ps, 1);
+            try (ResultSet result = ps.executeQuery()) {
+                if (result.next()) {
+                    return result.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 获取符合条件的商品数量
+     * @param searching 搜索参数
+     * @return 如果没有商品，或者数据库错误，将会返回 <code>0</code>
+     */
+    public int getTotalCount(@NotNull Searching searching) {
+        try (Connection conn = plugin.getConnection()) {
+            return getTotalCount(conn, searching);
+        } catch (SQLException e) {
+            warn(e);
+            return 0;
+        }
+    }
+
     /**
      * 获取指定商品信息
      * @param shopId 商品ID
      */
     @Nullable
-    public MarketItem getItem(String shopId) {
+    public MarketItem getItem(@NotNull String shopId) {
         try (Connection conn = plugin.getConnection()) {
             return getItem(conn, shopId);
         } catch (SQLException e) {
@@ -223,11 +242,13 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         return null;
     }
 
-    public MarketItem getItem(Connection conn, String shopId) throws SQLException {
+    @Nullable
+    public MarketItem getItem(Connection conn, @NotNull String shopId) throws SQLException {
         return getItem(conn, shopId, false);
     }
 
-    public MarketItem getItem(Connection conn, String shopId, boolean ignoreAmount) throws SQLException {
+    @Nullable
+    public MarketItem getItem(Connection conn, @NotNull String shopId, boolean ignoreAmount) throws SQLException {
         String sql = ignoreAmount
                 ? ("SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? LIMIT 1;")
                 : ("SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? AND `amount`>0 LIMIT 1;");
@@ -311,10 +332,12 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
+    @Nullable
     public String createNewId(Connection conn) {
         return createNewId(conn, 0);
     }
 
+    @Nullable
     public String createNewId(Connection conn, int times) {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? LIMIT 1;"
@@ -339,7 +362,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     /**
      * 添加商品到商店中
      */
-    public boolean putItem(MarketItem item) {
+    public boolean putItem(@NotNull MarketItem item) {
         try (Connection conn = plugin.getConnection()) {
             putItem(conn, item);
             return true;
@@ -349,7 +372,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
-    public void putItem(Connection conn, MarketItem item) throws SQLException {
+    public void putItem(Connection conn, @NotNull MarketItem item) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO `" + TABLE_MARKETPLACE + "` "
                 + "(`shop_id`,`player`,`shop_type`,`create_time`,`outdate_time`,`currency`,`price`,`amount`,`notice_flag`,`tag`,`data`) "
