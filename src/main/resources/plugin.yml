@@ -10,6 +10,7 @@ softdepend:
   - LangUtils
   - MythicLib
   - MythicMobs
+  - CraftEngine
 authors: [ MrXiaoM ]
 folia-supported: true
 libraries:

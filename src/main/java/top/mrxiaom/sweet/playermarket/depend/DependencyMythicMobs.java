@@ -22,6 +22,7 @@ public class DependencyMythicMobs extends AbstractModule {
             instance = new Mythic4();
         }
         plugin.registerItemProvider(mythicItem = new MythicItem(instance));
+        info("已挂钩 MythicMobs");
     }
 
     @Override

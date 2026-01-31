@@ -17,6 +17,7 @@ version = "1.0.1"
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, gui, actions, l10n, commands, paper, misc) }
 val shadowGroup = "top.mrxiaom.sweet.playermarket.libs"
+val shadowLink = configurations.create("shadowLink")
 
 repositories {
     mavenCentral()
@@ -58,6 +59,7 @@ dependencies {
         implementation(artifact)
     }
     implementation(base.resolver.lite)
+    shadowLink(project(":craft-engine"))
 }
 buildConfig {
     className("BuildConstants")
@@ -79,6 +81,7 @@ java {
 }
 tasks {
     shadowJar {
+        configurations.add(shadowLink)
         mapOf(
             "top.mrxiaom.pluginbase" to "base",
             "com.ezylang.evalex" to "evalex",
