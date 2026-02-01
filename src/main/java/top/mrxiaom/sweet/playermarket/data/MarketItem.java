@@ -113,6 +113,11 @@ public class MarketItem {
         return outdateTime;
     }
 
+    public boolean isOutdated(LocalDateTime now) {
+        if (outdateTime == null) return false;
+        return now.isAfter(outdateTime);
+    }
+
     /**
      * 商品货币
      */

@@ -61,7 +61,7 @@ public class GuiMyItems extends AbstractGuiSearch {
                 List<?> list = item.params().getList("buy.received-items");
                 amountCanTake = list == null ? 0 : list.size();
             }
-            if (LocalDateTime.now().isAfter(item.outdateTime()) && item.amount() > 0) {
+            if (item.isOutdated(LocalDateTime.now()) && item.amount() > 0) {
                 amountCanTake += item.amount();
             }
             if (amountCanTake > 0) {

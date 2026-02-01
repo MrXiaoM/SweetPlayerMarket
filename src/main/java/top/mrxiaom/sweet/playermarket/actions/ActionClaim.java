@@ -73,7 +73,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                 return;
             }
             int amount = marketItem.amount();
-            boolean outdated = LocalDateTime.now().isAfter(marketItem.outdateTime());
+            boolean outdated = marketItem.isOutdated(LocalDateTime.now());
             String currencyName = plugin.displayNames().getCurrencyName(marketItem.currencyName());
             ConfigurationSection params = marketItem.params();
             if (marketItem.type().equals(EnumMarketType.SELL)) {
