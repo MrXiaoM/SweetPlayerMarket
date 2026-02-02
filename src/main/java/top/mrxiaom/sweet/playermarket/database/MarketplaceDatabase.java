@@ -479,6 +479,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
 
     private void sendRemoveCache(String tag) {
         if (tag == null) return;
+        tagCountCache.remove(tag);
+        totalCount = null;
         Bytes.sendByWhoeverOrNot("BungeeCord", Bytes.build(out -> {
             out.writeUTF(tag);
         }, /*subChannel:*/"Forward", /*arguments:*/"ALL", "SPM_CountCache"));
