@@ -123,6 +123,11 @@ public class CreateArguments extends AbstractArguments<Player> {
             double price, IEconomy currency,
             @Nullable Consumer<MarketItem> callback
     ) {
+        if (systemName != null && !sender.hasPermission("sweet.playermarket.create.system")) {
+            Messages.Command.no_permission.tm(sender);
+            if (callback != null) callback.accept(null);
+            return;
+        }
         // 商品单价
         if (price < 0.01) {
             Messages.Command.create__no_price_valid.tm(sender);
