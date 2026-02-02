@@ -93,6 +93,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     public MarketplaceDatabase(SweetPlayerMarket plugin) {
         super(plugin, true);
         registerBungee();
+        plugin.getScheduler().runTaskTimerAsync(this::fetchAllCountCache, 15 * 20L, 15 * 20L);
     }
 
     @Override
