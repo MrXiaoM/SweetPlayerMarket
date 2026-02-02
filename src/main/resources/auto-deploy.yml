@@ -68,6 +68,7 @@ auto-deploy-properties:
       # 物品来源，支持先替换 PAPI 变量
       # 物品 - 使用原版物品
       # mythic:物品 - 使用 MythicMobs 物品
+      # ce:命名空间:物品 - 使用 CraftEngine 物品
       item-source: STONE
       # 商品到期时间，支持先替换 PAPI 变量，不填则默认为 24h
       outdate-time: '24h'
