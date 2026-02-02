@@ -30,6 +30,9 @@ public class GuiTagList extends AbstractGuiCanGoBack {
     protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
         ItemTagManager manager = ItemTagManager.inst();
         ListPair<String, Object> r = new ListPair<>(manager.getTagDisplayNames());
+        if (contains(icon, "%item_count_all%")) {
+            r.add("%item_count_all%", plugin.getMarketplace().getTotalCountWithCache());
+        }
         for (String tag : manager.getNamedTags()) {
             String key = "%item_count_tag_" + tag + "%";
             if (contains(icon, key)) {

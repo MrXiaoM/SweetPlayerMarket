@@ -12,6 +12,7 @@ import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.data.*;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractPluginHolder;
+import top.mrxiaom.sweet.playermarket.func.ItemTagManager;
 import top.mrxiaom.sweet.playermarket.utils.ListX;
 
 import java.io.DataInputStream;
@@ -87,6 +88,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
     private String TABLE_MARKETPLACE;
+    private Integer totalCount = null;
     private final Map<String, Integer> tagCountCache = new HashMap<>();
     public MarketplaceDatabase(SweetPlayerMarket plugin) {
         super(plugin, true);
@@ -111,6 +113,25 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                         "`data` LONGTEXT" +                    // 商品数据，包括物品以及额外参数
                 ");"
         )) { ps.execute(); }
+        fetchAllCountCache(conn);
+    }
+
+    public void fetchAllCountCache() {
+        try (Connection conn = plugin.getConnection()) {
+            fetchAllCountCache(conn);
+        } catch (SQLException e) {
+            warn(e);
+        }
+    }
+
+    public void fetchAllCountCache(Connection conn) throws SQLException {
+        ItemTagManager manager = getOrNull(ItemTagManager.class);
+        if (manager != null) {
+            totalCount = getTotalCount(conn, Searching.of(false));
+            for (String tag : manager.getNamedTags()) {
+                getTagCount(conn, tag);
+            }
+        }
     }
 
     private List<MarketItem> queryAndLoadItems(PreparedStatement ps) throws SQLException {
@@ -229,6 +250,11 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             warn(e);
             return 0;
         }
+    }
+
+    public int getTotalCountWithCache() {
+        if (totalCount != null) return totalCount;
+        return totalCount = getTotalCount(Searching.of(false));
     }
 
     public int getTagCountWithCache(String tag) {
@@ -444,9 +470,10 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
 
     @Override
     public void receiveBungee(String subChannel, DataInputStream in) throws IOException {
-        if (subChannel.equals("SPM_TagCache")) {
+        if (subChannel.equals("SPM_CountCache")) {
             String tag = in.readUTF();
             tagCountCache.remove(tag);
+            totalCount = null;
         }
     }
 
@@ -454,6 +481,6 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         if (tag == null) return;
         Bytes.sendByWhoeverOrNot("BungeeCord", Bytes.build(out -> {
             out.writeUTF(tag);
-        }, /*subChannel:*/"Forward", /*arguments:*/"ALL", "SPM_TagCache"));
+        }, /*subChannel:*/"Forward", /*arguments:*/"ALL", "SPM_CountCache"));
     }
 }

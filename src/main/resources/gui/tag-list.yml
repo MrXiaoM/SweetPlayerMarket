@@ -22,6 +22,8 @@ other-icons:
     display: '&e&l显示所有商品'
     lore:
       - ''
+      - '  &f共 %item_count_all% 个物品'
+      - ''
       - '&a左键&7 | &f取消筛选分类'
     left-click-commands:
       - '[search:tag]'

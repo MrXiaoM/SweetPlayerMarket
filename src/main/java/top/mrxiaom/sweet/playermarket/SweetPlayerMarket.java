@@ -299,6 +299,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
 
     @Override
     protected void afterEnable() {
+        getMarketplace().fetchAllCountCache();
         getLogger().info("SweetPlayerMarket 加载完毕");
     }
 
