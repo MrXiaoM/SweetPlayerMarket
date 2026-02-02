@@ -235,4 +235,12 @@ public class MarketItem {
     public static MarketItemBuilder builder(String serverCustomName) {
         return builder("#server#", serverCustomName);
     }
+
+    public static MarketItemBuilder systemBuilder(String serverCustomName) {
+        return builder("#server#", serverCustomName);
+    }
+
+    public static MarketItemBuilder systemBuilder(String shopId, String serverCustomName) {
+        return builder(shopId, "#server#", serverCustomName);
+    }
 }

@@ -6,6 +6,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -24,14 +25,29 @@ public class GuiCreateSellShop extends AbstractGuiDeploy {
         return instanceOf(GuiCreateSellShop.class);
     }
 
+    /**
+     * 创建上架菜单实例，以玩家身份上架商品
+     * @param player 玩家
+     */
     public static Impl create(Player player) {
+        return create(player, null);
+    }
+
+    /**
+     * 创建上架菜单实例
+     * @param player 玩家
+     * @param systemName 如果不为 <code>null</code>，则以系统身份上架商品
+     */
+    public static Impl create(Player player, @Nullable String systemName) {
         GuiCreateSellShop self = inst();
-        return self.new Impl(player);
+        return self.new Impl(player, systemName);
     }
 
     public class Impl extends DeployGui {
-        protected Impl(Player player) {
+        private final @Nullable String systemName;
+        protected Impl(Player player, @Nullable String systemName) {
             super(player, EnumMarketType.SELL);
+            this.systemName = systemName;
         }
 
         @Override
@@ -55,7 +71,7 @@ public class GuiCreateSellShop extends AbstractGuiDeploy {
             }
             // 上架流程与命令保持一致
             plugin.getScheduler().runTask(() -> CreateArguments.doDeployMarketItem(
-                    plugin, player,
+                    plugin, player, systemName,
                     sampleItem, sampleItem.getAmount(),
                     amount, type,
                     price, currency,

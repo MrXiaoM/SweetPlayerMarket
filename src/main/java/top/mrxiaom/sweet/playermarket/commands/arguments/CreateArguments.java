@@ -17,6 +17,7 @@ import top.mrxiaom.sweet.playermarket.api.event.MarketItemCreatedEvent;
 import top.mrxiaom.sweet.playermarket.commands.CommandMain;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.data.OutdateTime;
 import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
@@ -38,16 +39,23 @@ import java.util.function.Consumer;
 
 public class CreateArguments extends AbstractArguments<Player> {
     private static final Arguments.Builder builder = Arguments.builder()
-            .addBooleanOption("menu", "-m", "--menu");
+            .addBooleanOption("menu", "-m", "--menu")
+            .addStringOptions("system", "-s", "--system");
     private final boolean isMenu;
+    private final String systemName;
     protected CreateArguments(Arguments args) {
         super(args);
         this.isMenu = args.getOptionBoolean("menu");
+        this.systemName = args.getOptionString("system", null);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public boolean execute(SweetPlayerMarket plugin, Player sender) {
+        // systemName 不为 null 时，以系统身份上架商品
+        if (systemName != null && !sender.hasPermission("sweet.playermarket.create.system")) {
+            return Messages.Command.no_permission.tm(sender);
+        }
         // 商品类型
         EnumMarketType type = nextValueOf(EnumMarketType.class);
         if (type == null) {
@@ -57,10 +65,10 @@ public class CreateArguments extends AbstractArguments<Player> {
         if (isMenu) {
             switch (type) {
                 case SELL:
-                    GuiCreateSellShop.create(sender).open();
+                    GuiCreateSellShop.create(sender, systemName).open();
                     break;
                 case BUY:
-                    GuiCreateBuyShop.create(sender).open();
+                    GuiCreateBuyShop.create(sender, systemName).open();
                     break;
             }
             return true;
@@ -94,12 +102,22 @@ public class CreateArguments extends AbstractArguments<Player> {
         // 商品总份数
         Integer marketAmount = nextInt(() -> 1, NULL());
 
-        plugin.getScheduler().runTask(() -> doDeployMarketItem(plugin, sender, item, itemCount, marketAmount, type, price, currency, null));
+        plugin.getScheduler().runTask(() -> doDeployMarketItem(plugin, sender, systemName, item, itemCount, marketAmount, type, price, currency, null));
         return true;
     }
 
     public static void doDeployMarketItem(
             SweetPlayerMarket plugin, Player sender,
+            ItemStack item, Integer itemCount,
+            Integer marketAmount, EnumMarketType type,
+            double price, IEconomy currency,
+            @Nullable Consumer<MarketItem> callback
+    ) {
+        doDeployMarketItem(plugin, sender, null, item, itemCount, marketAmount, type, price, currency, callback);
+    }
+
+    public static void doDeployMarketItem(
+            SweetPlayerMarket plugin, Player sender, @Nullable String systemName,
             ItemStack item, Integer itemCount,
             Integer marketAmount, EnumMarketType type,
             double price, IEconomy currency,
@@ -211,7 +229,7 @@ public class CreateArguments extends AbstractArguments<Player> {
 
         // 上架操作需要调用数据库，异步执行以免卡服
         plugin.getScheduler().runTaskAsync(() -> doDeployMarketItem(
-                plugin, sender,
+                plugin, sender, systemName,
                 item, itemCount,
                 marketAmount, type,
                 createCost, currency,
@@ -222,7 +240,7 @@ public class CreateArguments extends AbstractArguments<Player> {
     }
 
     private static void doDeployMarketItem(
-            SweetPlayerMarket plugin, Player sender,
+            SweetPlayerMarket plugin, Player sender, @Nullable String systemName,
             ItemStack item, int itemCount,
             int marketAmount, EnumMarketType type,
             CreateCost createCost, IEconomy currency,
@@ -293,7 +311,10 @@ public class CreateArguments extends AbstractArguments<Player> {
             }
 
             // 将商品信息提交到数据库
-            marketItem = MarketItem.builder(shopId, sender)
+            MarketItemBuilder builder = systemName == null
+                    ? MarketItem.builder(shopId, sender)
+                    : MarketItem.systemBuilder(systemName);
+            marketItem = builder
                     .item(shopItem)
                     .type(type)
                     .price(price)
