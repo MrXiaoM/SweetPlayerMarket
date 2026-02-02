@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.database.IDatabase;
+import top.mrxiaom.pluginbase.utils.Bytes;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
@@ -13,13 +14,13 @@ import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractPluginHolder;
 import top.mrxiaom.sweet.playermarket.utils.ListX;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class MarketplaceDatabase extends AbstractPluginHolder implements IDatabase {
     public class SearchHolder {
@@ -86,8 +87,10 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
     private String TABLE_MARKETPLACE;
+    private final Map<String, Integer> tagCountCache = new HashMap<>();
     public MarketplaceDatabase(SweetPlayerMarket plugin) {
         super(plugin, true);
+        registerBungee();
     }
 
     @Override
@@ -228,6 +231,41 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
+    public int getTagCountWithCache(String tag) {
+        Integer cache = tagCountCache.get(tag);
+        if (cache != null) return cache;
+        return getTagCount(tag);
+    }
+
+    public int getTagCount(String tag) {
+        try (Connection conn = plugin.getConnection()) {
+            return getTagCount(conn, tag);
+        } catch (SQLException e) {
+            warn(e);
+            return 0;
+        }
+    }
+
+    public int getTagCount(Connection conn, String tag) throws SQLException {
+        StringJoiner conditions = new StringJoiner(" AND ");
+        conditions.add("`tag` = ?");
+        conditions.add("`amount` > 0");
+        conditions.add("(`outdate_time` IS NULL OR `outdate_time` >= '" + Searching.format(LocalDateTime.now()) + "')");
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` WHERE " + conditions + ";"
+        )) {
+            ps.setString(1, tag);
+            try (ResultSet result = ps.executeQuery()) {
+                if (result.next()) {
+                    int count = result.getInt(1);
+                    tagCountCache.put(tag, count);
+                    return count;
+                }
+            }
+        }
+        return 0;
+    }
+
     /**
      * 获取指定商品信息
      * @param shopId 商品ID
@@ -278,6 +316,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     }
 
     public boolean modifyItem(Connection conn, MarketItem item) throws SQLException {
+        boolean result;
         try (PreparedStatement ps = conn.prepareStatement(
                 "UPDATE `" + TABLE_MARKETPLACE + "` "
                         + "SET `currency`=?, `price`=?, `amount`=?, `notice_flag`=?, `data`=? "
@@ -289,8 +328,12 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             ps.setInt(4, item.noticeFlag());
             ps.setString(5, item.data().saveToString());
             ps.setString(6, item.shopId());
-            return ps.executeUpdate() != 0;
+            result = ps.executeUpdate() != 0;
         }
+        if (item.amount() <= 0) {
+            sendRemoveCache(item.tag());
+        }
+        return result;
     }
 
     public int recalculateItemsTag() {
@@ -396,5 +439,21 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             ps.setString(11, item.data().saveToString());
             ps.execute();
         }
+        sendRemoveCache(item.tag());
+    }
+
+    @Override
+    public void receiveBungee(String subChannel, DataInputStream in) throws IOException {
+        if (subChannel.equals("SPM_TagCache")) {
+            String tag = in.readUTF();
+            tagCountCache.remove(tag);
+        }
+    }
+
+    private void sendRemoveCache(String tag) {
+        if (tag == null) return;
+        Bytes.sendByWhoeverOrNot("BungeeCord", Bytes.build(out -> {
+            out.writeUTF(tag);
+        }, /*subChannel:*/"Forward", /*arguments:*/"ALL", "SPM_TagCache"));
     }
 }

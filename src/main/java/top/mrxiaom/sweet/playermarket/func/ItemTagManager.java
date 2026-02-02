@@ -87,6 +87,11 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
         return tagDisplayNamesReplacement;
     }
 
+    @NotNull
+    public Set<String> getNamedTags() {
+        return tagDisplayNames.keySet();
+    }
+
     public static ItemTagManager inst() {
         return instanceOf(ItemTagManager.class);
     }

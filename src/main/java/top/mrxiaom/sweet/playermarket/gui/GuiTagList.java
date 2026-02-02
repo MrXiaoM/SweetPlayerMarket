@@ -28,8 +28,27 @@ public class GuiTagList extends AbstractGuiCanGoBack {
 
     @Override
     protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
-        ListPair<String, Object> r = ItemTagManager.inst().getTagDisplayNames();
+        ItemTagManager manager = ItemTagManager.inst();
+        ListPair<String, Object> r = new ListPair<>(manager.getTagDisplayNames());
+        for (String tag : manager.getNamedTags()) {
+            String key = "%item_count_tag_" + tag + "%";
+            if (contains(icon, key)) {
+                r.add(key, plugin.getMarketplace().getTagCountWithCache(tag));
+            }
+        }
         return icon.generateIcon(player, s -> Pair.replace(s, r), l -> Pair.replace(l, r));
+    }
+
+    private static boolean contains(LoadedIcon icon, String str) {
+        if (icon.display.contains(str)) {
+            return true;
+        }
+        for (String line : icon.lore) {
+            if (line.contains(str)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static GuiTagList inst() {

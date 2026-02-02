@@ -32,6 +32,7 @@ other-icons:
     lore:
       - ''
       - '  &f镐子、斧头、楸、锄头等物品  '
+      - '  &f该分类共 %item_count_tag_tools% 个物品'
       - ''
       - '&a左键&7 | &f切换筛选分类'
     left-click-commands:
@@ -43,6 +44,7 @@ other-icons:
     lore:
       - ''
       - '  &fRPG 合成素材  '
+      - '  &f该分类共 %item_count_tag_mythic% 个物品'
       - ''
       - '&a左键&7 | &f切换筛选分类'
     left-click-commands:
@@ -54,6 +56,7 @@ other-icons:
     lore:
       - ''
       - '  &f用于战斗的趁手武器  '
+      - '  &f该分类共 %item_count_tag_weapon% 个物品'
       - ''
       - '&a左键&7 | &f切换筛选分类'
     left-click-commands:
@@ -65,6 +68,7 @@ other-icons:
     lore:
       - ''
       - '  &f垫脚石？建筑材料？都在这里  '
+      - '  &f该分类共 %item_count_tag_block% 个物品'
       - ''
       - '&a左键&7 | &f切换筛选分类'
     left-click-commands:
@@ -76,6 +80,7 @@ other-icons:
     lore:
       - ''
       - '  &f一些可以吃的东西  '
+      - '  &f该分类共 %item_count_tag_food% 个物品'
       - ''
       - '&a左键&7 | &f切换筛选分类'
     left-click-commands:
@@ -87,6 +92,7 @@ other-icons:
     lore:
       - ''
       - '  &f暂无分类的其他物品  '
+      - '  &f该分类共 %item_count_tag_default% 个物品'
       - ''
       - '&a左键&7 | &f切换筛选分类'
     left-click-commands:
