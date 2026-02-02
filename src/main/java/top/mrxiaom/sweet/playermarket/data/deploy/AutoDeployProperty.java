@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -256,6 +257,11 @@ public class AutoDeployProperty {
             plugin.warn("尝试执行自动上架商品配置 " + id + " 时出现一个异常: " + t.getMessage());
             return;
         }
+        ConfigurationSection params = new MemoryConfiguration();
+        params.set("auto-deploy.property", id);
+        if (!ctx.tag.isEmpty()) {
+            params.set("auto-deploy.tag", ctx.tag);
+        }
         // 上面的校验全部通过时，提交上架物品，增加成功轮数计数
         data.successRoundCount++;
         MarketItem marketItem = MarketItem.builder(ctx.serverCustomName)
@@ -263,10 +269,10 @@ public class AutoDeployProperty {
                 .currency(ctx.currencyType)
                 .price(ctx.price)
                 .amount(ctx.amount)
-                .tag(ctx.tag.isEmpty() ? "default" : ctx.tag)
                 .item(ctx.item)
                 .outdateTime(ctx.outdateTime)
-                .build();
+                .params(params)
+                .build(plugin.itemTagResolver());
         marketplace.putItem(conn, marketItem);
         plugin.info("已自动上架商品 " + id + " 到全球市场");
         plugin.getScheduler().runTask(() -> {

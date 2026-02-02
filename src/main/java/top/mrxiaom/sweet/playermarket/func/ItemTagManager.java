@@ -62,6 +62,10 @@ public class ItemTagManager extends AbstractModule implements ItemTagResolver {
 
     @Override
     public @Nullable String resolve(@NotNull MarketItem item) {
+        ConfigurationSection params = item.params();
+        if (params.contains("auto-deploy.tag")) {
+            return params.getString("auto-deploy.tag");
+        }
         for (TagFilter filter : tagFilterList) {
             if (filter.resolve(item)) {
                 return filter.tag();
