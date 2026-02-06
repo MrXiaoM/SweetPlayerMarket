@@ -12,7 +12,7 @@ buildscript {
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.playermarket"
-version = "1.0.2"
+version = "1.0.3"
 
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, gui, actions, l10n, commands, paper, misc) }
