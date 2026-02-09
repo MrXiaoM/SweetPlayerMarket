@@ -116,10 +116,16 @@ public class Messages {
         public static final Message common__no = field("&c否");
         public static final Message common__empty = field("&7空");
 
+        public static final Message deploy__price__prompt_message = field("&7[&e&l全球市场&7] &f请在聊天栏发送&e单份物品价格&f，如果要取消请发送&c %cancel%");
+        public static final Message deploy__price__prompt_cancel = field("cancel");
         public static final Message deploy__price__success = field("&a已设置价格为 &e%money%");
         public static final Message deploy__price__not_number = field("&e请输入一个正确的价格");
+        public static final Message deploy__amount__prompt_message = field("&7[&e&l全球市场&7] &f请在聊天栏发送&e总份数&f，如果要取消请发送&c %cancel%");
+        public static final Message deploy__amount__prompt_cancel = field("cancel");
         public static final Message deploy__amount__success = field("&a已设置总份数为 &e%count%");
         public static final Message deploy__amount__not_number = field("&e请输入一个正确的数量");
+        public static final Message deploy__item_count__prompt_message = field("&7[&e&l全球市场&7] &f请在聊天栏发送&e单份物品数量&f，如果要取消请发送&c %cancel%");
+        public static final Message deploy__item_count__prompt_cancel = field("cancel");
         public static final Message deploy__item_count__success = field("&a已设置单份物品数量为 &e%count%");
         public static final Message deploy__item_count__not_number = field("&e请输入一个正确的数量");
 

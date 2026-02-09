@@ -24,6 +24,8 @@ public class ActionDeployPrice implements IAction {
             String params = s.substring(7);
             if (params.equals("input")) {
                 return new Input(
+                        Messages.Gui.deploy__price__prompt_message,
+                        Messages.Gui.deploy__price__prompt_cancel,
                         Messages.Gui.deploy__price__success,
                         Messages.Gui.deploy__price__not_number,
                         (gui, value) -> gui.modifyPrice(IGuiDeploy.NumberOperation.SET, value));
@@ -68,9 +70,11 @@ public class ActionDeployPrice implements IAction {
     }
 
     public static class Input implements IAction {
-        private final Message messageSuccess, messageNotNumber;
+        private final Message messagePrompt, messageCancel, messageSuccess, messageNotNumber;
         private final BiConsumer<IGuiDeploy, Double> impl;
-        public Input(Message messageSuccess, Message messageNotNumber, BiConsumer<IGuiDeploy, Double> impl) {
+        public Input(Message messagePrompt, Message messageCancel, Message messageSuccess, Message messageNotNumber, BiConsumer<IGuiDeploy, Double> impl) {
+            this.messagePrompt = messagePrompt;
+            this.messageCancel = messageCancel;
             this.messageSuccess = messageSuccess;
             this.messageNotNumber = messageNotNumber;
             this.impl = impl;
@@ -83,7 +87,9 @@ public class ActionDeployPrice implements IAction {
                 if (gui instanceof IGuiDeploy) {
                     IGuiDeploy deploy = (IGuiDeploy) gui;
                     player.closeInventory();
-                    Prompter.chat(player, str -> {
+                    String cancel = messageCancel.str();
+                    messagePrompt.tm(player, Pair.of("%cancel%", cancel));
+                    Prompter.chat(player, cancel, str -> {
                         double v = Util.parseDouble(str).orElse(0.0);
                         if (v > 0) {
                             messageSuccess.tm(player, Pair.of("%money%", v));

@@ -25,6 +25,8 @@ public class ActionDeployCount implements IAction {
             String params = s.substring(14);
             if (params.equals("input")) {
                 return new Input(
+                        Messages.Gui.deploy__amount__prompt_message,
+                        Messages.Gui.deploy__amount__prompt_cancel,
                         Messages.Gui.deploy__amount__success,
                         Messages.Gui.deploy__amount__not_number,
                         (gui, value) -> gui.modifyAmount(IGuiDeploy.NumberOperation.SET, value));
@@ -35,6 +37,8 @@ public class ActionDeployCount implements IAction {
             String params = s.substring(12);
             if (params.equals("input")) {
                 return new Input(
+                        Messages.Gui.deploy__item_count__prompt_message,
+                        Messages.Gui.deploy__item_count__prompt_cancel,
                         Messages.Gui.deploy__item_count__success,
                         Messages.Gui.deploy__item_count__not_number,
                         (gui, value) -> gui.modifyItemCount(IGuiDeploy.NumberOperation.SET, value));
@@ -79,9 +83,11 @@ public class ActionDeployCount implements IAction {
     }
 
     public static class Input implements IAction {
-        private final Message messageSuccess, messageNotNumber;
+        private final Message messagePrompt, messageCancel, messageSuccess, messageNotNumber;
         private final BiConsumer<IGuiDeploy, Integer> impl;
-        public Input(Message messageSuccess, Message messageNotNumber, BiConsumer<IGuiDeploy, Integer> impl) {
+        public Input(Message messagePrompt, Message messageCancel, Message messageSuccess, Message messageNotNumber, BiConsumer<IGuiDeploy, Integer> impl) {
+            this.messagePrompt = messagePrompt;
+            this.messageCancel = messageCancel;
             this.messageSuccess = messageSuccess;
             this.messageNotNumber = messageNotNumber;
             this.impl = impl;
@@ -96,7 +102,9 @@ public class ActionDeployCount implements IAction {
                 if (gui instanceof IGuiDeploy) {
                     IGuiDeploy deploy = (IGuiDeploy) gui;
                     player.closeInventory();
-                    Prompter.chat(player, str -> {
+                    String cancel = messageCancel.str();
+                    messagePrompt.tm(player, Pair.of("%cancel%", cancel));
+                    Prompter.chat(player, cancel, str -> {
                         int v = Util.parseInt(str).orElse(0);
                         if (v > 0) {
                             messageSuccess.tm(player, Pair.of("%money%", v));
