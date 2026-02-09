@@ -47,7 +47,7 @@ other-icons:
     display: '&e总份数'
     lore:
       - ''
-      - '  &f总份数: %count%  '
+      - '  &f总份数: &e%count%  '
       - ''
       - '&a左键&7 | &f总份数+1　　　 &7(Shift +5)'
       - '&b右键&7 | &f总份数-1　　　 &7(Shift -5)'
@@ -67,7 +67,7 @@ other-icons:
     display: '&e单份数量'
     lore:
       - ''
-      - '  &f单份物品数量: %item_count%  '
+      - '  &f单份物品数量: &e%item_count%  '
       - ''
       - '&a左键&7 | &f单份物品数量+1 &7(Shift +5)'
       - '&b右键&7 | &f单份物品数量-1 &7(Shift -5)'
