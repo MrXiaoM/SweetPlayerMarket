@@ -75,6 +75,7 @@ public class Prompter implements Listener {
         @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
         public void onChat(AsyncPlayerChatEvent e) {
             if (check(e.getPlayer())) {
+                e.setCancelled(true);
                 String message = e.getMessage().trim();
                 if (message.equals(cancelWord)) {
                     if (onFailed != null) onFailed.run();
