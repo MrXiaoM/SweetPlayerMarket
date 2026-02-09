@@ -116,6 +116,13 @@ public class Messages {
         public static final Message common__no = field("&c否");
         public static final Message common__empty = field("&7空");
 
+        public static final Message deploy__price__success = field("&a已设置价格为 &e%money%");
+        public static final Message deploy__price__not_number = field("&e请输入一个正确的价格");
+        public static final Message deploy__amount__success = field("&a已设置总份数为 &e%count%");
+        public static final Message deploy__amount__not_number = field("&e请输入一个正确的数量");
+        public static final Message deploy__item_count__success = field("&a已设置单份物品数量为 &e%count%");
+        public static final Message deploy__item_count__not_number = field("&e请输入一个正确的数量");
+
         public static final Message sell__amount_not_enough = field("&e商品库存不足，减少一点购买数量吧~");
         public static final Message sell__currency_not_enough = field("&e你没有足够的%currency%");
         public static final Message sell__adapter_not_found = field("&e在该子服不支持操作该商品");

@@ -51,6 +51,7 @@ other-icons:
       - ''
       - '&a左键&7 | &f总份数+1　　　 &7(Shift +5)'
       - '&b右键&7 | &f总份数-1　　　 &7(Shift -5)'
+      - '&eQ键&7 | &f手动设置总份数'
     left-click-commands:
       - '[count:amount]+1'
     shift-left-click-commands:
@@ -59,6 +60,8 @@ other-icons:
       - '[count:amount]-1'
     shift-right-click-commands:
       - '[count:amount]-5'
+    drop-commands:
+      - '[count:amount]input'
   量:
     material: OAK_PLANKS
     display: '&e单份数量'
@@ -68,6 +71,7 @@ other-icons:
       - ''
       - '&a左键&7 | &f单份物品数量+1 &7(Shift +5)'
       - '&b右键&7 | &f单份物品数量-1 &7(Shift -5)'
+      - '&eQ键&7 | &f手动设置单份物品数量'
     left-click-commands:
       - '[count:item]+1'
     shift-left-click-commands:
@@ -76,6 +80,8 @@ other-icons:
       - '[count:item]-1'
     shift-right-click-commands:
       - '[count:item]-5'
+    drop-commands:
+      - '[count:item]input'
   价:
     material: GLOWSTONE_DUST
     display: '&a增加价格'
@@ -85,6 +91,7 @@ other-icons:
       - ''
       - '&a左键&7 | &f单价+1 &7(Shift +10)'
       - '&b右键&7 | &f单价+5 &7(Shift +100)'
+      - '&eQ键&7 | &f手动设置价格'
     left-click-commands:
       - '[price]+1'
     shift-left-click-commands:
@@ -93,6 +100,8 @@ other-icons:
       - '[price]+5'
     shift-right-click-commands:
       - '[price]+100'
+    drop-commands:
+      - '[price]input'
   格:
     material: REDSTONE
     display: '&c减少价格'
@@ -102,6 +111,7 @@ other-icons:
       - ''
       - '&a左键&7 | &f单价-1 &7(Shift -10)'
       - '&b右键&7 | &f单价-5 &7(Shift -100)'
+      - '&eQ键&7 | &f手动设置价格'
     left-click-commands:
       - '[price]-1'
     shift-left-click-commands:
@@ -110,6 +120,8 @@ other-icons:
       - '[price]-5'
     shift-right-click-commands:
       - '[price]-100'
+    drop-commands:
+      - '[price]input'
   币:
     material: GOLD_INGOT
     display: '&e设置货币'
