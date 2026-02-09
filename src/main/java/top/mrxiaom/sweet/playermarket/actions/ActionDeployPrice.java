@@ -8,9 +8,12 @@ import top.mrxiaom.pluginbase.api.IScheduler;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.func.language.Message;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.Messages;
+import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.gui.api.IGuiDeploy;
 import top.mrxiaom.sweet.playermarket.utils.Prompter;
 
@@ -84,9 +87,9 @@ public class ActionDeployPrice implements IAction {
         @Override
         public void run(@Nullable Player player, @Nullable List<Pair<String, Object>> list) {
             if (player != null) {
-                GuiManager manager = GuiManager.inst();
-                IScheduler scheduler = manager.plugin.getScheduler();
-                IGuiHolder gui = manager.getOpeningGui(player);
+                SweetPlayerMarket plugin = SweetPlayerMarket.getInstance();
+                IScheduler scheduler = plugin.getScheduler();
+                IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
                 if (gui instanceof IGuiDeploy) {
                     IGuiDeploy deploy = (IGuiDeploy) gui;
                     player.closeInventory();
@@ -95,7 +98,15 @@ public class ActionDeployPrice implements IAction {
                     Prompter.chat(player, cancel, str -> {
                         double v = Util.parseDouble(str).orElse(0.0);
                         if (v > 0) {
-                            messageSuccess.tm(player, Pair.of("%money%", v));
+                            ListPair<String, Object> r = new ListPair<>();
+                            r.add("%money%", v);
+                            IEconomy currency = deploy.getCurrency();
+                            if (currency != null) {
+                                r.add("%currency%", plugin.displayNames().getCurrencyName(currency));
+                            } else {
+                                r.add("%currency%", "");
+                            }
+                            messageSuccess.tm(player, r);
                             impl.accept(deploy, v);
                         } else {
                             messageNotNumber.tm(player);

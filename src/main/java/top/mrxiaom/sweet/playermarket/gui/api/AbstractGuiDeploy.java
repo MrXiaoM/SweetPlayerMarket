@@ -224,6 +224,11 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         }
 
         @Override
+        public IEconomy getCurrency() {
+            return currency;
+        }
+
+        @Override
         public void setCurrency(IEconomy currency) {
             if (sampleItem == null) return;
             this.currency = currency;

@@ -11,6 +11,7 @@ public interface IGuiDeploy {
     void modifyAmount(NumberOperation operation, int value);
     void modifyItemCount(NumberOperation operation, int value);
     void modifyPrice(NumberOperation operation, double value);
+    IEconomy getCurrency();
     void setCurrency(IEconomy currency);
     void switchCurrency(List<IEconomy> currencyList);
 }
