@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.api.IActionProvider;
+import top.mrxiaom.pluginbase.api.IScheduler;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.func.language.Message;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
@@ -83,7 +84,9 @@ public class ActionDeployPrice implements IAction {
         @Override
         public void run(@Nullable Player player, @Nullable List<Pair<String, Object>> list) {
             if (player != null) {
-                IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
+                GuiManager manager = GuiManager.inst();
+                IScheduler scheduler = manager.plugin.getScheduler();
+                IGuiHolder gui = manager.getOpeningGui(player);
                 if (gui instanceof IGuiDeploy) {
                     IGuiDeploy deploy = (IGuiDeploy) gui;
                     player.closeInventory();
@@ -97,8 +100,8 @@ public class ActionDeployPrice implements IAction {
                         } else {
                             messageNotNumber.tm(player);
                         }
-                        gui.open();
-                    }, gui::open);
+                        scheduler.runTask(gui::open);
+                    }, () -> scheduler.runTask(gui::open));
                 }
             }
         }
