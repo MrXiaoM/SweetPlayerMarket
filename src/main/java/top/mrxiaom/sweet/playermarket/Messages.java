@@ -119,6 +119,7 @@ public class Messages {
         public static final Message common__yes = field("&a是");
         public static final Message common__no = field("&c否");
         public static final Message common__empty = field("&7空");
+        public static final Message common__none = field("&7无");
 
         public static final Message deploy__price__prompt_message = field("&7[&e&l全球市场&7] &f请在聊天栏发送&e单份物品价格&f，如果要取消请发送&c %cancel%");
         public static final Message deploy__price__prompt_cancel = field("cancel");

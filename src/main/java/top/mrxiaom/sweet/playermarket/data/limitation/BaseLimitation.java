@@ -102,11 +102,11 @@ public class BaseLimitation {
         return description;
     }
 
-    public @NotNull List<String> getBakedDescription(CreateCost cost, IEconomy economy, double totalMoney) {
+    public @NotNull List<String> getBakedDescription(@Nullable CreateCost cost, @NotNull IEconomy economy, double totalMoney) {
         return getBakedDescription(new ListPair<>(), cost, economy, totalMoney);
     }
 
-    public @NotNull List<String> getBakedDescription(List<Pair<String, Object>> r, CreateCost cost, IEconomy economy, double totalMoney) {
+    public @NotNull List<String> getBakedDescription(@NotNull List<Pair<String, Object>> r, @Nullable CreateCost cost, @NotNull IEconomy economy, double totalMoney) {
         if (description.isEmpty()) {
             return new ArrayList<>();
         }
@@ -114,11 +114,11 @@ public class BaseLimitation {
         return Pair.replace(description, r);
     }
 
-    public void addDescriptionReplacements(List<Pair<String, Object>> r, CreateCost cost, IEconomy economy, double totalMoney) {
+    public void addDescriptionReplacements(@NotNull List<Pair<String, Object>> r, @Nullable CreateCost cost, @NotNull IEconomy economy, double totalMoney) {
         DisplayNames displayNames = DisplayNames.inst();
-        IEconomy currency = cost.currency(economy);
-        String currencyName = displayNames.getCurrencyName(currency);
-        String money = displayNames.formatMoney(cost.money(totalMoney));
+        IEconomy currency = cost == null ? null : cost.currency(economy);
+        String currencyName = currency == null ? "" : displayNames.getCurrencyName(currency);
+        String money = displayNames.formatMoney(cost == null ? totalMoney : cost.money(totalMoney));
         r.add(Pair.of("%currency%", currencyName));
         r.add(Pair.of("%money%", money));
     }

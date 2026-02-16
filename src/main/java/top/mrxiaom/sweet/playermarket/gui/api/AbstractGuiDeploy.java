@@ -75,11 +75,11 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     protected void loadMainIcon(ConfigurationSection section, String id, LoadedIcon icon) {
         if (id.equals("物")) {
             iconEmptyItem = icon;
-            limitMessagesHeader = section.getStringList(id + ".limit-messages.header");
-            limitMessagesLine = section.getString(id + ".limit-messages.line", "  %message%  ");
         }
         if (id.equals("确")) {
             iconConfirm = icon;
+            limitMessagesHeader = section.getStringList(id + ".limit-messages.header");
+            limitMessagesLine = section.getString(id + ".limit-messages.line", "  %message%  ");
         }
     }
 
@@ -294,13 +294,14 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
                             Pair.of("%currency%", plugin.displayNames().getCurrencyName(currency))));
                 }
                 createCost = !limitMessages.isEmpty() ? null : limitation.getCreateCost(type);
+                limitMessages.addAll(limitation.getBakedDescription(createCost, currency, totalMoney));
             } else {
                 createCost = null;
             }
             this.limitMessages = limitMessages;
 
             if (createCost == null) {
-                r.add("%create_cost_money%", "");
+                r.add("%create_cost_money%", Messages.Gui.common__none.str());
                 r.add("%create_cost_currency%", "");
             } else {
                 IEconomy createCostCurrency;
@@ -320,7 +321,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
                     r.add("%create_cost_money%", plugin.displayNames().formatMoney(createCostMoney));
                     r.add("%create_cost_currency%", createCostCurrency == null ? "" : plugin.displayNames().getCurrencyName(createCostCurrency));
                 } else {
-                    r.add("%create_cost_money%", "");
+                    r.add("%create_cost_money%", Messages.Gui.common__none.str());
                     r.add("%create_cost_currency%", "");
                 }
             }
