@@ -76,6 +76,15 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             }
             return command.to(CreateArguments::of).execute(plugin, (Player) sender);
         }
+        if (command.match("limitation")) {
+            if (!sender.hasPermission("sweet.playermarket.limitation")) {
+                return Messages.Command.no_permission.tm(sender);
+            }
+            if (!(sender instanceof Player)) {
+                return Messages.player__only.tm(sender);
+            }
+            return command.into(LimitationArguments::of).execute(plugin, (Player) sender);
+        }
         if (command.match("tags")) {
             if (!sender.hasPermission("sweet.playermarket.tags")) {
                 return Messages.Command.no_permission.tm(sender);
@@ -110,6 +119,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             List<String> list = new ArrayList<>();
             add(sender, list, "sweet.playermarket.open", "open");
             add(sender, list, "sweet.playermarket.create", "create");
+            add(sender, list, "sweet.playermarket.limitation", "limitation");
             add(sender, list, "sweet.playermarket.tags", "tags");
             add(sender, list, "sweet.playermarket.me", "me");
             add(sender, list, "sweet.playermarket.server", "server");

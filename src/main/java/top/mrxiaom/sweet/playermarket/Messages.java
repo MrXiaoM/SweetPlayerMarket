@@ -52,6 +52,10 @@ public class Messages {
         public static final Message create__failed_db = field("&e无法创建新的商品 ID，请稍后重试");
         public static final Message create__failed = field("&e商品上架失败，请联系服务器管理员");
 
+        public static final Message limitation__no_item = field("&e请手持你要检查的物品");
+        public static final Message limitation__can_use_type = field("&f可以上架到: %types%");
+        public static final Message limitation__create_cost = field("&f上架到 %type%&r&f 商店需要手续费");
+
         public static final Message recalc__start = field("&a开始执行商品标签重新计算操作，请稍等…");
         public static final Message recalc__success = field("&a重新计算完成，有 %count% 个商品的标签发生变动");
         public static final Message recalc__failed = field("&e执行重新计算时出现一个错误，请查阅控制台日志");
