@@ -12,6 +12,7 @@ import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.limitation.item.*;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.util.*;
 
@@ -28,7 +29,7 @@ public class LimitationByItem extends BaseLimitation {
         }
         this.matcherType = matcherType == null ? TypeAny.INSTANCE : matcherType;
 
-        List<ConfigurationSection> matchers = ConfigUtils.getSectionList(config, "matchers");
+        List<ConfigurationSection> matchers = Utils.getSectionList(config, "matchers");
         for (ConfigurationSection s : matchers) {
             ItemMatcher matcher = parseMatcher(s);
             if (matcher == null) {
@@ -36,6 +37,9 @@ public class LimitationByItem extends BaseLimitation {
             } else {
                 this.matchers.add(matcher);
             }
+        }
+        if (this.matchers.isEmpty()) {
+            plugin.warn("[limitation] 出现空的 matchers 配置");
         }
     }
 

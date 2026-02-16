@@ -14,6 +14,7 @@ import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.LimitationByCurrency;
 import top.mrxiaom.sweet.playermarket.data.limitation.LimitationByItem;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,12 +39,12 @@ public class LimitationManager extends AbstractModule {
         limitDefault = BaseLimitation.of(plugin, getSection(config,"default"));
 
         limitByCurrency.clear();
-        for (ConfigurationSection section : ConfigUtils.getSectionList(config, "by-currency")) {
+        for (ConfigurationSection section : Utils.getSectionList(config, "by-currency")) {
             limitByCurrency.add(LimitationByCurrency.of(plugin, section));
         }
 
         limitByItems.clear();
-        for (ConfigurationSection section : ConfigUtils.getSectionList(config, "by-items")) {
+        for (ConfigurationSection section : Utils.getSectionList(config, "by-items")) {
             limitByItems.add(LimitationByItem.of(plugin, section));
         }
 

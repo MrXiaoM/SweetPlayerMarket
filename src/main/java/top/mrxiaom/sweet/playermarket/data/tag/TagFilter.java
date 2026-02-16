@@ -12,6 +12,7 @@ import top.mrxiaom.sweet.playermarket.data.MaterialMeta;
 import top.mrxiaom.sweet.playermarket.data.limitation.LimitationByItem;
 import top.mrxiaom.sweet.playermarket.data.limitation.item.ItemMatcher;
 import top.mrxiaom.sweet.playermarket.data.limitation.item.TypeAny;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class TagFilter {
             materialMetaList.add(meta);
         }
 
-        List<ConfigurationSection> matchers = ConfigUtils.getSectionList(config, "matchers");
+        List<ConfigurationSection> matchers = Utils.getSectionList(config, "matchers");
         for (ConfigurationSection s : matchers) {
             ItemMatcher matcher = LimitationByItem.parseMatcher(s);
             if (matcher == null) {

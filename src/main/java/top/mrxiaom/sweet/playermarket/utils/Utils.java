@@ -21,12 +21,66 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Utils {
+
+    /**
+     * @see top.mrxiaom.pluginbase.utils.ConfigUtils#getSectionList(ConfigurationSection, String)
+     */
+    @NotNull
+    public static List<ConfigurationSection> getSectionList(ConfigurationSection config, String key) {
+        List<ConfigurationSection> list = new ArrayList<>();
+        List<?> rawList = config.getList(key, null);
+        if (rawList == null) return list;
+        for (Object obj : rawList) {
+            if (obj instanceof Map) {
+                Map<?, ?> map = (Map<?, ?>) obj;
+                MemoryConfiguration section = new MemoryConfiguration();
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    String sectionKey = entry.getKey().toString();
+                    section.set(sectionKey, processValue(section, sectionKey, entry.getValue()));
+                }
+                list.add(section);
+                continue;
+            }
+            if (obj instanceof ConfigurationSection) {
+                list.add((ConfigurationSection) obj);
+            }
+        }
+        return list;
+    }
+
+    private static Object processValue(ConfigurationSection parent, String key, Object value) {
+        if (value instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>) value;
+            ConfigurationSection section;
+            if (parent == null || key == null) { // 兼容 List
+                section = new MemoryConfiguration();
+            } else { // 兼容 Map
+                section = parent.createSection(key);
+            }
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                String mapKey = entry.getKey().toString();
+                section.set(mapKey, processValue(section, mapKey, entry.getValue()));
+            }
+            return section;
+        }
+        if (value instanceof List<?>) {
+            List<?> list = (List<?>) value;
+            List<Object> result = new ArrayList<>();
+            for (Object object : list) {
+                result.add(processValue(null, null, object));
+            }
+            return result;
+        }
+        return value;
+    }
 
     @NotNull
     public static LoadedIcon requireIconNotNull(@NotNull AbstractGuiModule module, @Nullable String resourceFile, @Nullable LoadedIcon loaded, @NotNull String key) {
