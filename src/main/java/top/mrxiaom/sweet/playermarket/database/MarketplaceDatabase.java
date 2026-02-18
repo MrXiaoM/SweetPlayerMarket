@@ -132,67 +132,50 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         )) { createIndexTable = !result.next(); }
 
         boolean enableKeywordSearch = true;
-        if (createIndexTable) {
-            if (plugin.options.database().isMySQL()) {
+        if (plugin.options.database().isMySQL()) {
+            if (createIndexTable) {
                 // 创建索引表
                 try (PreparedStatement ps = conn.prepareStatement(
                         "CREATE TABLE `" + TABLE_SEARCH_INDEX + "`(" +
-                            "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品 ID
-                            "`content` TEXT," +                    // 物品名称、Lore
-                            "FULLTEXT(`content`) WITH PARSER ngram" +
-                        ");"
+                                "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品 ID
+                                "`content` TEXT," +                    // 物品名称、Lore
+                                "FULLTEXT(`content`) WITH PARSER ngram" +
+                                ");"
                 )) {
                     ps.execute();
                 }
             }
-            if (plugin.options.database().isSQLite()) {
-                File sqliteFolder = new File(plugin.getDataFolder(), "sqlite");
-                try (Statement stat = conn.createStatement()) {
-                    // 加载扩展
-                    libSimple = SQLiteLibSimple.init(sqliteFolder, stat);
+        }
+        if (plugin.options.database().isSQLite()) {
+            File sqliteFolder = new File(plugin.getDataFolder(), "sqlite");
+            try (Statement stat = conn.createStatement()) {
+                // 加载扩展
+                libSimple = SQLiteLibSimple.init(sqliteFolder, stat);
+                if (createIndexTable) {
                     // 创建索引表
                     stat.execute("CREATE VIRTUAL TABLE `" + TABLE_SEARCH_INDEX + "` USING FTS5(`shop_id`,`content`,tokenize='simple')");
-                } catch (Exception e) {
-                    enableKeywordSearch = false;
-                    if (!sqliteFolder.exists()) {
-                        Util.mkdirs(sqliteFolder);
-                    }
-                    onSqliteLibSimpleInitFail(e);
                 }
-            }
-            this.enableKeywordSearch = enableKeywordSearch;
-            if (enableKeywordSearch) {
-                recalculateIndex(conn);
-            }
-        } else {
-            if (plugin.options.database().isSQLite()) {
-                File sqliteFolder = new File(plugin.getDataFolder(), "sqlite");
-                try (Statement stat = conn.createStatement()) {
-                    // 加载扩展
-                    libSimple = SQLiteLibSimple.init(sqliteFolder, stat);
-                } catch (Exception e) {
-                    enableKeywordSearch = false;
-                    if (!sqliteFolder.exists()) {
-                        Util.mkdirs(sqliteFolder);
-                    }
-                    onSqliteLibSimpleInitFail(e);
+            } catch (Exception e) {
+                enableKeywordSearch = false;
+                if (!sqliteFolder.exists()) {
+                    Util.mkdirs(sqliteFolder);
                 }
+                warn("初始化索引失败: " + e.getMessage());
+                warn("当前 SQLite 环境未安装 simple tokenizer，请先按你的系统类型进行安装。");
+                String pluginName = plugin.getDescription().getName();
+                String libName = System.getProperty("os.name").toLowerCase().contains("win")
+                        ? "simple.dll"
+                        : "libsimple.*";
+                warn("从以下链接下载，确保解压后 plugins/" + pluginName + "/sqlite/" + libName + " 文件存在。");
+                warn("https://github.com/wangfenjin/simple/releases/latest");
+                warn("如果你不需要搜索商品功能，或者打算使用 MySQL，可以忽略这个警告。");
             }
-            this.enableKeywordSearch = enableKeywordSearch;
+        }
+        this.enableKeywordSearch = enableKeywordSearch;
+        if (createIndexTable && enableKeywordSearch) {
+            recalculateIndex(conn);
         }
         fetchAllCountCache(conn);
-    }
-
-    private void onSqliteLibSimpleInitFail(Exception e) {
-        warn("初始化索引失败: " + e.getMessage());
-        warn("当前 SQLite 环境未安装 simple tokenizer，请先按你的系统类型进行安装。");
-        String pluginName = plugin.getDescription().getName();
-        String libName = System.getProperty("os.name").toLowerCase().contains("win")
-                ? "simple.dll"
-                : "libsimple.*";
-        warn("从以下链接下载，确保解压后 plugins/" + pluginName + "/sqlite/" + libName + " 文件存在。");
-        warn("https://github.com/wangfenjin/simple/releases/latest");
-        warn("如果你不需要搜索商品功能，或者打算使用 MySQL，可以忽略这个警告。");
     }
 
     public void fetchAllCountCache() {
