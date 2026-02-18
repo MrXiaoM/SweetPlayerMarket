@@ -329,6 +329,8 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             r.add("%search_outdate%", bool(searching.outdated()));
             r.add("%search_out_of_stock%", bool(searching.onlyOutOfStock()));
             r.add("%search_tag%", ItemTagManager.inst().getTagDisplayName(searching.tag()));
+            String keyword = searching.keyword();
+            r.add("%search_keyword%", keyword == null ? Messages.Gui.common__empty.str() : keyword);
             Integer notice = searching.notice();
             r.add("%search_notice%", bool(notice != null && notice == 1));
             r.add("%is_market_admin%", player.hasPermission("sweet.playermarket.admin"));

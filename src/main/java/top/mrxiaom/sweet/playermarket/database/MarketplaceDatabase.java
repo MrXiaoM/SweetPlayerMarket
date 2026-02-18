@@ -88,6 +88,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
     private String TABLE_MARKETPLACE;
+    private String TABLE_SEARCH_INDEX;
     private Integer totalCount = null;
     private final Map<String, Integer> tagCountCache = new HashMap<>();
     public MarketplaceDatabase(SweetPlayerMarket plugin) {
@@ -99,6 +100,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     @Override
     public void reload(Connection conn, String tablePrefix) throws SQLException {
         TABLE_MARKETPLACE = tablePrefix + "marketplace";
+        TABLE_SEARCH_INDEX = tablePrefix + "search_index";
         try (PreparedStatement ps = conn.prepareStatement(
                 "CREATE TABLE if NOT EXISTS `" + TABLE_MARKETPLACE + "`(" +
                         "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品 ID
@@ -114,6 +116,27 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                         "`data` LONGTEXT" +                    // 商品数据，包括物品以及额外参数
                 ");"
         )) { ps.execute(); }
+        boolean refreshIndex;
+        try (ResultSet result = conn.getMetaData().getTables(
+                null, null, TABLE_SEARCH_INDEX, new String[] { "TABLE" }
+        )) { refreshIndex = !result.next(); }
+
+        if (refreshIndex) {
+            String sql;
+            if (plugin.options.database().isMySQL()) {
+                sql = "CREATE TABLE `" + TABLE_SEARCH_INDEX + "`(" +
+                                "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品 ID
+                                "`content` TEXT," +                    // 物品名称、Lore
+                                "FULLTEXT(`content`) WITH PARSER ngram" +
+                      ");";
+            } else {
+                sql = "CREATE VIRTUAL TABLE `" + TABLE_SEARCH_INDEX + "` USING FTS5(`shop_id`,`content`);";
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.execute();
+            }
+            recalculateIndex(conn);
+        }
         fetchAllCountCache(conn);
     }
 
@@ -202,15 +225,37 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     public ListX<MarketItem> getItems(int page, int size, @NotNull Searching searching) {
         String sql = null;
         try (Connection conn = plugin.getConnection()) {
-            String conditions = searching.generateConditions();
-            String order = searching.generateOrder();
             ListX<MarketItem> list;
+            String keyword = searching.keyword();
             int startIndex = (page - 1) * size;
-            sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
-                    + "WHERE " + conditions + order
-                    + "LIMIT " + startIndex + ", " + size + ";";
+            int parameterIndex;
+            if (keyword != null) {
+                if (plugin.options.database().isMySQL()) {
+                    parameterIndex = 2;
+                    String conditions = searching.generateConditions("m.");
+                    String order = searching.generateOrder("m.");
+                    sql = "SELECT m.* FROM " +
+                            "`" + TABLE_MARKETPLACE + "` m " +
+                            "INNER JOIN `" + TABLE_SEARCH_INDEX + "` si ON m.`shop_id` = si.`shop_id` " +
+                            "WHERE MATCH(si.`content`) AGAINST(? IN NATURAL LANGUAGE MODE) " +
+                            "AND " + conditions + order +
+                            "LIMIT " + startIndex + ", " + size + ";";
+                } else {
+                    throw new SQLException("暂不支持 SQLite 搜索");
+                }
+            } else {
+                parameterIndex = 1;
+                String conditions = searching.generateConditions();
+                String order = searching.generateOrder();
+                sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` "
+                        + "WHERE " + conditions + order
+                        + "LIMIT " + startIndex + ", " + size + ";";
+            }
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                searching.setValues(ps, 1);
+                if (parameterIndex == 2) {
+                    ps.setString(1, keyword);
+                }
+                searching.setValues(ps, parameterIndex);
                 list = new ListX<>(queryAndLoadItems(ps));
             }
             list.setTotalCount(getTotalCount(conn, searching));
@@ -226,10 +271,31 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     }
 
     public int getTotalCount(Connection conn, @NotNull Searching searching) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` WHERE " + searching.generateConditions() + ";"
-        )) {
-            searching.setValues(ps, 1);
+        String keyword = searching.keyword();
+        String sql;
+        int parameterIndex;
+        if (keyword != null) {
+            if (plugin.options.database().isMySQL()) {
+                parameterIndex = 2;
+                sql = "SELECT count(DISTINCT m.`shop_id`) AS total_count FROM " +
+                        "`" + TABLE_MARKETPLACE + "` m " +
+                        "INNER JOIN `" + TABLE_SEARCH_INDEX + "` si ON m.`shop_id` = si.`shop_id` " +
+                        "WHERE MATCH(si.`content`) AGAINST(? IN NATURAL LANGUAGE MODE) " +
+                        "AND " + searching.generateConditions("m.") + ";";
+            } else {
+                throw new SQLException("暂不支持 SQLite 搜索");
+            }
+        } else {
+            parameterIndex = 1;
+            sql = "SELECT count(DISTINCT `shop_id`) AS total_count FROM " +
+                    "`" + TABLE_MARKETPLACE + "` " +
+                    "WHERE " + searching.generateConditions() + ";";
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (parameterIndex == 2) {
+                ps.setString(1, keyword);
+            }
+            searching.setValues(ps, parameterIndex);
             try (ResultSet result = ps.executeQuery()) {
                 if (result.next()) {
                     return result.getInt(1);
@@ -278,9 +344,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         conditions.add("`tag` = ?");
         conditions.add("`amount` > 0");
         conditions.add("(`outdate_time` IS NULL OR `outdate_time` >= '" + Searching.format(LocalDateTime.now()) + "')");
-        try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` WHERE " + conditions + ";"
-        )) {
+        String sql = "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` WHERE " + conditions + ";";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, tag);
             try (ResultSet result = ps.executeQuery()) {
                 if (result.next()) {
@@ -370,10 +435,10 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     public int recalculateItemsTag(ItemTagResolver resolver) {
         try (Connection conn = plugin.getConnection()) {
             List<MarketItem> items;
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `amount`>0;"
-            );
-                ResultSet result = ps.executeQuery()) {
+            String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `amount`>0;";
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet result = ps.executeQuery()
+            ) {
                 items = loadItemsFromResult(result);
             }
             try (PreparedStatement ps = conn.prepareStatement(
@@ -402,6 +467,26 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
+    public int recalculateIndex() {
+        try (Connection conn = plugin.getConnection()) {
+            return recalculateIndex(conn);
+        } catch (SQLException e) {
+            warn(e);
+            return -1;
+        }
+    }
+
+    public int recalculateIndex(Connection conn) throws SQLException {
+        List<MarketItem> items;
+        String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `amount`>0;";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet result = ps.executeQuery()
+        ) {
+            items = loadItemsFromResult(result);
+        }
+        return putIndex(conn, items);
+    }
+
     @Nullable
     public String createNewId(Connection conn) {
         return createNewId(conn, 0);
@@ -409,9 +494,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
 
     @Nullable
     public String createNewId(Connection conn, int times) {
-        try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? LIMIT 1;"
-        )) {
+        String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `shop_id`=? LIMIT 1;";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             String shopId = UUID.randomUUID().toString();
             ps.setString(1, shopId);
             if (!ps.executeQuery().next()) {
@@ -466,7 +550,51 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             ps.setString(11, item.data().saveToString());
             ps.execute();
         }
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO `" + TABLE_SEARCH_INDEX + "` "
+                + "(`shop_id`,`content`) "
+                + "VALUES(?,?);"
+        )) {
+            ps.setString(1, item.shopId());
+            ps.setString(2, item.searchContent(plugin));
+            ps.execute();
+        }
+        putIndex(conn, Collections.singletonList(item));
         sendRemoveCache(item.tag());
+    }
+
+    private int putIndex(Connection conn, @NotNull List<MarketItem> items) throws SQLException {
+        String sentence;
+        if (plugin.options.database().isMySQL()) {
+            sentence = "INSERT INTO `" + TABLE_SEARCH_INDEX + "` "
+                    + "(`shop_id`,`content`) "
+                    + "VALUES(?,?) "
+                    + "ON DUPLICATE KEY UPDATE `content`= VALUES(`content`);";
+        } else {
+            sentence = "INSERT OR REPLACE INTO `" + TABLE_SEARCH_INDEX + "` "
+                    + "(`shop_id`,`content`) "
+                    + "VALUES(?,?);";
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sentence)) {
+            if (items.size() == 1) {
+                MarketItem item = items.get(0);
+                ps.setString(1, item.shopId());
+                ps.setString(2, item.searchContent(plugin));
+                ps.execute();
+                return 1;
+            }
+            int count = 0;
+            for (MarketItem item : items) {
+                ps.setString(1, item.shopId());
+                ps.setString(2, item.searchContent(plugin));
+                ps.addBatch();
+                count++;
+            }
+            if (count > 0) {
+                ps.executeBatch();
+            }
+            return count;
+        }
     }
 
     @Override

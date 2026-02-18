@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.data;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
@@ -27,6 +28,7 @@ public class DisplayNames extends AbstractModule {
     private final List<Long> moneyKeys = new ArrayList<>();
     private String currencyVault, currencyPlayerPoints, currencyAll, marketTypeAll;
     private final boolean supportTranslatable = Util.isPresent("org.bukkit.Translatable");
+    private final boolean supportTranslatableAdventure = Util.isPresent("net.kyori.adventure.translation.Translatable");
     private final boolean supportLangUtils = Util.isPresent("com.meowj.langutils.lang.LanguageHelper");
 
     public DisplayNames(SweetPlayerMarket plugin) {
@@ -221,8 +223,17 @@ public class DisplayNames extends AbstractModule {
      * @param player 玩家实例，用于指定语言。如果为 <code>null</code>，则使用默认语言
      */
     public String get(@NotNull ItemStack item, @Nullable Player player) {
+        if (supportTranslatableAdventure) {
+            // Paper
+            if (item instanceof net.kyori.adventure.translation.Translatable) {
+                return "<lang:" + ((net.kyori.adventure.translation.Translatable) item).translationKey() + ">";
+            }
+        }
         if (supportTranslatable) {
-            return "<lang:" + item.getTranslationKey() + ">";
+            // noinspection ConstantValue: Spigot
+            if (item instanceof org.bukkit.Translatable) {
+                return "<lang:" + item.getTranslationKey() + ">";
+            }
         }
         if (supportLangUtils) {
             if (player == null) {
@@ -231,8 +242,36 @@ public class DisplayNames extends AbstractModule {
                 return com.meowj.langutils.lang.LanguageHelper.getItemName(item, player);
             }
         }
+        return getFallbackName(item.getType());
+    }
+
+    private String bakeTranslateKey(String key) {
+        // TODO: 获取翻译键指定的语言
+        return key;
+    }
+
+    public String getBakedName(@NotNull ItemStack item) {
+        if (supportTranslatableAdventure) {
+            // Paper
+            if (item instanceof net.kyori.adventure.translation.Translatable) {
+                return bakeTranslateKey(((net.kyori.adventure.translation.Translatable) item).translationKey());
+            }
+        }
+        if (supportTranslatable) {
+            // noinspection ConstantValue: Spigot
+            if (item instanceof org.bukkit.Translatable) {
+                return bakeTranslateKey(item.getTranslationKey());
+            }
+        }
+        if (supportLangUtils) {
+            return com.meowj.langutils.lang.LanguageHelper.getItemName(item, "fallback");
+        }
+        return getFallbackName(item.getType());
+    }
+
+    public String getFallbackName(@NotNull Material material) {
         // 条件最糟糕时使用的方案: 将 _ 替换为空格，并使得每个单词的首字母大写
-        String[] words = item.getType().toString().toLowerCase().split("_");
+        String[] words = material.toString().toLowerCase().split("_");
         for (int i = 0; i < words.length; i++) {
             String word = words[i];
             if (word.length() == 1) {

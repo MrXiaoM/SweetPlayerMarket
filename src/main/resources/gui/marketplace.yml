@@ -95,10 +95,19 @@ other-icons:
       - ''
       - '&a左键 &7| &f刷新商店菜单'
       - '&b右键 &7| &f查看我的商品列表'
+      - ''
+      - '  &f关键词: &e%search_keyword%'
+      - ''
+      - '&eShift+左键 &7| &f按关键词搜索商品'
+      - '&dShift+右键 &7| &f清空关键词'
     left-click-commands:
       - '[refresh]'
     right-click-commands:
       - '[player]sweetplayermarket me'
+    shift-left-click-commands:
+      - '[search:keyword]'
+    shift-right-click-commands:
+      - '[search:keyword]reset'
   序:
     material: COMPASS
     display: '&e&l排序'

@@ -56,9 +56,13 @@ public class Messages {
         public static final Message limitation__can_use_type = field("&f可以上架到: %types%");
         public static final Message limitation__create_cost = field("&f上架到 %type%&r&f 商店需要手续费");
 
-        public static final Message recalc__start = field("&a开始执行商品标签重新计算操作，请稍等…");
-        public static final Message recalc__success = field("&a重新计算完成，有 %count% 个商品的标签发生变动");
-        public static final Message recalc__failed = field("&e执行重新计算时出现一个错误，请查阅控制台日志");
+        public static final Message recalc__tags__start = field("&a开始执行商品标签重新计算操作，请稍等…");
+        public static final Message recalc__tags__success = field("&a重新计算完成，有 %count% 个商品的标签发生变动");
+        public static final Message recalc__tags__failed = field("&e执行重新计算时出现一个错误，请查阅控制台日志");
+        public static final Message recalc__index__start = field("&a开始执行商品索引重建操作，请稍等…");
+        public static final Message recalc__index__success = field("&a索引重建完成，为 %count% 个商品建立了搜索索引");
+        public static final Message recalc__index__failed = field("&e执行重建索引时出现一个错误，请查阅控制台日志");
+        public static final Message recalc__invalid_type = field("&e无效的操作类型");
 
         public static final Message reload__database = field("&a已重载 database.yml 并重新连接数据库");
         public static final Message reload__success = field("&a配置文件已重载");
@@ -120,6 +124,9 @@ public class Messages {
         public static final Message common__no = field("&c否");
         public static final Message common__empty = field("&7空");
         public static final Message common__none = field("&7无");
+
+        public static final Message keyword__prompt_message = field("&7[&e&l全球市场&7] &f请在聊天栏发送&e搜索关键词&f，如果要取消请发送&c %cancel%");
+        public static final Message keyword__prompt_cancel = field("cancel");
 
         public static final Message deploy__price__prompt_message = field("&7[&e&l全球市场&7] &f请在聊天栏发送&e单份物品价格&f，如果要取消请发送&c %cancel%");
         public static final Message deploy__price__prompt_cancel = field("cancel");

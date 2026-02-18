@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.data;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -7,11 +8,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.utils.PlainSerializer;
 
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 /**
@@ -183,6 +187,27 @@ public class MarketItem {
         config.set("item", item);
         config.set("params", params);
         return config;
+    }
+
+    /**
+     * 生成用于搜索索引的描述信息
+     */
+    public @NotNull String searchContent(SweetPlayerMarket plugin) {
+        StringJoiner lines = new StringJoiner("\n");
+        lines.add(playerName);
+        lines.add(item.getType().name());
+        PlainSerializer plain = PlainSerializer.INSTANCE;
+        Component displayName = AdventureItemStack.getItemDisplayName(item);
+        if (displayName != null) {
+            lines.add(plain.serialize(displayName));
+        } else {
+            lines.add(plugin.displayNames().getBakedName(item));
+        }
+        for (Component line : AdventureItemStack.getItemLore(item)) {
+            lines.add(plain.serialize(line));
+        }
+        lines.add("");
+        return lines.toString();
     }
 
     public ListPair<String, Object> replacements(DisplayNames displayNames, Player player) {

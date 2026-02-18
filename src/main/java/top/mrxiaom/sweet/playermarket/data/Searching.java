@@ -22,6 +22,7 @@ public class Searching {
     private boolean onlyOutOfStock = false;
     private @Nullable Integer notice;
     private boolean noticeReversed = false;
+    private @Nullable String keyword;
 
     private Searching(boolean outdated) {
         this.outdated = outdated;
@@ -61,6 +62,10 @@ public class Searching {
 
     public @Nullable Integer notice() {
         return notice;
+    }
+
+    public @Nullable String keyword() {
+        return keyword;
     }
 
     public Searching outdated(boolean outdated) {
@@ -127,36 +132,46 @@ public class Searching {
         return this;
     }
 
+    public Searching keyword(@Nullable String keyword) {
+        this.keyword = keyword;
+        return this;
+    }
+
     public String generateConditions() {
+        return generateConditions("");
+    }
+    public String generateConditions(String alias) {
         StringJoiner conditions = new StringJoiner(" AND ");
         // 如果设置了查询条件 notice_flag，则忽略 outdate_time 和 onlyOutOfStock 选项
         if (notice == null) {
             String now = LocalDateTime.now().format(formatter);
-            conditions.add(onlyOutOfStock ? "`amount`=0 " : "`amount`>0");
+            conditions.add(alias + (onlyOutOfStock ? "`amount`=0 " : "`amount`>0"));
             if (outdated) {
                 // 获取过时商品，应该筛选 outdate_time 不为 NULL 且 outdate_time 小于现在的商品
-                conditions.add("(`outdate_time` IS NOT NULL AND `outdate_time` < '" + now + "')");
+                conditions.add("(" + alias + "`outdate_time` IS NOT NULL AND " + alias + "`outdate_time` < '" + now + "')");
             } else {
                 // 获取未过时商品，应该筛选 outdate_time 为 NULL (无期限) 或者 outdate_time 大于现在的商品
-                conditions.add("(`outdate_time` IS NULL OR `outdate_time` >= '" + now + "')");
+                conditions.add("(" + alias + "`outdate_time` IS NULL OR " + alias + "`outdate_time` >= '" + now + "')");
             }
         }
-        if (type != null) conditions.add("`shop_type`=?");
-        if (currency != null) conditions.add("`currency`=?");
-        if (tag != null) conditions.add("`tag`=?");
-        if (playerId != null) conditions.add("`player`=?");
+        if (type != null) conditions.add(alias + "`shop_type`=?");
+        if (currency != null) conditions.add(alias + "`currency`=?");
+        if (tag != null) conditions.add(alias + "`tag`=?");
+        if (playerId != null) conditions.add(alias + "`player`=?");
         if (notice != null) {
             if (noticeReversed) {
-                conditions.add("`notice_flag`!=?");
+                conditions.add(alias + "`notice_flag`!=?");
             } else {
-                conditions.add("`notice_flag`=?");
+                conditions.add(alias + "`notice_flag`=?");
             }
         }
         return conditions + " ";
     }
-
     public String generateOrder() {
-        return "ORDER BY `" + orderColumn + "` " + orderType.value() + " ";
+        return generateOrder("");
+    }
+    public String generateOrder(String alias) {
+        return "ORDER BY " + alias + "`" + orderColumn + "` " + orderType.value() + " ";
     }
 
     public void setValues(PreparedStatement ps, int parameterIndex) throws SQLException {
