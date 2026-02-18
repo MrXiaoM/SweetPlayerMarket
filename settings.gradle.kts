@@ -1,3 +1,3 @@
 rootProject.name = "SweetPlayerMarket"
 
-include(":craft-engine")
+include(":depend-plugins-21")

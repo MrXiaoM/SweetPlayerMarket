@@ -27,6 +27,8 @@ repositories {
     maven("https://repo.helpch.at/releases/")
     maven("https://jitpack.io")
     maven("https://repo.rosewooddev.io/repository/public/")
+    maven("https://nexus.phoenixdevt.fr/repository/maven-public/")
+    maven("https://r.irepo.space/maven/")
 }
 
 dependencies {
@@ -44,7 +46,11 @@ dependencies {
     compileOnly("io.lumine:Mythic-Dist:4.13.0")
     compileOnly("io.lumine:Mythic:5.6.2")
     compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
-
+    // MythicLib, MMOItems
+    compileOnly("io.lumine:MythicLib-dist:1.7.1-SNAPSHOT")
+    compileOnly("net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT")
+    // NeigeItems
+    compileOnly("pers.neige.neigeitems:NeigeItems:1.21.128")
 
     base.library("net.kyori:adventure-api:4.22.0")
     base.library("net.kyori:adventure-platform-bukkit:4.4.0")
@@ -59,7 +65,7 @@ dependencies {
         implementation(artifact)
     }
     implementation(base.resolver.lite)
-    shadowLink(project(":craft-engine"))
+    shadowLink(project(":depend-plugins-21"))
 }
 buildConfig {
     className("BuildConstants")
