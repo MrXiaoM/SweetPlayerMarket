@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.database;
 
+import com.zaxxer.hikari.HikariConfig;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +16,7 @@ import top.mrxiaom.sweet.playermarket.func.AbstractPluginHolder;
 import top.mrxiaom.sweet.playermarket.func.ItemTagManager;
 import top.mrxiaom.sweet.playermarket.utils.ListX;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -91,10 +89,22 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     private String TABLE_SEARCH_INDEX;
     private Integer totalCount = null;
     private final Map<String, Integer> tagCountCache = new HashMap<>();
+    private boolean enableKeywordSearch;
+    private SQLiteLibSimple libSimple;
     public MarketplaceDatabase(SweetPlayerMarket plugin) {
         super(plugin, true);
         registerBungee();
         plugin.getScheduler().runTaskTimerAsync(this::fetchAllCountCache, 15 * 20L, 15 * 20L);
+    }
+
+    @Override
+    public void beforeReload(HikariConfig hikariConfig, YamlConfiguration config) {
+        if (plugin.options.database().isSQLite()) {
+            // 为 SQLite 开启加载扩展支持
+            Properties sqliteProps = new Properties();
+            sqliteProps.put("enable_load_extension", "true");
+            hikariConfig.setDataSourceProperties(sqliteProps);
+        }
     }
 
     @Override
@@ -116,28 +126,73 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                         "`data` LONGTEXT" +                    // 商品数据，包括物品以及额外参数
                 ");"
         )) { ps.execute(); }
-        boolean refreshIndex;
+        boolean createIndexTable;
         try (ResultSet result = conn.getMetaData().getTables(
                 null, null, TABLE_SEARCH_INDEX, new String[] { "TABLE" }
-        )) { refreshIndex = !result.next(); }
+        )) { createIndexTable = !result.next(); }
 
-        if (refreshIndex) {
-            String sql;
+        boolean enableKeywordSearch = true;
+        if (createIndexTable) {
             if (plugin.options.database().isMySQL()) {
-                sql = "CREATE TABLE `" + TABLE_SEARCH_INDEX + "`(" +
-                                "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品 ID
-                                "`content` TEXT," +                    // 物品名称、Lore
-                                "FULLTEXT(`content`) WITH PARSER ngram" +
-                      ");";
-            } else {
-                sql = "CREATE VIRTUAL TABLE `" + TABLE_SEARCH_INDEX + "` USING FTS5(`shop_id`,`content`);";
+                // 创建索引表
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "CREATE TABLE `" + TABLE_SEARCH_INDEX + "`(" +
+                            "`shop_id` VARCHAR(48) PRIMARY KEY," + // 商品 ID
+                            "`content` TEXT," +                    // 物品名称、Lore
+                            "FULLTEXT(`content`) WITH PARSER ngram" +
+                        ");"
+                )) {
+                    ps.execute();
+                }
             }
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.execute();
+            if (plugin.options.database().isSQLite()) {
+                File sqliteFolder = new File(plugin.getDataFolder(), "sqlite");
+                try (Statement stat = conn.createStatement()) {
+                    // 加载扩展
+                    libSimple = SQLiteLibSimple.init(sqliteFolder, stat);
+                    // 创建索引表
+                    stat.execute("CREATE VIRTUAL TABLE `" + TABLE_SEARCH_INDEX + "` USING FTS5(`shop_id`,`content`,tokenize='simple')");
+                } catch (Exception e) {
+                    enableKeywordSearch = false;
+                    if (!sqliteFolder.exists()) {
+                        Util.mkdirs(sqliteFolder);
+                    }
+                    onSqliteLibSimpleInitFail(e);
+                }
             }
-            recalculateIndex(conn);
+            this.enableKeywordSearch = enableKeywordSearch;
+            if (enableKeywordSearch) {
+                recalculateIndex(conn);
+            }
+        } else {
+            if (plugin.options.database().isSQLite()) {
+                File sqliteFolder = new File(plugin.getDataFolder(), "sqlite");
+                try (Statement stat = conn.createStatement()) {
+                    // 加载扩展
+                    libSimple = SQLiteLibSimple.init(sqliteFolder, stat);
+                } catch (Exception e) {
+                    enableKeywordSearch = false;
+                    if (!sqliteFolder.exists()) {
+                        Util.mkdirs(sqliteFolder);
+                    }
+                    onSqliteLibSimpleInitFail(e);
+                }
+            }
+            this.enableKeywordSearch = enableKeywordSearch;
         }
         fetchAllCountCache(conn);
+    }
+
+    private void onSqliteLibSimpleInitFail(Exception e) {
+        warn("初始化索引失败: " + e.getMessage());
+        warn("当前 SQLite 环境未安装 simple tokenizer，请先按你的系统类型进行安装。");
+        String pluginName = plugin.getDescription().getName();
+        String libName = System.getProperty("os.name").toLowerCase().contains("win")
+                ? "simple.dll"
+                : "libsimple.*";
+        warn("从以下链接下载，确保解压后 plugins/" + pluginName + "/sqlite/" + libName + " 文件存在。");
+        warn("https://github.com/wangfenjin/simple/releases/latest");
+        warn("如果你不需要搜索商品功能，或者打算使用 MySQL，可以忽略这个警告。");
     }
 
     public void fetchAllCountCache() {
@@ -225,15 +280,14 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     public ListX<MarketItem> getItems(int page, int size, @NotNull Searching searching) {
         String sql = null;
         try (Connection conn = plugin.getConnection()) {
-            ListX<MarketItem> list;
             String keyword = searching.keyword();
             int startIndex = (page - 1) * size;
             int parameterIndex;
-            if (keyword != null) {
+            if (keyword != null && enableKeywordSearch) {
+                parameterIndex = 2;
+                String conditions = searching.generateConditions("m.");
+                String order = searching.generateOrder("m.");
                 if (plugin.options.database().isMySQL()) {
-                    parameterIndex = 2;
-                    String conditions = searching.generateConditions("m.");
-                    String order = searching.generateOrder("m.");
                     sql = "SELECT m.* FROM " +
                             "`" + TABLE_MARKETPLACE + "` m " +
                             "INNER JOIN `" + TABLE_SEARCH_INDEX + "` si ON m.`shop_id` = si.`shop_id` " +
@@ -241,7 +295,18 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                             "AND " + conditions + order +
                             "LIMIT " + startIndex + ", " + size + ";";
                 } else {
-                    throw new SQLException("暂不支持 SQLite 搜索");
+                    sql = "SELECT m.* FROM " +
+                            "`" + TABLE_MARKETPLACE + "` m " +
+                            "INNER JOIN `" + TABLE_SEARCH_INDEX + "` si ON m.`shop_id` = si.`shop_id` " +
+                            "WHERE si.`content` MATCH ? " +
+                            "AND " + conditions + order +
+                            "LIMIT " + startIndex + ", " + size + ";";
+                    try (Statement stat = conn.createStatement()) {
+                        libSimple.apply(stat);
+                        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                            return getItems(conn, ps, parameterIndex, searching, keyword);
+                        }
+                    }
                 }
             } else {
                 parameterIndex = 1;
@@ -252,14 +317,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                         + "LIMIT " + startIndex + ", " + size + ";";
             }
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                if (parameterIndex == 2) {
-                    ps.setString(1, keyword);
-                }
-                searching.setValues(ps, parameterIndex);
-                list = new ListX<>(queryAndLoadItems(ps));
+                return getItems(conn, ps, parameterIndex, searching, keyword);
             }
-            list.setTotalCount(getTotalCount(conn, searching));
-            return list;
         } catch (SQLException e) {
             if (e instanceof SQLSyntaxErrorException) {
                 warn("在运行数据库语句 { " + sql + " } 时出现异常", e);
@@ -270,20 +329,37 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         }
     }
 
+    private ListX<MarketItem> getItems(Connection conn, PreparedStatement ps, int parameterIndex, Searching searching, String keyword) throws SQLException {
+        if (parameterIndex == 2) {
+            ps.setString(1, keyword);
+        }
+        searching.setValues(ps, parameterIndex);
+        ListX<MarketItem> list = new ListX<>(queryAndLoadItems(ps));
+        list.setTotalCount(getTotalCount(conn, searching, keyword));
+        return list;
+    }
+
     public int getTotalCount(Connection conn, @NotNull Searching searching) throws SQLException {
-        String keyword = searching.keyword();
+        return getTotalCount(conn, searching, null);
+    }
+
+    private int getTotalCount(Connection conn, @NotNull Searching searching, @Nullable String keyword) throws SQLException {
         String sql;
         int parameterIndex;
-        if (keyword != null) {
+        if (keyword != null && enableKeywordSearch) {
+            parameterIndex = 2;
             if (plugin.options.database().isMySQL()) {
-                parameterIndex = 2;
                 sql = "SELECT count(DISTINCT m.`shop_id`) AS total_count FROM " +
                         "`" + TABLE_MARKETPLACE + "` m " +
                         "INNER JOIN `" + TABLE_SEARCH_INDEX + "` si ON m.`shop_id` = si.`shop_id` " +
                         "WHERE MATCH(si.`content`) AGAINST(? IN NATURAL LANGUAGE MODE) " +
                         "AND " + searching.generateConditions("m.") + ";";
             } else {
-                throw new SQLException("暂不支持 SQLite 搜索");
+                sql = "SELECT count(DISTINCT m.`shop_id`) AS total_count FROM " +
+                        "`" + TABLE_MARKETPLACE + "` m " +
+                        "INNER JOIN `" + TABLE_SEARCH_INDEX + "` si ON m.`shop_id` = si.`shop_id` " +
+                        "WHERE si.`content` MATCH simple_query(?) " +
+                        "AND " + searching.generateConditions("m.") + ";";
             }
         } else {
             parameterIndex = 1;
@@ -312,7 +388,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
      */
     public int getTotalCount(@NotNull Searching searching) {
         try (Connection conn = plugin.getConnection()) {
-            return getTotalCount(conn, searching);
+            return getTotalCount(conn, searching, searching.keyword());
         } catch (SQLException e) {
             warn(e);
             return 0;
@@ -340,10 +416,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     }
 
     public int getTagCount(Connection conn, String tag) throws SQLException {
-        StringJoiner conditions = new StringJoiner(" AND ");
-        conditions.add("`tag` = ?");
-        conditions.add("`amount` > 0");
-        conditions.add("(`outdate_time` IS NULL OR `outdate_time` >= '" + Searching.format(LocalDateTime.now()) + "')");
+        String now = Searching.format(LocalDateTime.now());
+        String conditions = "`tag` = ? AND `amount` > 0 AND (`outdate_time` IS NULL OR `outdate_time` >= '" + now + "')";
         String sql = "SELECT count(*) FROM `" + TABLE_MARKETPLACE + "` WHERE " + conditions + ";";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, tag);
@@ -468,6 +542,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     }
 
     public int recalculateIndex() {
+        if (!enableKeywordSearch) return -1;
         try (Connection conn = plugin.getConnection()) {
             return recalculateIndex(conn);
         } catch (SQLException e) {
@@ -477,6 +552,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     }
 
     public int recalculateIndex(Connection conn) throws SQLException {
+        if (!enableKeywordSearch) return -1;
         List<MarketItem> items;
         String sql = "SELECT * FROM `" + TABLE_MARKETPLACE + "` WHERE `amount`>0;";
         try (PreparedStatement ps = conn.prepareStatement(sql);
@@ -564,6 +640,7 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
     }
 
     private int putIndex(Connection conn, @NotNull List<MarketItem> items) throws SQLException {
+        if (!enableKeywordSearch) return 0;
         String sentence;
         if (plugin.options.database().isMySQL()) {
             sentence = "INSERT INTO `" + TABLE_SEARCH_INDEX + "` "
@@ -571,30 +648,55 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                     + "VALUES(?,?) "
                     + "ON DUPLICATE KEY UPDATE `content`= VALUES(`content`);";
         } else {
-            sentence = "INSERT OR REPLACE INTO `" + TABLE_SEARCH_INDEX + "` "
-                    + "(`shop_id`,`content`) "
-                    + "VALUES(?,?);";
+            try (Statement stat = conn.createStatement()) {
+                libSimple.apply(stat);
+                // 在 SQLite 下的 FTS5 虚拟表，INSERT OR REPLACE 失效了，要手动删除再增加
+                if (!items.isEmpty()) {
+                    try (PreparedStatement ps = conn.prepareStatement("DELETE FROM `" + TABLE_SEARCH_INDEX + "` WHERE `shop_id`=?;")) {
+                        if (items.size() == 1) {
+                            ps.setString(1, items.get(0).shopId());
+                            ps.execute();
+                        } else {
+                            for (MarketItem item : items) {
+                                ps.setString(1, item.shopId());
+                                ps.addBatch();
+                            }
+                            ps.executeBatch();
+                        }
+                    }
+                }
+                sentence = "INSERT INTO `" + TABLE_SEARCH_INDEX + "` "
+                        + "(`shop_id`,`content`) "
+                        + "VALUES(?,?);";
+                try (PreparedStatement ps = conn.prepareStatement(sentence)) {
+                    return putIndex(ps, items);
+                }
+            }
         }
         try (PreparedStatement ps = conn.prepareStatement(sentence)) {
-            if (items.size() == 1) {
-                MarketItem item = items.get(0);
-                ps.setString(1, item.shopId());
-                ps.setString(2, item.searchContent(plugin));
-                ps.execute();
-                return 1;
-            }
-            int count = 0;
-            for (MarketItem item : items) {
-                ps.setString(1, item.shopId());
-                ps.setString(2, item.searchContent(plugin));
-                ps.addBatch();
-                count++;
-            }
-            if (count > 0) {
-                ps.executeBatch();
-            }
-            return count;
+            return putIndex(ps, items);
         }
+    }
+
+    private int putIndex(PreparedStatement ps, List<MarketItem> items) throws SQLException {
+        if (items.size() == 1) {
+            MarketItem item = items.get(0);
+            ps.setString(1, item.shopId());
+            ps.setString(2, item.searchContent(plugin));
+            ps.execute();
+            return 1;
+        }
+        int count = 0;
+        for (MarketItem item : items) {
+            ps.setString(1, item.shopId());
+            ps.setString(2, item.searchContent(plugin));
+            ps.addBatch();
+            count++;
+        }
+        if (count > 0) {
+            ps.executeBatch();
+        }
+        return count;
     }
 
     @Override
