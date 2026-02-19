@@ -36,6 +36,7 @@ import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.*;
+import top.mrxiaom.sweet.playermarket.func.I18nManager;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
@@ -192,6 +193,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         MinecraftVersion.getVersion();
 
         registerItemProvider(VanillaItem.INSTANCE);
+        new I18nManager(this);
     }
 
     @Override

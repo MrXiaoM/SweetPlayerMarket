@@ -64,6 +64,7 @@ public class Messages {
         public static final Message recalc__index__failed = field("&e执行重建索引时出现一个错误，请查阅控制台日志");
         public static final Message recalc__invalid_type = field("&e无效的操作类型");
 
+        public static final Message reload__assets = field("&a已开始重载资源，详细情况请见控制台");
         public static final Message reload__database = field("&a已重载 database.yml 并重新连接数据库");
         public static final Message reload__success = field("&a配置文件已重载");
 

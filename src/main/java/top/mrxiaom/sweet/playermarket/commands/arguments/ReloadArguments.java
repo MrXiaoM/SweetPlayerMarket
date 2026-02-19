@@ -5,6 +5,7 @@ import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.AbstractArguments;
+import top.mrxiaom.sweet.playermarket.func.I18nManager;
 
 public class ReloadArguments extends AbstractArguments<CommandSender> {
     protected ReloadArguments(CommandArguments args) {
@@ -17,6 +18,11 @@ public class ReloadArguments extends AbstractArguments<CommandSender> {
             plugin.options.database().reloadConfig();
             plugin.options.database().reconnect();
             return Messages.Command.reload__database.tm(sender);
+        }
+        if (match("assets")) {
+            Messages.Command.reload__assets.tm(sender);
+            plugin.getScheduler().runTaskAsync(() -> I18nManager.inst().reloadConfig());
+            return true;
         }
         plugin.reloadConfig();
         return Messages.Command.reload__success.tm(sender);

@@ -1,0 +1,12 @@
+# 如需重载该配置，请使用 /pm reload assets
+
+# 指定当前服务端版本，如果设为 auto，则自动获取
+game-version: auto
+# 指定当前服务端使用语言
+# 不区分大小写，连接符号 - 和 _ 可以混用
+game-language: zh-cn
+# 语言文件下载源
+# auto - 根据服务器本地时区自动决定
+# MOJANG - 使用官方下载源
+# BMCLAPI - 使用第三方镜像源
+download-source: auto

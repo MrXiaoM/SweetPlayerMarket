@@ -14,6 +14,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
+import top.mrxiaom.sweet.playermarket.func.I18nManager;
 
 import java.util.*;
 
@@ -246,8 +247,7 @@ public class DisplayNames extends AbstractModule {
     }
 
     private String bakeTranslateKey(String key) {
-        // TODO: 获取翻译键指定的语言
-        return key;
+        return I18nManager.inst().get(key);
     }
 
     public String getBakedName(@NotNull ItemStack item) {
