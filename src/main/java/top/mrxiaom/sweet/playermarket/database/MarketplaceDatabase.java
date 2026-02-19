@@ -609,15 +609,6 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             ps.setString(11, item.data().saveToString());
             ps.execute();
         }
-        try (PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO `" + TABLE_SEARCH_INDEX + "` "
-                + "(`shop_id`,`content`) "
-                + "VALUES(?,?);"
-        )) {
-            ps.setString(1, item.shopId());
-            ps.setString(2, item.searchContent(plugin));
-            ps.execute();
-        }
         putIndex(conn, Collections.singletonList(item));
         sendRemoveCache(item.tag());
     }
