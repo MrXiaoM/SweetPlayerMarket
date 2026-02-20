@@ -185,6 +185,22 @@ public class I18nManager extends AbstractModule {
                     translation.put(key, value);
                 }
             }
+            File extraLanguageFile = new File(folder, "lang.json");
+            if (extraLanguageFile.exists()) {
+                JsonObject data;
+                try (FileReader reader = new FileReader(extraLanguageFile)) {
+                    data = gson.fromJson(reader, JsonObject.class);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                for (String key : data.keySet()) {
+                    JsonElement element = data.get(key);
+                    if (element != null && element.isJsonPrimitive()) {
+                        String value = element.getAsString();
+                        translation.put(key, value);
+                    }
+                }
+            }
             info("从语言文件加载了 " + translation.size() + " 个项");
         }
     }
