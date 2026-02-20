@@ -133,10 +133,10 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         if (args.length == 2) {
             if (sender.isOp()) {
                 if ("reload".equalsIgnoreCase(args[0])) {
-                    if ("database".startsWith(args[0])) {
-                        return Collections.singletonList("database");
-                    }
-                    return Collections.emptyList();
+                    List<String> list = new ArrayList<>();
+                    list.add("assets");
+                    list.add("database");
+                    return startsWith(list, args[1]);
                 }
             }
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
