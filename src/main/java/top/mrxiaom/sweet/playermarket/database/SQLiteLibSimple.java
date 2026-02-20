@@ -6,19 +6,16 @@ import java.sql.Statement;
 import java.util.StringJoiner;
 
 public class SQLiteLibSimple {
-    private final File libFile, dictFile;
+    private final File dictFile;
     private final String loadExtension, jiebaDict;
     private SQLiteLibSimple(File libFile, File dictFile) {
-        this.libFile = libFile;
         this.dictFile = dictFile;
         this.loadExtension = func("load_extension", libFile.getAbsolutePath() , "sqlite3_simple_init");
         this.jiebaDict = func("jieba_dict", dictFile.getAbsolutePath());
     }
 
     public void apply(Statement stat) throws SQLException {
-        if (libFile.exists()) {
-            stat.execute(loadExtension);
-        }
+        stat.execute(loadExtension);
         if (dictFile.exists()) {
             stat.execute(jiebaDict);
         }
