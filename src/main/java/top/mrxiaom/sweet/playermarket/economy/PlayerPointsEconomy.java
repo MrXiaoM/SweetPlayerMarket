@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.economy;
 
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -51,6 +52,11 @@ public class PlayerPointsEconomy implements IEconomy {
     @Override
     public String getName() {
         return "PlayerPoints";
+    }
+
+    @Override
+    public boolean hasPermission(Permissible p) {
+        return p.hasPermission(PERM_PREFIX + "playerpoints");
     }
 
     @Override

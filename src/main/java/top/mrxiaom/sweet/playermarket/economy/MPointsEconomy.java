@@ -3,6 +3,7 @@ package top.mrxiaom.sweet.playermarket.economy;
 import com.google.common.collect.Lists;
 import me.yic.mpoints.MPointsAPI;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -87,6 +88,11 @@ public class MPointsEconomy implements IEconomyWithSign, IEconomy {
     @Override
     public String getName() {
         return sign == null ? "MPoints" : ("MPoints{" + sign + "}");
+    }
+
+    @Override
+    public boolean hasPermission(Permissible p) {
+        return sign != null && p.hasPermission(PERM_PREFIX + "mpoints." + sign);
     }
 
     @Override

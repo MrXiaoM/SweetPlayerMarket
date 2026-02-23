@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.playermarket.economy;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -54,6 +55,11 @@ public class VaultEconomy implements IEconomy {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean hasPermission(Permissible p) {
+        return p.hasPermission(PERM_PREFIX + "vault");
     }
 
     @Override

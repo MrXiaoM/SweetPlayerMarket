@@ -23,9 +23,6 @@ import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
-import top.mrxiaom.sweet.playermarket.economy.MPointsEconomy;
-import top.mrxiaom.sweet.playermarket.economy.PlayerPointsEconomy;
-import top.mrxiaom.sweet.playermarket.economy.VaultEconomy;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.func.OutdateTimeManager;
@@ -135,27 +132,10 @@ public class CreateArguments extends AbstractArguments<Player> {
             return;
         }
         // 货币使用权限限制
-        if (currency instanceof VaultEconomy) {
-            if (!sender.hasPermission("sweet.playermarket.create.currency.vault")) {
-                Messages.Command.create__no_currency_permission.tm(sender);
-                if (callback != null) callback.accept(null);
-                return;
-            }
-        }
-        if (currency instanceof PlayerPointsEconomy) {
-            if (!sender.hasPermission("sweet.playermarket.create.currency.playerpoints")) {
-                Messages.Command.create__no_currency_permission.tm(sender);
-                if (callback != null) callback.accept(null);
-                return;
-            }
-        }
-        if (currency instanceof MPointsEconomy) {
-            String sign = ((MPointsEconomy) currency).sign();
-            if (!sender.hasPermission("sweet.playermarket.create.currency.mpoints." + sign)) {
-                Messages.Command.create__no_currency_permission.tm(sender);
-                if (callback != null) callback.accept(null);
-                return;
-            }
+        if (!currency.hasPermission(sender)) {
+            Messages.Command.create__no_currency_permission.tm(sender);
+            if (callback != null) callback.accept(null);
+            return;
         }
         // 单份商品的物品数量
         if (itemCount == null) {

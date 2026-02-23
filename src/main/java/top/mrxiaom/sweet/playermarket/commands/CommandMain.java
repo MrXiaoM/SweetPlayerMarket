@@ -18,6 +18,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.commands.arguments.*;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
+import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.AbstractModule;
 import top.mrxiaom.sweet.playermarket.func.AutoDeployManager;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
@@ -194,17 +195,25 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 BaseLimitation limitation = getLimit(sender);
                 List<String> list = new ArrayList<>();
                 if (limitation != null) {
-                    if (limitation.canUseCurrency(plugin.getVault()) && sender.hasPermission("sweet.playermarket.create.currency.vault")) {
+                    if (limitation.canUseCurrency(plugin.getVault()) && plugin.getVault().hasPermission(sender)) {
                         list.add("Vault");
                     }
-                    if (limitation.canUseCurrency(plugin.getPlayerPoints()) && sender.hasPermission("sweet.playermarket.create.currency.playerpoints")) {
+                    if (limitation.canUseCurrency(plugin.getPlayerPoints()) && plugin.getPlayerPoints().hasPermission(sender)) {
                         list.add("PlayerPoints");
                     }
                     if (plugin.getMPoints() != null) {
                         for (String sign : plugin.getMPoints().getSigns()) {
-                            if (sender.hasPermission("sweet.playermarket.create.currency.mpoints." + sign)
-                                    && limitation.canUseCurrency(plugin.getMPoints().of(sign))) {
+                            IEconomy currency = plugin.getMPoints().of(sign);
+                            if (limitation.canUseCurrency(currency) && currency.hasPermission(sender)) {
                                 list.add("MPoints:" + sign);
+                            }
+                        }
+                    }
+                    if (plugin.getCoinsEngine() != null) {
+                        for (String currencyId : plugin.getCoinsEngine().getSigns()) {
+                            IEconomy currency = plugin.getCoinsEngine().of(currencyId);
+                            if (limitation.canUseCurrency(currency) && currency.hasPermission(sender)) {
+                                list.add("CoinsEngine:" + currencyId);
                             }
                         }
                     }

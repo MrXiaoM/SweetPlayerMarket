@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.economy;
 
 import org.bukkit.OfflinePlayer;
+import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import su.nightexpress.coinsengine.api.CoinsEngineAPI;
@@ -91,6 +92,11 @@ public class CoinsEngineEconomy implements IEconomyWithSign, IEconomy {
     @Override
     public String getName() {
         return currency == null ? "CoinsEngine" : ("CoinsEngine{" + currency.getId() + "}");
+    }
+
+    @Override
+    public boolean hasPermission(Permissible p) {
+        return currency != null && p.hasPermission(PERM_PREFIX + "coinsengine." + currency.getId());
     }
 
     @Override
