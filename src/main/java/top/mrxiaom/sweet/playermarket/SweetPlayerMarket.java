@@ -36,6 +36,7 @@ import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.*;
+import top.mrxiaom.sweet.playermarket.func.CurrencyManager;
 import top.mrxiaom.sweet.playermarket.func.I18nManager;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
@@ -94,6 +95,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private IEconomy playerPoints;
     private IEconomyWithSign mPoints;
     private IEconomyWithSign coinsEngine;
+    private IEconomyWithSign customEconomy;
     private ItemTagResolver itemTagResolver = item -> "default";
     private MarketplaceDatabase marketplaceDatabase;
     private DisplayNames displayNames;
@@ -119,6 +121,10 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @Nullable
     public IEconomyWithSign getCoinsEngine() {
         return coinsEngine;
+    }
+    @NotNull
+    public IEconomyWithSign getCustomEconomy() {
+        return customEconomy;
     }
     @Nullable
     public IEconomy parseEconomy(@Nullable String str) {
@@ -228,6 +234,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private void initEconomy() {
         List<String> loadedEconomies = new ArrayList<>();
         try {
+            // Vault
             if (Util.isPresent("net.milkbowl.vault.economy.Economy")) {
                 RegisteredServiceProvider<Economy> service = Bukkit.getServicesManager().getRegistration(Economy.class);
                 Economy provider = service == null ? null : service.getProvider();
@@ -242,6 +249,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         } catch (LinkageError ignored) {
         }
         try {
+            // PlayerPoints
             if (Util.isPresent("org.black_ixx.playerpoints.PlayerPointsAPI")) {
                 PlayerPointsAPI api = PlayerPoints.getInstance().getAPI();
                 playerPoints = new PlayerPointsEconomy(api);
@@ -251,6 +259,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         } catch (LinkageError ignored) {
         }
         try {
+            // MPoints
             if (Util.isPresent("me.yic.mpoints.MPointsAPI")) {
                 mPoints = new MPointsEconomy(new MPointsAPI(), null);
                 economyResolvers.add(new MPointsEconomy.Resolver(this));
@@ -259,6 +268,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         } catch (LinkageError ignored) {
         }
         try {
+            // CoinsEngine
             if (Util.isPresent("su.nightexpress.coinsengine.api.CoinsEngineAPI")) {
                 coinsEngine = new CoinsEngineEconomy(null);
                 economyResolvers.add(new CoinsEngineEconomy.Resolver(this));
@@ -269,6 +279,10 @@ public class SweetPlayerMarket extends BukkitPlugin {
         for (String name : loadedEconomies) {
             info("已挂钩经济插件 " + name);
         }
+        // 自定义配置经济
+        CurrencyManager manager = new CurrencyManager(this);
+        customEconomy = new CustomEconomy(manager, null);
+        economyResolvers.add(new CustomEconomy.Resolver(manager));
     }
 
     @Override

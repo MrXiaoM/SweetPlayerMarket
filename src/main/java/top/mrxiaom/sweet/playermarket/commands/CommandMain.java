@@ -217,6 +217,12 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                             }
                         }
                     }
+                    for (String currencyId : plugin.getCustomEconomy().getSigns()) {
+                        IEconomy currency = plugin.getCustomEconomy().of(currencyId);
+                        if (limitation.canUseCurrency(currency) && currency.hasPermission(sender)) {
+                            list.add("Custom:" + currencyId);
+                        }
+                    }
                 }
                 return startsWith(list, args[3]);
             }

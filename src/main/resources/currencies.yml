@@ -1,0 +1,23 @@
+# 重定向该配置文件到某个路径，如果设置了这个，以下配置均无效
+#goto: '/path/to/currencies.yml'
+
+# 按变量指定的自定义货币
+#
+# 警告: 如果需要添加新的货币插件支持，请向插件作者提交兼容申请，这个配置仅作临时解决方案
+#      由于扣费命令不包含“是否成功”结果，可能会存在刷货币漏洞，后果自负
+#
+# 在实际配置和上架中使用 'custom:键名' 格式
+# 需要权限 'sweet.playermarket.create.currency.custom.键名' 才能使用
+custom-currencies:
+  example:
+    # 展示名称
+    name: '金币'
+    # 获取货币数量使用变量
+    # 如果无法转换为实数，将会取 0 以免出现预期外的问题
+    get: '%vault_eco_balance%'
+    # 给予、扣除货币的命令
+    # 其中 %money% 是原始金额，%money_int% 是整数金额
+    give:
+      - '[console]money give %player_name% %money%'
+    take:
+      - '[console]money take %player_name% %money%'
