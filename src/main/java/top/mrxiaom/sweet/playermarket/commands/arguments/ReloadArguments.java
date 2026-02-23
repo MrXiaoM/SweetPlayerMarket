@@ -1,6 +1,10 @@
 package top.mrxiaom.sweet.playermarket.commands.arguments;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import top.mrxiaom.pluginbase.func.GuiManager;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -23,6 +27,13 @@ public class ReloadArguments extends AbstractArguments<CommandSender> {
             Messages.Command.reload__assets.tm(sender);
             plugin.getScheduler().runTaskAsync(() -> I18nManager.inst().reloadConfig());
             return true;
+        }
+        GuiManager manager = GuiManager.inst();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            IGuiHolder gui = manager.getOpeningGui(p);
+            if (gui != null) {
+                p.closeInventory();
+            }
         }
         plugin.reloadConfig();
         return Messages.Command.reload__success.tm(sender);
