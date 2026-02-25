@@ -192,6 +192,10 @@ public class Searching {
     }
 
     public static LocalDateTime format(String str) {
-        return str == null ? null : LocalDateTime.parse(str, formatter);
+        if (str == null) return null;
+        if (str.contains(".")) {
+            str = str.split("\\.")[0];
+        }
+        return LocalDateTime.parse(str, formatter);
     }
 }
