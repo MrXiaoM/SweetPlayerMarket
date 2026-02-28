@@ -12,7 +12,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
-import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -25,6 +24,7 @@ import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiConfirm;
+import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
 
@@ -161,7 +161,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 for (int i = 0; i < count; i++) {
                     ItemStack item = marketItem.item();
                     total += item.getAmount();
-                    ItemStackUtil.giveItemToPlayer(player, item);
+                    Utils.giveItemsToPlayer(player, item);
                 }
                 totalCount = total;
             }

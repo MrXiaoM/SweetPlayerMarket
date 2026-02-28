@@ -7,11 +7,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.StringJoiner;
 
 @SuppressWarnings("UnusedReturnValue")
 public class Searching {
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     private boolean outdated;
     private @Nullable String playerId;
     private @Nullable EnumMarketType type;

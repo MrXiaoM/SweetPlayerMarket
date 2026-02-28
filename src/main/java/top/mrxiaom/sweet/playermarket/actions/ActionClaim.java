@@ -9,7 +9,6 @@ import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
-import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -151,7 +150,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                         takeBackBuy(marketItem, player, outdatedReturnAmount);
                     }
                     if (!itemList.isEmpty()) {
-                        ItemStackUtil.giveItemToPlayer(player, itemList);
+                        Utils.giveItemsToPlayer(player, itemList);
                         MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(_item).build();
                         Messages.Gui.me__claim__buy__success.tm(miniMessage, player,
                                 Pair.of("%item%", plugin.displayNames().getDisplayName(_item, player)),
@@ -191,7 +190,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
         } else {
             // 如果没有商品适配器，直接给予玩家物品
             for (int i = 0; i < count; i++) {
-                ItemStackUtil.giveItemToPlayer(player, marketItem.item());
+                Utils.giveItemsToPlayer(player, marketItem.item());
             }
         }
     }

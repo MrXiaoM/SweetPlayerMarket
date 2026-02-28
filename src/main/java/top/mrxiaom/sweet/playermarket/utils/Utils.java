@@ -1,6 +1,9 @@
 package top.mrxiaom.sweet.playermarket.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -21,10 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -113,6 +113,26 @@ public class Utils {
             }
         }
         return def;
+    }
+
+    public static void giveItemsToPlayer(Player player, List<ItemStack> items) {
+        giveItemsToPlayer(player, items.toArray(new ItemStack[0]));
+    }
+
+    public static void giveItemsToPlayer(Player player, ItemStack... items) {
+        HashMap<Integer, ItemStack> last = player.getInventory().addItem(items);
+        if (last.isEmpty()) return;
+        World world = player.getWorld();
+        Location location = player.getLocation();
+        Location loc = new Location(world, location.getBlockX() + 0.5, location.getY() + 1.0, location.getBlockZ() + 0.5);
+        SweetPlayerMarket.getInstance().getScheduler().runAtLocation(loc, () -> {
+            for (ItemStack item : last.values()) {
+                if (item == null || item.getType().equals(Material.AIR) || item.getAmount() <= 0) {
+                    continue;
+                }
+                world.dropItem(loc, item);
+            }
+        });
     }
 
     private static int first(Inventory inv, ItemStack item) {
