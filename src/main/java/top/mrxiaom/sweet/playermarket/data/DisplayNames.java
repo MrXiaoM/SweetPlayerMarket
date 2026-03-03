@@ -211,9 +211,9 @@ public class DisplayNames extends AbstractModule {
      * @see DisplayNames#get(ItemStack, Player)
      */
     public String getDisplayName(ItemStack item, Player player) {
-        String displayName = AdventureItemStack.getItemDisplayNameAsMiniMessage(item);
-        if (displayName != null) {
-            return displayName.replace("&", "&&");
+        String name = plugin.getItemDisplayName(item);
+        if (name != null) {
+            return name;
         }
         return get(item, player);
     }

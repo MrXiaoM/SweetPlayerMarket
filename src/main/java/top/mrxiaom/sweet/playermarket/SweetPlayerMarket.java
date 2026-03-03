@@ -29,8 +29,10 @@ import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.api.MarketAPI;
+import top.mrxiaom.sweet.playermarket.api.item.ItemNameProvider;
 import top.mrxiaom.sweet.playermarket.api.item.ItemProvider;
 import top.mrxiaom.sweet.playermarket.api.item.VanillaItem;
+import top.mrxiaom.sweet.playermarket.api.item.VanillaName;
 import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
@@ -90,6 +92,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private final MarketAPI api = new API();
     private final List<IEconomyResolver> economyResolvers = new ArrayList<>();
     private final List<ItemProvider> itemProviders = new ArrayList<>();
+    private final List<ItemNameProvider> itemNameProviders = new ArrayList<>();
     private boolean onlineMode;
     private IEconomy vault;
     private IEconomy playerPoints;
@@ -166,11 +169,31 @@ public class SweetPlayerMarket extends BukkitPlugin {
         itemProviders.sort(Comparator.comparingInt(ItemProvider::priority));
     }
 
+    public void registerItemNameProvider(@NotNull ItemNameProvider provider) {
+        itemNameProviders.add(provider);
+        itemNameProviders.sort(Comparator.comparingInt(ItemNameProvider::priority));
+    }
+
+    public void unregisterItemNameProvider(@NotNull ItemNameProvider provider) {
+        itemNameProviders.remove(provider);
+        itemNameProviders.sort(Comparator.comparingInt(ItemNameProvider::priority));
+    }
+
     public @Nullable ItemStack getItem(String inputText) {
         for (ItemProvider provider : itemProviders) {
             ItemStack item = provider.get(inputText);
             if (item != null) {
                 return item;
+            }
+        }
+        return null;
+    }
+
+    public @Nullable String getItemDisplayName(ItemStack item) {
+        for (ItemNameProvider provider : itemNameProviders) {
+            String name = provider.getDisplayName(item);
+            if (name != null) {
+                return name;
             }
         }
         return null;
@@ -199,6 +222,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
         MinecraftVersion.getVersion();
 
         registerItemProvider(VanillaItem.INSTANCE);
+        registerItemNameProvider(VanillaName.INSTANCE);
         new I18nManager(this);
     }
 
