@@ -160,15 +160,22 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
                 if (!sqliteFolder.exists()) {
                     Util.mkdirs(sqliteFolder);
                 }
-                warn("初始化索引失败: " + e.getMessage());
-                warn("当前 SQLite 环境未安装 simple tokenizer，请先按你的系统类型进行安装。");
-                String pluginName = plugin.getDescription().getName();
-                String libName = System.getProperty("os.name").toLowerCase().contains("win")
-                        ? "simple.dll"
-                        : "libsimple.*";
-                warn("从以下链接下载，确保解压后 plugins/" + pluginName + "/sqlite/" + libName + " 文件存在。");
-                warn("https://github.com/wangfenjin/simple/releases/latest");
-                warn("如果你不需要搜索商品功能，或者打算使用 MySQL，可以忽略这个警告。");
+                if (!new File(sqliteFolder, "ignore.txt").exists()) {
+                    warn("初始化索引失败: " + e.getMessage());
+                    warn("当前 SQLite 环境未安装 simple tokenizer，请先按你的系统类型进行安装。");
+                    String pluginName = plugin.getDescription().getName();
+                    String libName = System.getProperty("os.name").toLowerCase().contains("win")
+                            ? "simple.dll"
+                            : "libsimple.*";
+                    warn("从以下链接下载，确保解压后 plugins/" + pluginName + "/sqlite/" + libName + " 文件存在。");
+                    warn("https://github.com/wangfenjin/simple/releases/latest");
+                    warn("如果你不需要搜索商品功能，或者打算使用 MySQL，可以忽略这个警告。");
+                    warn("----------------------------------------------------");
+                    warn("由于 SQLite 对 Java 扩展的支持不佳，安装上述扩展可能会导致服务端崩溃！");
+                    warn("如果有搜索需求，请尽可能使用 MySQL，而不是使用 simple tokenizer 扩展");
+                    warn("在 plugins/" + pluginName + "/sqlite/ 目录中创建文件 ignore.txt 消除这个警告");
+                    warn("----------------------------------------------------");
+                }
             }
         }
         this.enableKeywordSearch = enableKeywordSearch;
