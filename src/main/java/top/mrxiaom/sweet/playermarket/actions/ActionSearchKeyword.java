@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -15,17 +16,26 @@ import top.mrxiaom.sweet.playermarket.utils.Prompter;
 import java.util.List;
 
 public class ActionSearchKeyword implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[search:keyword]")) {
-            String keyword = s.substring(16);
-            return new ActionSearchKeyword(keyword);
-        }
-        if (s.startsWith("search:keyword:")) {
-            String keyword = s.substring(15);
-            return new ActionSearchKeyword(keyword);
-        }
-        if (s.equals("search:keyword")) {
-            return new ActionSearchKeyword("");
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("search-keyword".equals(section.getString("type"))) {
+                String keyword = section.getString("keyword", "");
+                return new ActionSearchKeyword(keyword);
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[search:keyword]")) {
+                String keyword = s.substring(16);
+                return new ActionSearchKeyword(keyword);
+            }
+            if (s.startsWith("search:keyword:")) {
+                String keyword = s.substring(15);
+                return new ActionSearchKeyword(keyword);
+            }
+            if (s.equals("search:keyword")) {
+                return new ActionSearchKeyword("");
+            }
         }
         return null;
     };

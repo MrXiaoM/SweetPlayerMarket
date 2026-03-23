@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -23,18 +24,37 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class ActionDeployPrice implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[price]")) {
-            String params = s.substring(7);
-            if (params.equals("input")) {
-                return new Input(
-                        Messages.Gui.deploy__price__prompt_message,
-                        Messages.Gui.deploy__price__prompt_cancel,
-                        Messages.Gui.deploy__price__success,
-                        Messages.Gui.deploy__price__not_number,
-                        (gui, value) -> gui.modifyPrice(IGuiDeploy.NumberOperation.SET, value));
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("create-price".equals(section.getString("type"))) {
+                String operation = section.getString("operation");
+                if (operation != null) {
+                    if (operation.equals("input")) {
+                        return new Input(
+                                Messages.Gui.deploy__price__prompt_message,
+                                Messages.Gui.deploy__price__prompt_cancel,
+                                Messages.Gui.deploy__price__success,
+                                Messages.Gui.deploy__price__not_number,
+                                (gui, value) -> gui.modifyPrice(IGuiDeploy.NumberOperation.SET, value));
+                    }
+                    return parse(operation, (operation1, value) -> (gui) -> gui.modifyPrice(operation1, value));
+                }
             }
-            return parse(params, (operation, value) -> (gui) -> gui.modifyPrice(operation, value));
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[price]")) {
+                String params = s.substring(7);
+                if (params.equals("input")) {
+                    return new Input(
+                            Messages.Gui.deploy__price__prompt_message,
+                            Messages.Gui.deploy__price__prompt_cancel,
+                            Messages.Gui.deploy__price__success,
+                            Messages.Gui.deploy__price__not_number,
+                            (gui, value) -> gui.modifyPrice(IGuiDeploy.NumberOperation.SET, value));
+                }
+                return parse(params, (operation, value) -> (gui) -> gui.modifyPrice(operation, value));
+            }
         }
         return null;
     };

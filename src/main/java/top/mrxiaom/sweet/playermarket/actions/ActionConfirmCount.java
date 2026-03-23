@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -13,12 +14,23 @@ import top.mrxiaom.sweet.playermarket.gui.api.IGuiConfirm;
 import java.util.List;
 
 public class ActionConfirmCount implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[count]")) {
-            return parse(s.substring(7));
-        }
-        if (s.startsWith("count:")) {
-            return parse(s.substring(6));
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("confirm-count".equals(section.getString("type"))) {
+                String operation = section.getString("operation");
+                if (operation != null) {
+                    return parse(operation);
+                }
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[count]")) {
+                return parse(s.substring(7));
+            }
+            if (s.startsWith("count:")) {
+                return parse(s.substring(6));
+            }
         }
         return null;
     };

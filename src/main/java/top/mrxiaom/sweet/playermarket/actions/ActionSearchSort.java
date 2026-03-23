@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -12,12 +13,23 @@ import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 import java.util.List;
 
 public class ActionSearchSort implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[search:sort]")) {
-            return new ActionSearchSort(s.substring(13));
-        }
-        if (s.startsWith("search:sort:")) {
-            return new ActionSearchSort(s.substring(12));
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("search-sort".equals(section.getString("type"))) {
+                String by = section.getString("by");
+                if (by != null) {
+                    return new ActionSearchSort(by);
+                }
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[search:sort]")) {
+                return new ActionSearchSort(s.substring(13));
+            }
+            if (s.startsWith("search:sort:")) {
+                return new ActionSearchSort(s.substring(12));
+            }
         }
         return null;
     };

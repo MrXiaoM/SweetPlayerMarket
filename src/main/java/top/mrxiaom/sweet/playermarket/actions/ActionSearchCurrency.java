@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -12,14 +13,25 @@ import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 import java.util.List;
 
 public class ActionSearchCurrency implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[search:currency]")) {
-            String type = s.substring(17);
-            return new ActionSearchCurrency(type);
-        }
-        if (s.startsWith("search:currency:")) {
-            String type = s.substring(16);
-            return new ActionSearchCurrency(type);
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("search-currency".equals(section.getString("type"))) {
+                String currency = section.getString("currency");
+                if (currency != null) {
+                    return new ActionSearchCurrency(currency);
+                }
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[search:currency]")) {
+                String type = s.substring(17);
+                return new ActionSearchCurrency(type);
+            }
+            if (s.startsWith("search:currency:")) {
+                String type = s.substring(16);
+                return new ActionSearchCurrency(type);
+            }
         }
         return null;
     };

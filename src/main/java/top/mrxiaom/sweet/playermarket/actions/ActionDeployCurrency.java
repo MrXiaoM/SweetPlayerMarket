@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -16,26 +17,53 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ActionDeployCurrency implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        SweetPlayerMarket plugin = SweetPlayerMarket.getInstance();
-        if (s.startsWith("[currency]switch::")) {
-            String[] params = s.substring(18).split(",");
-            List<IEconomy> currencyList = new ArrayList<>();
-            for (String param : params) {
-                IEconomy currency = plugin.parseEconomy(param);
-                if (currency != null) {
-                    currencyList.add(currency);
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("create-currency".equals(section.getString("type"))) {
+                SweetPlayerMarket plugin = SweetPlayerMarket.getInstance();
+                String set = section.getString("set");
+                if (set != null) {
+                    IEconomy currency = plugin.parseEconomy(set);
+                    if (currency != null) {
+                        return new ActionDeployCount(gui -> gui.setCurrency(currency));
+                    }
+                } else {
+                    List<IEconomy> currencyList = new ArrayList<>();
+                    for (String param : section.getStringList("switch")) {
+                        IEconomy currency = plugin.parseEconomy(param);
+                        if (currency != null) {
+                            currencyList.add(currency);
+                        }
+                    }
+                    if (!currencyList.isEmpty()) {
+                        return new ActionDeployCount(gui -> gui.switchCurrency(currencyList));
+                    }
                 }
             }
-            if (!currencyList.isEmpty()) {
-                return new ActionDeployCount(gui -> gui.switchCurrency(currencyList));
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[currency]switch::")) {
+                SweetPlayerMarket plugin = SweetPlayerMarket.getInstance();
+                String[] params = s.substring(18).split(",");
+                List<IEconomy> currencyList = new ArrayList<>();
+                for (String param : params) {
+                    IEconomy currency = plugin.parseEconomy(param);
+                    if (currency != null) {
+                        currencyList.add(currency);
+                    }
+                }
+                if (!currencyList.isEmpty()) {
+                    return new ActionDeployCount(gui -> gui.switchCurrency(currencyList));
+                }
             }
-        }
-        if (s.startsWith("[currency]set::")) {
-            String param = s.substring(15);
-            IEconomy currency = plugin.parseEconomy(param);
-            if (currency != null) {
-                return new ActionDeployCount(gui -> gui.setCurrency(currency));
+            if (s.startsWith("[currency]set::")) {
+                SweetPlayerMarket plugin = SweetPlayerMarket.getInstance();
+                String param = s.substring(15);
+                IEconomy currency = plugin.parseEconomy(param);
+                if (currency != null) {
+                    return new ActionDeployCount(gui -> gui.setCurrency(currency));
+                }
             }
         }
         return null;

@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -13,14 +14,25 @@ import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 import java.util.List;
 
 public class ActionSearchType implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[search:type]")) {
-            String type = s.substring(13);
-            return new ActionSearchType(type);
-        }
-        if (s.startsWith("search:type:")) {
-            String type = s.substring(12);
-            return new ActionSearchType(type);
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("search-type".equals(section.getString("type"))) {
+                String shopType = section.getString("shop-type");
+                if (shopType != null) {
+                    return new ActionSearchType(shopType);
+                }
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[search:type]")) {
+                String type = s.substring(13);
+                return new ActionSearchType(type);
+            }
+            if (s.startsWith("search:type:")) {
+                String type = s.substring(12);
+                return new ActionSearchType(type);
+            }
         }
         return null;
     };

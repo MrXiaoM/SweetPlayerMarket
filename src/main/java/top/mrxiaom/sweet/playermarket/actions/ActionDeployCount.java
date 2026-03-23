@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -20,30 +21,59 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class ActionDeployCount implements IAction {
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.startsWith("[count:amount]")) {
-            String params = s.substring(14);
-            if (params.equals("input")) {
-                return new Input(
-                        Messages.Gui.deploy__amount__prompt_message,
-                        Messages.Gui.deploy__amount__prompt_cancel,
-                        Messages.Gui.deploy__amount__success,
-                        Messages.Gui.deploy__amount__not_number,
-                        (gui, value) -> gui.modifyAmount(IGuiDeploy.NumberOperation.SET, value));
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            String type = section.getString("type");
+            String operation = section.getString("operation");
+            if ("create-amount".equals(type) && operation != null) {
+                if (operation.equals("input")) {
+                    return new Input(
+                            Messages.Gui.deploy__amount__prompt_message,
+                            Messages.Gui.deploy__amount__prompt_cancel,
+                            Messages.Gui.deploy__amount__success,
+                            Messages.Gui.deploy__amount__not_number,
+                            (gui, value) -> gui.modifyAmount(IGuiDeploy.NumberOperation.SET, value));
+                }
+                return parse(operation, (operation1, value) -> (gui) -> gui.modifyAmount(operation1, value));
             }
-            return parse(params, (operation, value) -> (gui) -> gui.modifyAmount(operation, value));
-        }
-        if (s.startsWith("[count:item]")) {
-            String params = s.substring(12);
-            if (params.equals("input")) {
-                return new Input(
-                        Messages.Gui.deploy__item_count__prompt_message,
-                        Messages.Gui.deploy__item_count__prompt_cancel,
-                        Messages.Gui.deploy__item_count__success,
-                        Messages.Gui.deploy__item_count__not_number,
-                        (gui, value) -> gui.modifyItemCount(IGuiDeploy.NumberOperation.SET, value));
+            if ("create-item-count".equals(type) && operation != null) {
+                if (operation.equals("input")) {
+                    return new Input(
+                            Messages.Gui.deploy__item_count__prompt_message,
+                            Messages.Gui.deploy__item_count__prompt_cancel,
+                            Messages.Gui.deploy__item_count__success,
+                            Messages.Gui.deploy__item_count__not_number,
+                            (gui, value) -> gui.modifyItemCount(IGuiDeploy.NumberOperation.SET, value));
+                }
+                return parse(operation, (operation1, value) -> (gui) -> gui.modifyItemCount(operation1, value));
             }
-            return parse(params, (operation, value) -> (gui) -> gui.modifyItemCount(operation, value));
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[count:amount]")) {
+                String params = s.substring(14);
+                if (params.equals("input")) {
+                    return new Input(
+                            Messages.Gui.deploy__amount__prompt_message,
+                            Messages.Gui.deploy__amount__prompt_cancel,
+                            Messages.Gui.deploy__amount__success,
+                            Messages.Gui.deploy__amount__not_number,
+                            (gui, value) -> gui.modifyAmount(IGuiDeploy.NumberOperation.SET, value));
+                }
+                return parse(params, (operation, value) -> (gui) -> gui.modifyAmount(operation, value));
+            }
+            if (s.startsWith("[count:item]")) {
+                String params = s.substring(12);
+                if (params.equals("input")) {
+                    return new Input(
+                            Messages.Gui.deploy__item_count__prompt_message,
+                            Messages.Gui.deploy__item_count__prompt_cancel,
+                            Messages.Gui.deploy__item_count__success,
+                            Messages.Gui.deploy__item_count__not_number,
+                            (gui, value) -> gui.modifyItemCount(IGuiDeploy.NumberOperation.SET, value));
+                }
+                return parse(params, (operation, value) -> (gui) -> gui.modifyItemCount(operation, value));
+            }
         }
         return null;
     };
