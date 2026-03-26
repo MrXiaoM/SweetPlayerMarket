@@ -395,7 +395,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         r.add("%type%", plugin.displayNames().getMarketTypeName(item.type()));
         r.add("%amount%", item.amount());
         r.add("%amount_original%", item.params().getInt("original-amount"));
-        r.add("%price%", item.price());
+        r.add("%price%", String.format("%.2f", item.price()).replace(".00", ""));
         r.add("%currency%", plugin.displayNames().getCurrencyName(item.currencyName()));
         r.add("%create_time%", plugin.toString(item.createTime()));
         r.add("%outdate_time%", plugin.toString(item.outdateTime()));

@@ -232,7 +232,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             r.addAll(baseReplacements);
             r.add("%count%", count);
             r.add("%total_count%", count * marketItem.item().getAmount());
-            r.add("%total_money%", String.format("%.2f", count * marketItem.price()));
+            r.add("%total_money%", String.format("%.2f", count * marketItem.price()).replace(".00", ""));
         }
 
         @Override
