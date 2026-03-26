@@ -87,11 +87,11 @@ public class GuiTagList extends AbstractGuiCanGoBack {
             plugin.getScheduler().runTaskAsync(() -> {
                 if (parent != null) {
                     parent.doSearch();
-                    parent.open();
+                    plugin.getScheduler().runTask(parent::open);
                 } else {
-                    GuiMarketplace
-                            .create(player, Searching.of(false).tag(tag))
-                            .open();
+                    GuiMarketplace.Impl gui = GuiMarketplace
+                            .create(player, Searching.of(false).tag(tag));
+                    plugin.getScheduler().runTask(gui::open);
                 }
             });
         }

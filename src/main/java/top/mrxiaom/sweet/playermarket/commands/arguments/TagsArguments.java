@@ -22,11 +22,13 @@ public class TagsArguments extends AbstractArguments<CommandSender> {
             return true;
         }
         IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
-        if (gui instanceof AbstractGuiSearch.SearchGui) {
-            GuiTagList.create(player, (AbstractGuiSearch.SearchGui) gui).open();
-        } else {
-            GuiTagList.create(player, null).open();
-        }
+        plugin.getScheduler().runTask(() -> {
+            if (gui instanceof AbstractGuiSearch.SearchGui) {
+                GuiTagList.create(player, (AbstractGuiSearch.SearchGui) gui).open();
+            } else {
+                GuiTagList.create(player, null).open();
+            }
+        });
         return true;
     }
 

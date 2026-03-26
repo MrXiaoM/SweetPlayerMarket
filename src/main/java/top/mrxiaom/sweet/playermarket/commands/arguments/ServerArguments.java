@@ -19,9 +19,12 @@ public class ServerArguments extends AbstractArguments<CommandSender> {
         if (player == null) {
             return true;
         }
-        GuiMyItems.create(player, Searching.of(false)
-                .playerId("#server#")
-        ).open();
+        plugin.getScheduler().runTaskAsync(() -> {
+            GuiMyItems.Impl gui = GuiMyItems.create(player, Searching.of(false)
+                    .playerId("#server#")
+            );
+            plugin.getScheduler().runTask(gui::open);
+        });
         return true;
     }
 

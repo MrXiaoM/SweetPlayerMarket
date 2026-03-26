@@ -261,7 +261,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
             plugin.getScheduler().runTaskAsync(() -> {
                 this.pages -= pages;
                 doSearch();
-                open();
+                plugin.getScheduler().runTask(this::open);
             });
         }
 
@@ -274,7 +274,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                 this.pages += pages;
                 this.items.clear();
                 items.copyTo(this.items);
-                open();
+                plugin.getScheduler().runTask(this::open);
             });
         }
 

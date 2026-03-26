@@ -49,7 +49,10 @@ public class OpenArguments extends AbstractArguments<CommandSender> {
                 .type(Util.valueOr(EnumMarketType.class, type(), null))
                 .currency(currency == null ? null : currency.id())
                 .tag(tag());
-        plugin.getScheduler().runTaskAsync(() -> GuiMarketplace.create(player, searching).open());
+        plugin.getScheduler().runTaskAsync(() -> {
+            GuiMarketplace.Impl gui = GuiMarketplace.create(player, searching);
+            plugin.getScheduler().runTask(gui::open);
+        });
         return true;
     }
 

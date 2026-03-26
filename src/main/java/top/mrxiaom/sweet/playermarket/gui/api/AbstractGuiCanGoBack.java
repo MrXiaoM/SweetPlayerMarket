@@ -72,7 +72,7 @@ public abstract class AbstractGuiCanGoBack extends AbstractGuiModule {
         public void goBack() {
             if (parent != null) {
                 actionLock = true;
-                parent.open();
+                plugin.getScheduler().runTask(parent::open);
             }
         }
     }

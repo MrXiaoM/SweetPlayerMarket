@@ -88,7 +88,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 if (marketItem == null || marketItem.amount() == 0) {
                     Messages.Gui.common__item_not_found.tm(player);
                     parent.doSearch();
-                    parent.open();
+                    plugin.getScheduler().runTask(parent::open);
                     return;
                 }
                 currency = marketItem.currency();
@@ -174,11 +174,11 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     Pair.of("%money%", plugin.displayNames().formatMoney(totalMoney)),
                     Pair.of("%currency%", currencyName));
             parent.doSearch();
-            parent.open();
             NoticeManager.inst().confirmNotice(marketItem);
 
             double finalTotalMoney = totalMoney;
             plugin.getScheduler().runTask(() -> {
+                parent.open();
                 MarketConfirmSellEvent e = new MarketConfirmSellEvent(marketItem, player, count, totalCount, finalTotalMoney, currency);
                 Bukkit.getPluginManager().callEvent(e);
             });
@@ -193,7 +193,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             actionLock = true;
             plugin.getScheduler().runTaskAsync(() -> {
                 parent.doSearch();
-                parent.open();
+                plugin.getScheduler().runTask(parent::open);
             });
         }
     }
