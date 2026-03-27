@@ -17,7 +17,7 @@ softdepend:
 authors: [ MrXiaoM ]
 folia-supported: true
 libraries:
-  - "org.jetbrains:annotations:24.0.0"
+  - "${libraries}"
 commands:
   sweetplayermarket:
     description: 'The main command of SweetPlayerMarket'

@@ -7,7 +7,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.12")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.13")
 }
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
@@ -135,7 +135,10 @@ tasks {
     processResources {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from(sourceSets.main.get().resources.srcDirs) {
-            expand(mapOf("version" to version))
+            expand(mapOf(
+                "version" to version,
+                "libraries" to base.addedLibraries.joinToString("\"\n  - \""),
+            ))
             include("plugin.yml")
         }
     }
