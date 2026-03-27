@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.item.ItemNameProvider;
 import top.mrxiaom.sweet.playermarket.api.item.ItemProvider;
@@ -35,6 +36,11 @@ public class DependencyCraftEngine extends AbstractModule implements ItemProvide
     public @Nullable String getDisplayName(@NotNull ItemStack item) {
         CustomItem<ItemStack> customItem = CraftEngineItems.byItemStack(item);
         if (customItem != null && !customItem.isEmpty()) {
+            // 有自定义名字就用自定义名字，没自定义名字再用语言文本
+            String displayName = AdventureItemStack.getItemDisplayNameAsMiniMessage(item);
+            if (displayName != null) {
+                return displayName.replace("&", "&&");
+            }
             return "<lang:" + customItem.translationKey() + ">";
         }
         return null;
