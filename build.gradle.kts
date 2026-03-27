@@ -29,6 +29,8 @@ repositories {
     maven("https://repo.rosewooddev.io/repository/public/")
     maven("https://nexus.phoenixdevt.fr/repository/maven-public/")
     maven("https://r.irepo.space/maven/")
+    maven("https://repo.momirealms.net/releases/")
+    maven("https://repo.nexomc.com/releases")
 }
 
 dependencies {
@@ -51,6 +53,11 @@ dependencies {
     compileOnly("net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT")
     // NeigeItems
     compileOnly("pers.neige.neigeitems:NeigeItems:1.21.128")
+    // CraftEngine
+    compileOnly("net.momirealms:craft-engine-core:0.0.67")
+    compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
+    // Nexo
+    compileOnly("com.nexomc:nexo:1.19.1")
 
     base.library("net.kyori:adventure-api:4.22.0")
     base.library("net.kyori:adventure-platform-bukkit:4.4.0")
@@ -65,7 +72,6 @@ dependencies {
         implementation(artifact)
     }
     implementation(base.resolver.lite)
-    shadowLink(project(":depend-plugins-21"))
 }
 buildConfig {
     className("BuildConstants")
@@ -99,7 +105,7 @@ tasks {
             relocate(original, "$shadowGroup.$target")
         }
     }
-    val copyTask = create<Copy>("copyBuildArtifact") {
+    val copyTask = this.register<Copy>("copyBuildArtifact") {
         dependsOn(shadowJar)
         from(shadowJar.get().outputs)
         rename { "${project.name}-$version.jar" }
