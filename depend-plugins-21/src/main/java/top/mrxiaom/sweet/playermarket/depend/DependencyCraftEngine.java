@@ -2,6 +2,8 @@ package top.mrxiaom.sweet.playermarket.depend;
 
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
 import net.momirealms.craftengine.core.item.CustomItem;
+import net.momirealms.craftengine.core.item.processor.ItemNameProcessor;
+import net.momirealms.craftengine.core.item.processor.ItemProcessor;
 import net.momirealms.craftengine.core.util.Key;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +43,13 @@ public class DependencyCraftEngine extends AbstractModule implements ItemProvide
             if (displayName != null) {
                 return displayName.replace("&", "&&");
             }
+            // 如果还有通过物品处理器添加的名字，优先返回
+            for (ItemProcessor processor : customItem.dataModifiers()) {
+                if (processor instanceof ItemNameProcessor p) {
+                    return p.itemName();
+                }
+            }
+            // 最后再返回翻译键
             return "<lang:" + customItem.translationKey() + ">";
         }
         return null;
