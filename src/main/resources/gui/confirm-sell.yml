@@ -15,6 +15,8 @@ main-icons:
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
       - ''
+    left-click-commands:
+      - '[preview-item]'
   确:
     material: SLIME_BALL
     display: '&e&l确认'

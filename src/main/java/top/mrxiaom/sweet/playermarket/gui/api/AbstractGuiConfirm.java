@@ -270,7 +270,11 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
         protected void onClickMarketItem(
                 InventoryAction action, ClickType click,
                 InventoryType.SlotType slotType, int slot,
-                InventoryView view, InventoryClickEvent event) {}
+                InventoryView view, InventoryClickEvent event) {
+            ListPair<String, Object> r = new ListPair<>();
+            r.add("__internal__market_item", marketItem);
+            iconItem.click(player, click, r);
+        }
 
         protected abstract void onClickConfirm(
                 InventoryAction action, ClickType click,
