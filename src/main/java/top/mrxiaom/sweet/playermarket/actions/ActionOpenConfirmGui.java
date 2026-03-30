@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -16,8 +17,17 @@ import java.util.List;
 
 public class ActionOpenConfirmGui implements IAction {
     public static final ActionOpenConfirmGui INSTANCE = new ActionOpenConfirmGui();
-    public static final IActionProvider PROVIDER = (s) -> {
-        return s.equals("[confirm]") || s.equals("confirm") ? INSTANCE : null;
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("confirm".equals(section.getString("type"))) {
+                return INSTANCE;
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.equals("[confirm]") || s.equals("confirm")) return INSTANCE;
+        }
+        return null;
     };
     private ActionOpenConfirmGui() {
     }

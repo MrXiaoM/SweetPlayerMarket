@@ -30,8 +30,16 @@ import java.util.List;
 
 public class ActionClaim extends AbstractActionWithMarketItem {
     public static final ActionClaim INSTANCE = new ActionClaim();
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.equals("[claim]") || s.equals("claim")) return INSTANCE;
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("claim".equals(section.getString("type"))) {
+                return INSTANCE;
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.equals("[claim]") || s.equals("claim")) return INSTANCE;
+        }
         return null;
     };
     private ActionClaim() {}

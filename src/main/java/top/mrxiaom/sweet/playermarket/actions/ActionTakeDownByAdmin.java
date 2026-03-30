@@ -22,8 +22,16 @@ import java.util.List;
 
 public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
     public static final ActionTakeDownByAdmin INSTANCE = new ActionTakeDownByAdmin();
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.equals("[take-down-by-admin]") || s.equals("take-down-by-admin")) return INSTANCE;
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("take-down-by-admin".equals(section.getString("type"))) {
+                return INSTANCE;
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.equals("[take-down-by-admin]") || s.equals("take-down-by-admin")) return INSTANCE;
+        }
         return null;
     };
     private ActionTakeDownByAdmin() {}

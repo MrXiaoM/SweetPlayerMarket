@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -13,8 +14,16 @@ import java.util.List;
 
 public class ActionSearchOutdate implements IAction {
     public static final ActionSearchOutdate INSTANCE = new ActionSearchOutdate();
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.equals("[search:outdate]") || s.equals("search:outdate")) return INSTANCE;
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("search-outdate".equals(section.getString("type"))) {
+                return INSTANCE;
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.equals("[search:outdate]") || s.equals("search:outdate")) return INSTANCE;
+        }
         return null;
     };
     private ActionSearchOutdate() {}

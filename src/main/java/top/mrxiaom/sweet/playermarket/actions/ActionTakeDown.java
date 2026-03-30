@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.api.IActionProvider;
@@ -25,8 +26,16 @@ import java.util.List;
 
 public class ActionTakeDown extends AbstractActionWithMarketItem {
     public static final ActionTakeDown INSTANCE = new ActionTakeDown();
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.equals("[take-down]") || s.equals("take-down")) return INSTANCE;
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("take-down".equals(section.getString("type"))) {
+                return INSTANCE;
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.equals("[take-down]") || s.equals("take-down")) return INSTANCE;
+        }
         return null;
     };
     private ActionTakeDown() {}

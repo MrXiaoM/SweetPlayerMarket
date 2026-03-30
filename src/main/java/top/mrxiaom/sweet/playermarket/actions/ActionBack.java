@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -13,8 +14,16 @@ import java.util.List;
 
 public class ActionBack implements IAction {
     public static final ActionBack INSTANCE = new ActionBack();
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.equals("[back]") || s.equals("back")) return INSTANCE;
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("back".equals(section.getString("type"))) {
+                return INSTANCE;
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.equals("[back]") || s.equals("back")) return INSTANCE;
+        }
         return null;
     };
     private ActionBack() {}

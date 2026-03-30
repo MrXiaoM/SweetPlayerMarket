@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -14,8 +15,16 @@ import java.util.List;
 
 public class ActionSearchNotice implements IAction {
     public static final ActionSearchNotice INSTANCE = new ActionSearchNotice();
-    public static final IActionProvider PROVIDER = (s) -> {
-        if (s.equals("[search:notice]") || s.equals("search:notice")) return INSTANCE;
+    public static final IActionProvider PROVIDER = (input) -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if ("search-notice".equals(section.getString("type"))) {
+                return INSTANCE;
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.equals("[search:notice]") || s.equals("search:notice")) return INSTANCE;
+        }
         return null;
     };
     private ActionSearchNotice() {}
