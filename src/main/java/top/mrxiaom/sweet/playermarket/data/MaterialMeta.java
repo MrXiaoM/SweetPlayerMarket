@@ -2,20 +2,20 @@ package top.mrxiaom.sweet.playermarket.data;
 
 import org.bukkit.Material;
 
-@SuppressWarnings({"deprecation"})
+@SuppressWarnings({"deprecation", "Convert2MethodRef"})
 public enum MaterialMeta {
-    IS_BLOCK(Material::isBlock),
-    IS_AIR(Material::isAir),
-    IS_BURNABLE(Material::isBurnable),
-    IS_EDITABLE(Material::isEdible),
-    IS_FLAMMABLE(Material::isFlammable),
-    IS_FUEL(Material::isFuel),
-    IS_INTERACTABLE(Material::isInteractable),
-    IS_ITEM(Material::isItem),
-    IS_OCCLUDING(Material::isOccluding),
-    IS_RECORD(Material::isRecord),
-    IS_SOLID(Material::isSolid),
-    IS_TRANSPARENT(Material::isTransparent),
+    IS_BLOCK(it -> it.isBlock()),
+    IS_AIR(it -> it.isAir()),
+    IS_BURNABLE(it -> it.isBurnable()),
+    IS_EDITABLE(it -> it.isEdible()),
+    IS_FLAMMABLE(it -> it.isFlammable()),
+    IS_FUEL(it -> it.isFuel()),
+    IS_INTERACTABLE(it -> it.isInteractable()),
+    IS_ITEM(it -> it.isItem()),
+    IS_OCCLUDING(it -> it.isOccluding()),
+    IS_RECORD(it -> it.isRecord()),
+    IS_SOLID(it -> it.isSolid()),
+    IS_TRANSPARENT(it -> it.isTransparent()),
 
     ;
     private interface Impl {
