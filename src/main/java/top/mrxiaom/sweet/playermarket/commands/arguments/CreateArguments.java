@@ -60,14 +60,16 @@ public class CreateArguments extends AbstractArguments<Player> {
         }
         // 打开菜单
         if (isMenu) {
-            switch (type) {
-                case SELL:
-                    GuiCreateSellShop.create(sender, systemName).open();
-                    break;
-                case BUY:
-                    GuiCreateBuyShop.create(sender, systemName).open();
-                    break;
-            }
+            plugin.getScheduler().runTask(() -> {
+                switch (type) {
+                    case SELL:
+                        GuiCreateSellShop.create(sender, systemName).open();
+                        break;
+                    case BUY:
+                        GuiCreateBuyShop.create(sender, systemName).open();
+                        break;
+                }
+            });
             return true;
         }
         ItemStack item = sender.getItemInHand();

@@ -188,7 +188,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
         }
         successAction.run();
         gm.doSearch();
-        gm.open();
+        plugin.getScheduler().runTask(gm::open);
     }
 
     protected static void takeBackSell(MarketItem marketItem, IShopSellConfirmAdapter shopAdapter, Player player, int count) {

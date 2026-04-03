@@ -119,7 +119,7 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
             return;
         }
         gm.doSearch();
-        gm.open();
+        plugin.getScheduler().runTask(gm::open);
         noticeManager.updateCreated();
         Messages.Gui.me__take_down__success_admin.tm(player);
     }

@@ -101,7 +101,7 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
             return;
         }
         gm.doSearch();
-        gm.open();
+        plugin.getScheduler().runTask(gm::open);
         NoticeManager.inst().updateCreated();
         Messages.Gui.me__take_down__success.tm(player);
     }
