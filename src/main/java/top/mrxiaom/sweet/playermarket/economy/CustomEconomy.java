@@ -5,8 +5,8 @@ import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
@@ -133,7 +133,10 @@ public class CustomEconomy implements IEconomyWithSign, IEconomy {
     @Override
     public boolean giveMoney(OfflinePlayer player, double money) {
         if (data == null) throw new UnsupportedOperationException("");
-        ActionProviders.run(manager.plugin, player.getPlayer(), data.give);
+        ListPair<String, Object> r = new ListPair<>();
+        r.add("%money%", money);
+        r.add("%money_int%", (int) money);
+        manager.plugin.run(player.getPlayer(), data.give, r);
         return true;
     }
 
@@ -141,7 +144,10 @@ public class CustomEconomy implements IEconomyWithSign, IEconomy {
     public boolean takeMoney(OfflinePlayer player, double money) {
         if (data == null) throw new UnsupportedOperationException("");
         if (has(player, money)) {
-            ActionProviders.run(manager.plugin, player.getPlayer(), data.take);
+            ListPair<String, Object> r = new ListPair<>();
+            r.add("%money%", money);
+            r.add("%money_int%", (int) money);
+            manager.plugin.run(player.getPlayer(), data.take, r);
             return true;
         }
         return false;

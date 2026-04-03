@@ -280,7 +280,7 @@ public class AutoDeployProperty {
                 // 执行上架成功命令
                 ListPair<String, Object> r = new ListPair<>();
                 AbstractGuiSearch.applyMarketItemPlaceholders(plugin, marketItem, r);
-                plugin.getScheduler().runTask(() -> ActionProviders.run(plugin, null, successCommands, r));
+                plugin.getScheduler().runTask(() -> plugin.run(null, successCommands, r));
             }
             MarketItemAutoCreatedEvent e = new MarketItemAutoCreatedEvent(marketItem, this);
             Bukkit.getPluginManager().callEvent(e);

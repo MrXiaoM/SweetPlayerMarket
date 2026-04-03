@@ -36,7 +36,7 @@ public class EventActionsManager extends AbstractModule implements Listener {
         if (actionsAfterCreate.isEmpty()) return;
         Player player = e.getPlayer();
         ListPair<String, Object> r = e.getMarketItem().replacements(plugin.displayNames(), player);
-        plugin.getScheduler().runTask(() -> ActionProviders.run(plugin, player, actionsAfterCreate, r));
+        plugin.getScheduler().runTask(() -> plugin.run(player, actionsAfterCreate, r));
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -48,7 +48,7 @@ public class EventActionsManager extends AbstractModule implements Listener {
         r.add("%total_item_count%", e.getTotalItemCount());
         r.add("%total_money%", plugin.displayNames().formatMoney(e.getTotalMoney()));
         r.add("%total_money_raw%", e.getTotalMoney());
-        plugin.getScheduler().runTask(() -> ActionProviders.run(plugin, player, actionsAfterSell, r));
+        plugin.getScheduler().runTask(() -> plugin.run(player, actionsAfterSell, r));
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -60,6 +60,6 @@ public class EventActionsManager extends AbstractModule implements Listener {
         r.add("%total_item_count%", e.getTotalItemCount());
         r.add("%total_money%", plugin.displayNames().formatMoney(e.getTotalMoney()));
         r.add("%total_money_raw%", e.getTotalMoney());
-        plugin.getScheduler().runTask(() -> ActionProviders.run(plugin, player, actionsAfterBuy, r));
+        plugin.getScheduler().runTask(() -> plugin.run(player, actionsAfterBuy, r));
     }
 }

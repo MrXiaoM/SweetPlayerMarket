@@ -16,11 +16,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
 import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
@@ -389,6 +391,22 @@ public class SweetPlayerMarket extends BukkitPlugin {
             return Util.getOfflinePlayer(uuid).orElse(null);
         } else {
             return Util.getOfflinePlayer(key).orElse(null);
+        }
+    }
+
+    public void run(Player player, List<IAction> actions) {
+        try {
+            ActionProviders.run(this, player, actions);
+        } catch (Throwable t) {
+            warn("执行操作时出现异常", t);
+        }
+    }
+
+    public void run(Player player, List<IAction> actions, List<Pair<String, Object>> r) {
+        try {
+            ActionProviders.run(this, player, actions, r);
+        } catch (Throwable t) {
+            warn("执行操作时出现异常", t);
         }
     }
 
