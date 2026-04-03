@@ -16,8 +16,7 @@ softdepend:
   - NeigeItems
 authors: [ MrXiaoM ]
 folia-supported: true
-libraries:
-  - "${libraries}"
+# PluginBase Libraries ${libraries_config}
 commands:
   sweetplayermarket:
     description: 'The main command of SweetPlayerMarket'

@@ -25,6 +25,8 @@ import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 
 import java.util.*;
 
+import static top.mrxiaom.pluginbase.utils.CollectionUtils.startsWith;
+
 @AutoRegister
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {
     private String defaultCurrency;
@@ -129,7 +131,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if (sender.isOp()) {
                 list.add("reload");
             }
-            return startsWith(list, args[0]);
+            return startsWith(args[0], list);
         }
         if (args.length == 2) {
             if (sender.isOp()) {
@@ -137,7 +139,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     List<String> list = new ArrayList<>();
                     list.add("assets");
                     list.add("database");
-                    return startsWith(list, args[1]);
+                    return startsWith(args[1], list);
                 }
             }
             if ("create".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.create")) {
@@ -154,7 +156,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                         list.add(type.name().toLowerCase());
                     }
                 }
-                return startsWith(list, args[1]);
+                return startsWith(args[1], list);
             }
             if ("open".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.open.other")) {
                 return null;
@@ -169,13 +171,13 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return null;
             }
             if ("auto-deploy".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.auto-deploy")) {
-                return startsWith(AutoDeployManager.inst().keys(), args[1]);
+                return startsWith(args[1], AutoDeployManager.inst().keys());
             }
             if ("recalc".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.recalc")) {
                 List<String> list = new ArrayList<>();
                 list.add("tags");
                 list.add("index");
-                return startsWith(list, args[1]);
+                return startsWith(args[1], list);
             }
         }
         if (args.length == 3) {
@@ -187,7 +189,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 }
             }
             if ("auto-deploy".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.auto-deploy")) {
-                return startsWith(Lists.newArrayList("print", "condition", "test"), args[2]);
+                return startsWith(args[2], Lists.newArrayList("print", "condition", "test"));
             }
         }
         if (args.length == 4) {
@@ -224,7 +226,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                         }
                     }
                 }
-                return startsWith(list, args[3]);
+                return startsWith(args[3], list);
             }
         }
         if (args.length == 5) {
@@ -270,16 +272,6 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         if (sender.hasPermission(permission)) {
             list.addAll(Arrays.asList(args));
         }
-    }
-    public List<String> startsWith(Collection<String> list, String s) {
-        return startsWith(null, list, s);
-    }
-    public List<String> startsWith(String[] addition, Collection<String> list, String s) {
-        String s1 = s.toLowerCase();
-        List<String> stringList = new ArrayList<>(list);
-        if (addition != null) stringList.addAll(0, Lists.newArrayList(addition));
-        stringList.removeIf(it -> !it.toLowerCase().startsWith(s1));
-        return stringList;
     }
 
     public static CommandMain inst() {

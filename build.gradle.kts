@@ -7,7 +7,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.13")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.14")
 }
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
@@ -83,15 +83,10 @@ buildConfig {
     buildConfigField("java.time.Instant", "BUILD_TIME", "java.time.Instant.ofEpochSecond(${System.currentTimeMillis() / 1000L}L)")
     buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
-java {
-    disableAutoTargetJvm()
-    val javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
-    }
-    withJavadocJar()
-    withSourcesJar()
-}
+
+top.mrxiaom.gradle.LibraryHelper.initJava(project, base, targetJavaVersion, true)
+top.mrxiaom.gradle.LibraryHelper.initPublishing(project)
+
 tasks {
     shadowJar {
         configurations.add(project.configurations.runtimeClasspath.get())
@@ -103,56 +98,6 @@ tasks {
             "com.tcoded.folialib" to "folialib",
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
-        }
-    }
-    val copyTask = this.register<Copy>("copyBuildArtifact") {
-        dependsOn(shadowJar)
-        from(shadowJar.get().outputs)
-        rename { "${project.name}-$version.jar" }
-        into(rootProject.file("out"))
-    }
-    build {
-        dependsOn(copyTask)
-    }
-    javadoc {
-        (options as StandardJavadocDocletOptions).apply {
-            links("https://hub.spigotmc.org/javadocs/spigot/")
-
-            locale("zh_CN")
-            encoding("UTF-8")
-            docEncoding("UTF-8")
-            addBooleanOption("keywords", true)
-            addBooleanOption("Xdoclint:none", true)
-        }
-    }
-    withType<JavaCompile>().configureEach {
-        options.encoding = "UTF-8"
-        options.compilerArgs.add("-Xlint:-options")
-        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
-            options.release.set(targetJavaVersion)
-        }
-    }
-    processResources {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        from(sourceSets.main.get().resources.srcDirs) {
-            expand(mapOf(
-                "version" to version,
-                "libraries" to base.addedLibraries.joinToString("\"\n  - \""),
-            ))
-            include("plugin.yml")
-        }
-    }
-}
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = rootProject.name
-            version = project.version.toString()
-
-            artifact(tasks["shadowJar"]).classifier = null
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])
         }
     }
 }
