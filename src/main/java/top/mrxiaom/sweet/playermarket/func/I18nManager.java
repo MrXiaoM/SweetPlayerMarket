@@ -101,7 +101,11 @@ public class I18nManager extends AbstractModule {
                 break;
         }
         info("使用下载源 " + downloadSource.getName());
-        reloadLanguage(gameLanguage);
+        try {
+            reloadLanguage(gameLanguage);
+        } catch (Throwable t) {
+            warn("下载语言文件时出现异常", t);
+        }
     }
 
     public void reloadLanguage(String code) {
