@@ -4,16 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.utils.CollectionUtils;
-import top.mrxiaom.pluginbase.utils.ConfigUtils;
-import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.*;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.func.i18n.BMCLAPISource;
 import top.mrxiaom.sweet.playermarket.func.i18n.IDownloadSource;
@@ -52,21 +48,6 @@ public class I18nManager extends AbstractModule {
         return false;
     }
 
-    private static String getMinecraftVersion() {
-        String input = Bukkit.getServer().getBukkitVersion().split("-")[0];
-        // Paper 返回的版本格式改成了类似 26.*.*.build.*
-        // 而 Mojang 公布的新版本命名格式依然是 *.*.* 或 *.*，需要特殊处理
-        List<String> split = CollectionUtils.split(input, '.');
-        StringJoiner joiner = new StringJoiner(".");
-        for (int i = 0; i < split.size() && i < 3; i++) {
-            String s = split.get(i);
-            if (Util.parseInt(s).isPresent()) {
-                joiner.add(s);
-            }
-        }
-        return joiner.toString();
-    }
-
     public void reloadConfig() {
         if (!checkSupportTranslatable()) {
             info("当前服务端不支持 Translatable 特性，不启用客户端资源下载器");
@@ -78,7 +59,7 @@ public class I18nManager extends AbstractModule {
         YamlConfiguration config = ConfigUtils.load(configFile);
         String gameVersion = config.getString("game-version", "auto");
         if (gameVersion.equals("auto")) {
-            this.minecraftVersion = getMinecraftVersion();
+            this.minecraftVersion = Versioning.getMinecraftVersion();
         } else {
             this.minecraftVersion = gameVersion;
         }
@@ -113,6 +94,7 @@ public class I18nManager extends AbstractModule {
         if (!folder.exists()) {
             Util.mkdirs(folder);
         }
+        info("指定的 Minecraft 版本: " + minecraftVersion);
         File indexFile = new File(folder, "assetIndex.json");
         JsonObject assetIndexJson;
         if (!indexFile.exists()) {
