@@ -7,7 +7,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.16")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.17")
 }
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
@@ -43,7 +43,7 @@ dependencies {
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly(files("libs/MPoints-1.2.2.jar"))
     compileOnly("com.github.nulli0n:ExcellentEconomy:c32f037025") // CoinsEngine
-    compileOnly("org.jetbrains:annotations:24.0.0")
+    compileOnly(base.depend.annotations)
     // MythicMobs
     compileOnly("io.lumine:Mythic-Dist:4.13.0")
     compileOnly("io.lumine:Mythic:5.6.2")
@@ -63,10 +63,10 @@ dependencies {
     base.library("net.kyori:adventure-text-minimessage:4.22.0")
     base.library("net.kyori:adventure-text-serializer-gson:4.22.0")
     base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
-    base.library("com.zaxxer:HikariCP:4.0.3")
+    base.library(base.depend.HikariCP)
 
-    implementation("top.mrxiaom:EvalEx-j8:3.4.0")
-    implementation("de.tr7zw:item-nbt-api:2.15.7")
+    implementation(base.depend.EvalEx)
+    implementation(base.depend.nbtapi)
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
         implementation(artifact)
