@@ -15,6 +15,9 @@ import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiDeploy;
 
+/**
+ * 菜单: 上架到 收购商店
+ */
 @AutoRegister
 public class GuiCreateBuyShop extends AbstractGuiDeploy {
     public GuiCreateBuyShop(SweetPlayerMarket plugin) {

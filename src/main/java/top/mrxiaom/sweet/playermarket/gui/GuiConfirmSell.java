@@ -28,6 +28,9 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
 
+/**
+ * 菜单: 出售商店 下单付款
+ */
 @AutoRegister
 public class GuiConfirmSell extends AbstractGuiConfirm {
     public GuiConfirmSell(SweetPlayerMarket plugin) {

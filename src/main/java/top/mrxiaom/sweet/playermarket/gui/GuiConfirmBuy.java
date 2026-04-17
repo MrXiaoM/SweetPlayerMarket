@@ -31,6 +31,9 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 菜单: 收购商店 卖出确认
+ */
 @AutoRegister
 public class GuiConfirmBuy extends AbstractGuiConfirm {
     public GuiConfirmBuy(SweetPlayerMarket plugin) {

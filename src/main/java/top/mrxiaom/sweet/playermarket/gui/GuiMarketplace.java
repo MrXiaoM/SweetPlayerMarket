@@ -22,6 +22,9 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.util.List;
 
+/**
+ * 菜单: 全球市场
+ */
 @AutoRegister
 public class GuiMarketplace extends AbstractGuiSearch {
     private boolean canBuySelfItems;

@@ -15,6 +15,9 @@ import top.mrxiaom.sweet.playermarket.func.ItemTagManager;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiCanGoBack;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
 
+/**
+ * 菜单: 商品分类
+ */
 @AutoRegister
 public class GuiTagList extends AbstractGuiCanGoBack {
     public GuiTagList(SweetPlayerMarket plugin) {

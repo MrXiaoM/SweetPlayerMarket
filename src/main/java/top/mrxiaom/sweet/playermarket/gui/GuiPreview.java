@@ -24,6 +24,9 @@ import java.io.File;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * 菜单: 浏览容器物品
+ */
 @AutoRegister
 public class GuiPreview extends AbstractGuiModule {
     protected static final String filePath = "preview.yml";

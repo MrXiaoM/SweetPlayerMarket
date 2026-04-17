@@ -22,6 +22,9 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 菜单: 我的商品
+ */
 @AutoRegister
 public class GuiMyItems extends AbstractGuiSearch {
     public GuiMyItems(SweetPlayerMarket plugin) {
