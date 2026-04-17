@@ -142,6 +142,7 @@ public class Messages {
         public static final Message deploy__item_count__success = field("&a已设置单份物品数量为 &e%count%");
         public static final Message deploy__item_count__not_number = field("&e请输入一个正确的数量");
 
+        public static final Message sell__amount_zero = field("&e请先输入购买数量");
         public static final Message sell__amount_not_enough = field("&e商品库存不足，减少一点购买数量吧~");
         public static final Message sell__currency_not_enough = field("&e你没有足够的%currency%");
         public static final Message sell__adapter_not_found = field("&e在该子服不支持操作该商品");
@@ -149,6 +150,7 @@ public class Messages {
         public static final Message sell__exception = field("&e出现错误，已打印日志到控制台，请联系服务器管理员");
         public static final Message sell__success = field("&a你已成功购买&e <item>%item%</item>&r&e x%total_count%&a，花费&e %money% %currency%");
 
+        public static final Message buy__amount_zero = field("&e请先输入卖出数量");
         public static final Message buy__amount_not_enough = field("&e商品库存空间不足，减少一点卖出数量吧~");
         public static final Message buy__item_not_enough = field("&e你没有足够的物品来卖出");
         public static final Message buy__adapter_not_found = field("&e在该子服不支持操作该商品");

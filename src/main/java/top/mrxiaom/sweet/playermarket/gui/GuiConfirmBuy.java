@@ -85,6 +85,11 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 InventoryView view, InventoryClickEvent event
         ) {
             actionLock = true;
+            if (count <= 0) {
+                Messages.Gui.buy__amount_zero.tm(player);
+                actionLock = false;
+                return;
+            }
             plugin.getScheduler().runTaskAsync(() -> {
                 confirmBuy();
                 actionLock = false;
