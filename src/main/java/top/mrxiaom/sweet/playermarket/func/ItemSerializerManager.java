@@ -42,7 +42,7 @@ public class ItemSerializerManager extends AbstractModule {
         if (config.contains("item")) {
             return config.getItemStack("item");
         }
-        if (useNBTAPI) {
+        if (config.contains("item-nbt")) {
             String itemNbt = config.getString("item-nbt");
             if (itemNbt != null) {
                 byte[] decoded = Base64.getDecoder().decode(itemNbt);
