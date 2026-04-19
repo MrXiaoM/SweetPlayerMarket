@@ -14,6 +14,14 @@ online-mode: auto
 # 其余为相对于服务端目录的相对路径，或者绝对路径
 gui-folder: './gui'
 
+# 物品序列化器设置
+item-serializer:
+  # 是否在上架物品时测试是否可以正常序列化和反序列化物品
+  # 如果测试失败，将阻止玩家上架商品
+  check-on-create: true
+  # 优先使用插件内置的 item-nbt-api 来序列化物品
+  use-nbt-api: true
+
 # 是否在玩家上架物品后，刷新所有已打开全球市场界面的玩家界面
 update-gui-after-create-item: true
 

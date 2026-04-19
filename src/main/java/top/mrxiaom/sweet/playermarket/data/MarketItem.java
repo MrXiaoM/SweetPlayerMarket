@@ -13,6 +13,7 @@ import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.actions.ActionPreviewItem;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.func.ItemSerializerManager;
 import top.mrxiaom.sweet.playermarket.utils.PlainSerializer;
 
 import java.time.LocalDateTime;
@@ -65,7 +66,7 @@ public class MarketItem {
         this.noticeFlag = noticeFlag;
         this.tag = tag;
 
-        ItemStack item = data.getItemStack("item");
+        ItemStack item = ItemSerializerManager.inst().getItem(data);
         if (item == null) throw new IllegalStateException("`item` not found!");
         this.item = item;
 
@@ -187,7 +188,7 @@ public class MarketItem {
     public @NotNull YamlConfiguration data() {
         YamlConfiguration config = new YamlConfiguration();
         config.set("player.name", playerName);
-        config.set("item", item);
+        ItemSerializerManager.inst().setItem(config, item);
         config.set("params", params);
         return config;
     }

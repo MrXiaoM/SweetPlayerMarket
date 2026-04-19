@@ -3,8 +3,12 @@ package top.mrxiaom.sweet.playermarket.commands.arguments;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
@@ -23,6 +27,7 @@ import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.func.ItemSerializerManager;
 import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.func.OutdateTimeManager;
@@ -30,6 +35,7 @@ import top.mrxiaom.sweet.playermarket.gui.GuiCreateBuyShop;
 import top.mrxiaom.sweet.playermarket.gui.GuiCreateSellShop;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Consumer;
@@ -37,12 +43,15 @@ import java.util.function.Consumer;
 public class CreateArguments extends AbstractArguments<Player> {
     private static final Arguments.Builder builder = Arguments.builder()
             .addBooleanOption("menu", "-m", "--menu")
+            .addBooleanOption("serialize", "--serialize")
             .addStringOptions("system", "-s", "--system");
     private final boolean isMenu;
+    private final boolean isSerializeTest;
     private final String systemName;
     protected CreateArguments(Arguments args) {
         super(args);
         this.isMenu = args.getOptionBoolean("menu");
+        this.isSerializeTest = args.getOptionBoolean("serialize");
         this.systemName = args.getOptionString("system", null);
     }
 
@@ -52,6 +61,23 @@ public class CreateArguments extends AbstractArguments<Player> {
         // systemName 不为 null 时，以系统身份上架商品
         if (systemName != null && !sender.hasPermission("sweet.playermarket.create.system")) {
             return Messages.Command.no_permission.tm(sender);
+        }
+        if (isSerializeTest && sender.hasPermission("sweet.playermarket.create.test")) {
+            ItemStack item = sender.getItemInHand();
+            if (item.getType().equals(Material.AIR)) {
+                ItemStack i = new ItemStack(Material.DIAMOND_SWORD);
+                ItemMeta meta = i.getItemMeta();
+                if (meta != null) {
+                    meta.addAttributeModifier(Attribute.valueOf("attack_damage"), new AttributeModifier("test", Double.NEGATIVE_INFINITY, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                    i.setItemMeta(meta);
+                }
+                sender.getWorld().dropItem(sender.getLocation(), i);
+                return Messages.Command.create__no_item.tm(sender);
+            }
+            if (doSerializeTest(ItemSerializerManager.inst(), sender, item)) {
+                Messages.Command.create__test_serialize_pass.tm(sender);
+            }
+            return true;
         }
         // 商品类型
         EnumMarketType type = nextValueOf(EnumMarketType.class);
@@ -103,6 +129,25 @@ public class CreateArguments extends AbstractArguments<Player> {
 
         plugin.getScheduler().runTask(() -> doDeployMarketItem(plugin, sender, systemName, item, itemCount, marketAmount, type, price, currency, null));
         return true;
+    }
+
+    private static boolean doSerializeTest(ItemSerializerManager itemSerializer, Player sender, ItemStack item) {
+        try {
+            // 序列化测试
+            YamlConfiguration config = new YamlConfiguration();
+            itemSerializer.setItem(config, item);
+            String str = config.saveToString();
+            // 反序列化测试
+            YamlConfiguration newConfig = new YamlConfiguration();
+            newConfig.load(new StringReader(str));
+            if (!item.equals(itemSerializer.getItem(newConfig))) {
+                throw new IllegalStateException("无法反序列化该物品");
+            }
+            return true;
+        } catch (Throwable t) {
+            Messages.Command.create__no_valid_item.tm(sender, Pair.of("%message%", t.getMessage()));
+            return false;
+        }
     }
 
     public static void doDeployMarketItem(
@@ -159,6 +204,13 @@ public class CreateArguments extends AbstractArguments<Player> {
         // 商品总份数
         if (marketAmount == null || marketAmount < 1 || marketAmount > 64) {
             Messages.Command.create__no_amount_valid.tm(sender);
+            if (callback != null) callback.accept(null);
+            return;
+        }
+
+        // 测试物品序列化
+        ItemSerializerManager itemSerializer = ItemSerializerManager.inst();
+        if (itemSerializer.isCheckOnCreate() && !doSerializeTest(itemSerializer, sender, item)) {
             if (callback != null) callback.accept(null);
             return;
         }
