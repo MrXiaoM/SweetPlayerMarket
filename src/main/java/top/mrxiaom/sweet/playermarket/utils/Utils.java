@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.utils;
 
+import com.ezylang.evalex.Expression;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +16,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 
@@ -29,6 +32,36 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Utils {
+
+    public static String replaceOrNull(Player player, String input, ListPair<String, Object> r) {
+        if (input.startsWith("$")) {
+            String substring = input.substring(1);
+            int index = substring.indexOf('$');
+            if (index < 0) return null;
+            String front = substring.substring(0, index);
+            String newInput = substring.substring(index + 1);
+            return doReplace(player, front, newInput, r);
+        }
+        return null;
+    }
+
+    private static @Nullable String doReplace(Player player, String front, String input, ListPair<String, Object> r) {
+        if (front.startsWith("if:")) {
+            String conditionStr = PAPI.setPlaceholders(player, Pair.replace(front.substring(3), r));
+            Boolean condition = null;
+            try {
+                condition = new Expression(conditionStr)
+                        .evaluate()
+                        .getBooleanValue();
+            } catch (Exception ignored) {
+            }
+            if (condition == Boolean.TRUE) {
+                return Pair.replace(input.trim(), r);
+            }
+            return "";
+        }
+        return null;
+    }
 
     /**
      * @see top.mrxiaom.pluginbase.utils.ConfigUtils#getSectionList(ConfigurationSection, String)

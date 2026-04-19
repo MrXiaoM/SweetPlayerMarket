@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.actions.ActionPreviewItem;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.utils.PlainSerializer;
 
@@ -37,6 +38,7 @@ public class MarketItem {
     private final @NotNull ItemStack item;
     private final @NotNull String playerName;
     private final @NotNull ConfigurationSection params;
+    private final boolean canItemPreview;
     public MarketItem(
             @NotNull String shopId,
             @NotNull String playerId,
@@ -73,6 +75,7 @@ public class MarketItem {
 
         ConfigurationSection params = data.getConfigurationSection("params");
         this.params = params != null ? params : new MemoryConfiguration();
+        this.canItemPreview = ActionPreviewItem.canPreview(this);
     }
 
     /**
@@ -187,6 +190,13 @@ public class MarketItem {
         config.set("item", item);
         config.set("params", params);
         return config;
+    }
+
+    /**
+     * 该商品是否可以通过使用 ActionPreviewItem 打开容器浏览菜单
+     */
+    public boolean canItemPreview() {
+        return canItemPreview;
     }
 
     /**

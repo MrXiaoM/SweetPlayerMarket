@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
@@ -37,18 +38,43 @@ public class ActionPreviewItem extends AbstractActionWithMarketItem {
     @Override
     public void run(@NotNull Player player, @NotNull MarketItem item, @NotNull List<Pair<String, Object>> replacements) {
         IGuiHolder parent = GuiManager.inst().getOpeningGui(player);
+        List<ItemStack> items = getItems(item);
+        if (items != null) {
+            GuiPreview.create(player, parent, items).open();
+        }
+    }
+
+    public static @Nullable List<ItemStack> getItems(@NotNull MarketItem item) {
         ItemMeta meta = item.item().getItemMeta();
-        if (meta instanceof BundleMeta) {
-            List<ItemStack> items = new ArrayList<>(((BundleMeta) meta).getItems());
-            GuiPreview.create(player, parent, items);
-            return;
-        }
-        if (meta instanceof BlockStateMeta) {
-            BlockState state = ((BlockStateMeta) meta).getBlockState();
-            if (state instanceof ShulkerBox) {
-                List<ItemStack> items = Lists.newArrayList(((ShulkerBox) state).getInventory().getStorageContents());
-                GuiPreview.create(player, parent, items).open();
+        try {
+            if (meta instanceof BundleMeta) {
+                return new ArrayList<>(((BundleMeta) meta).getItems());
             }
+            if (meta instanceof BlockStateMeta) {
+                BlockState state = ((BlockStateMeta) meta).getBlockState();
+                if (state instanceof ShulkerBox) {
+                    return Lists.newArrayList(((ShulkerBox) state).getInventory().getStorageContents());
+                }
+            }
+        } catch (LinkageError ignored) {
         }
+        return null;
+    }
+
+    public static boolean canPreview(@NotNull MarketItem item) {
+        ItemMeta meta = item.item().getItemMeta();
+        try {
+            if (meta instanceof BundleMeta) {
+                return true;
+            }
+            if (meta instanceof BlockStateMeta) {
+                BlockState state = ((BlockStateMeta) meta).getBlockState();
+                if (state instanceof ShulkerBox) {
+                    return true;
+                }
+            }
+        } catch (LinkageError ignored) {
+        }
+        return false;
     }
 }

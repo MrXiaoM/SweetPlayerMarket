@@ -133,7 +133,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                             lore.addAll(itemLore);
                             continue;
                         }
-                        String result = gui.replaceOrNull(s, r);
+                        String result = Utils.replaceOrNull(player, s, r);
                         if (result != null) {
                             if (!result.isEmpty()) {
                                 lore.add(result);
@@ -188,37 +188,6 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         public void setActionLock(boolean actionLock) {
             this.actionLock = actionLock;
         }
-
-        public String replaceOrNull(String input, ListPair<String, Object> r) {
-            if (input.startsWith("$")) {
-                String substring = input.substring(1);
-                int index = substring.indexOf('$');
-                if (index < 0) return null;
-                String front = substring.substring(0, index);
-                String newInput = substring.substring(index + 1);
-                return doReplace(front, newInput, r);
-            }
-            return null;
-        }
-
-        private @Nullable String doReplace(String front, String input, ListPair<String, Object> r) {
-            if (front.startsWith("if:")) {
-                String conditionStr = PAPI.setPlaceholders(player, Pair.replace(front.substring(3), r));
-                Boolean condition = null;
-                try {
-                    condition = new Expression(conditionStr)
-                            .evaluate()
-                            .getBooleanValue();
-                } catch (Exception ignored) {
-                }
-                if (condition == Boolean.TRUE) {
-                    return Pair.replace(input.trim(), r);
-                }
-                return "";
-            }
-            return null;
-        }
-
 
         @Nullable
         public MarketItem getItem(int index) {
@@ -399,5 +368,6 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         r.add("%currency%", plugin.displayNames().getCurrencyName(item.currencyName()));
         r.add("%create_time%", plugin.toString(item.createTime()));
         r.add("%outdate_time%", plugin.toString(item.outdateTime()));
+        r.add("%can_preview%", item.canItemPreview());
     }
 }

@@ -15,6 +15,7 @@ main-icons:
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
       - ''
+      - '$if:(%can_preview%)$ &a左键 &7| &f浏览容器内容'
     left-click-commands:
       - '[preview-item]'
   确:

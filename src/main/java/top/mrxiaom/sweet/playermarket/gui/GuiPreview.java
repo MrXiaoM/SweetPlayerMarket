@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.playermarket.gui;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -8,12 +9,15 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
+import top.mrxiaom.pluginbase.utils.ListPair;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 import top.mrxiaom.sweet.playermarket.gui.api.IGuiCanGoBack;
@@ -69,11 +73,16 @@ public class GuiPreview extends AbstractGuiModule {
         Impl gui = (Impl) instance;
         if (id == '物') {
             List<ItemStack> items = gui.items;
-            int i = (gui.pages - 1) * gui.perPageSize;
+            int i = ((gui.pages - 1) * gui.perPageSize) + appearTimes - 1;
             if (i < 0 || i >= items.size()) {
                 return iconEmpty.generateIcon(player);
             } else {
-                return items.get(i).clone();
+                ItemStack item = items.get(i);
+                if (item != null) {
+                    return item.clone();
+                } else {
+                    return new ItemStack(Material.AIR);
+                }
             }
         }
         return null;
@@ -113,6 +122,14 @@ public class GuiPreview extends AbstractGuiModule {
         public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
             super.updateInventory(setItem);
             actionLock = false;
+        }
+
+        @Override
+        protected Inventory create(int size, String title) {
+            ListPair<String, Object> r = new ListPair<>();
+            r.add("%page%", pages);
+            r.add("%max_page%", maxPages);
+            return super.create(size, Pair.replace(title, r));
         }
 
         @Override

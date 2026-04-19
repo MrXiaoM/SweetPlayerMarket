@@ -81,8 +81,6 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
     @Override
     protected ItemStack applyMainIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes) {
         ConfirmGui gui = (ConfirmGui) instance;
-        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
-        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
         if (id == '物') {
             MarketItem item = gui.marketItem;
 
@@ -92,21 +90,31 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             int displayAmount = baseItem.getAmount();
             List<String> itemLore = AdventureItemStack.getItemLoreAsMiniMessage(baseItem);
 
-            IModifier<List<String>> loreMod = oldLore -> {
+            IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
+            IModifier<List<String>> loreModifier = oldLore -> {
                 List<String> lore = new ArrayList<>();
                 for (String s : oldLore) {
                     if (s.equals("item lore")) {
                         lore.addAll(itemLore);
                         continue;
                     }
+                    String result = Utils.replaceOrNull(player, s, gui.commonReplacements);
+                    if (result != null) {
+                        if (!result.isEmpty()) {
+                            lore.add(result);
+                        }
+                        continue;
+                    }
                     lore.add(Pair.replace(s, gui.commonReplacements));
                 }
                 return lore;
             };
-            ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreMod);
+            ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreModifier);
             icon.setAmount(displayAmount);
             return entry.postProcessIcon(item, player, gui.commonReplacements, icon);
         }
+        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
+        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
         if (id == '确') {
             return iconConfirm.generateIcon(player, displayModifier, loreModifier);
         }
@@ -262,7 +270,11 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
                 return;
             }
-            plugin.getScheduler().runTask(() -> handleOtherClick(click, clickedId));
+            actionLock = true;
+            plugin.getScheduler().runTask(() -> {
+                handleOtherClick(click, clickedId);
+                actionLock = false;
+            });
         }
 
         protected abstract void checkNeedToLockAction(char id);
@@ -271,9 +283,13 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
                 InventoryAction action, ClickType click,
                 InventoryType.SlotType slotType, int slot,
                 InventoryView view, InventoryClickEvent event) {
-            ListPair<String, Object> r = new ListPair<>();
-            r.add("__internal__market_item", marketItem);
-            iconItem.click(player, click, r);
+            actionLock = true;
+            plugin.getScheduler().runTask(() -> {
+                ListPair<String, Object> r = new ListPair<>();
+                r.add("__internal__market_item", marketItem);
+                iconItem.click(player, click, r);
+                actionLock = false;
+            });
         }
 
         protected abstract void onClickConfirm(

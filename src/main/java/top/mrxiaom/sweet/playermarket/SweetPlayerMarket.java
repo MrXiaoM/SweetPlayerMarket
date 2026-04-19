@@ -258,7 +258,8 @@ public class SweetPlayerMarket extends BukkitPlugin {
                 ActionSearchType.PROVIDER, ActionSearchKeyword.PROVIDER, ActionConfirmCount.PROVIDER,
                 ActionOpenConfirmGui.PROVIDER, ActionClaim.PROVIDER,
                 ActionTakeDown.PROVIDER, ActionTakeDownByAdmin.PROVIDER,
-                ActionDeployCount.PROVIDER, ActionDeployPrice.PROVIDER, ActionDeployCurrency.PROVIDER
+                ActionDeployCount.PROVIDER, ActionDeployPrice.PROVIDER, ActionDeployCurrency.PROVIDER,
+                ActionPreviewItem.PROVIDER
         );
     }
 
