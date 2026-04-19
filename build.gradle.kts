@@ -1,3 +1,5 @@
+import top.mrxiaom.gradle.LibraryHelper
+
 plugins {
     java
     `maven-publish`
@@ -7,9 +9,9 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.18")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.19")
 }
-val base = top.mrxiaom.gradle.LibraryHelper(project)
+val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.playermarket"
 version = "1.0.11"
@@ -59,7 +61,7 @@ dependencies {
     // Nexo
     compileOnly("com.nexomc:nexo:1.19.1")
 
-    base.library(top.mrxiaom.gradle.LibraryHelper.adventure("4.22.0"))
+    base.library(LibraryHelper.adventure("4.22.0"))
     base.library(base.depend.HikariCP)
 
     implementation(base.depend.EvalEx)
@@ -81,8 +83,8 @@ buildConfig {
     buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
 
-top.mrxiaom.gradle.LibraryHelper.initJava(project, base, targetJavaVersion, true)
-top.mrxiaom.gradle.LibraryHelper.initPublishing(project)
+LibraryHelper.initJava(project, base, targetJavaVersion, true)
+LibraryHelper.initPublishing(project)
 
 tasks {
     shadowJar {
