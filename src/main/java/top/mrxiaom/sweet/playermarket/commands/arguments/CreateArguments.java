@@ -3,12 +3,9 @@ package top.mrxiaom.sweet.playermarket.commands.arguments;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.Pair;
@@ -65,13 +62,6 @@ public class CreateArguments extends AbstractArguments<Player> {
         if (isSerializeTest && sender.hasPermission("sweet.playermarket.create.test")) {
             ItemStack item = sender.getItemInHand();
             if (item.getType().equals(Material.AIR)) {
-                ItemStack i = new ItemStack(Material.DIAMOND_SWORD);
-                ItemMeta meta = i.getItemMeta();
-                if (meta != null) {
-                    meta.addAttributeModifier(Attribute.valueOf("attack_damage"), new AttributeModifier("test", Double.NEGATIVE_INFINITY, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
-                    i.setItemMeta(meta);
-                }
-                sender.getWorld().dropItem(sender.getLocation(), i);
                 return Messages.Command.create__no_item.tm(sender);
             }
             if (doSerializeTest(ItemSerializerManager.inst(), sender, item)) {
