@@ -53,6 +53,7 @@ public class AutoDeployManager extends AbstractModule {
         YamlConfiguration config = ConfigUtils.load(configFile);
         this.enable = config.getBoolean("enable", false);
         this.debug = config.getBoolean("debug", false);
+        configList.clear();
         if (!enable) return;
         YamlConfiguration dataConfig = ConfigUtils.load(dataFile);
 
