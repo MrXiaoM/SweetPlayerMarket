@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.sweet.playermarket.api.ItemTagResolver;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.func.ItemSerializerManager;
 
 import java.time.LocalDateTime;
 
@@ -281,7 +282,7 @@ public class MarketItemBuilder {
 
         YamlConfiguration data = new YamlConfiguration();
         data.set("player.name", playerName);
-        data.set("item", item);
+        ItemSerializerManager.inst().setItem(data, item);
         data.set("params", params);
 
         return new MarketItem(shopId, playerId, type, createTime, outdateTime, currencyName, currency, price, amount, noticeFlag, tag, data);
