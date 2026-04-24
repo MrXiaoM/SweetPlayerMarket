@@ -108,7 +108,15 @@ display-names:
 # %tag%           - 商品标签
 event-actions:
   # 上架成功时执行的操作，以卖家作为玩家上下文
-  create-shop: []
+  # 建议安装 SweetMessages，并将 [broadcast] 操作改为命令，以支持跨服公告
+  create-shop:
+    - type: broadcast
+      content: '&7[&e&l全球市场&r&7]&b 玩家 &e%creator% &b上架了 &e%shop_type%&r&e %item%&r&7 *%amount% &b到全球市场，价格为&e %price% %currency%&b，点击打开市场去看看吧！'
+      hover:
+        - '&e点击打开全球市场'
+      click:
+        action: RUN_COMMAND
+        value: '/playermarket open'
   # 出售商店在有人购买时执行的操作，以购买者为玩家上下文
   # 额外支持以下变量
   # %buy_amount%       - 购买的总份数
