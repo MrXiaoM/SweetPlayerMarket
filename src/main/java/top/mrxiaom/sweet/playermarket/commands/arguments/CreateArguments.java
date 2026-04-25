@@ -93,7 +93,10 @@ public class CreateArguments extends AbstractArguments<Player> {
             return Messages.Command.create__no_item.tm(sender);
         }
         // 商品单价
-        double price = nextDouble(0.0);
+        double price = nextDouble(0.0, 0.0);
+        if (price < 0.01) {
+            return Messages.Command.create__no_price_valid.tm(sender);
+        }
         // 商品货币类型
         IEconomy currency = nextOptional(currencyName -> {
             if (currencyName == null) {
