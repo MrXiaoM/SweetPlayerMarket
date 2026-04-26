@@ -292,6 +292,14 @@ public class CreateArguments extends AbstractArguments<Player> {
                 return;
             }
 
+            if (!sender.isOnline()) {
+                plugin.warn("玩家 " + sender.getName() + " 试图在上架商品前离开游戏，取消上架商品");
+                if (callback != null) {
+                    plugin.getScheduler().runTask(() -> callback.accept(null));
+                }
+                return;
+            }
+
             ItemStack shopItem = item.clone();
             shopItem.setAmount(itemCount);
 
@@ -352,6 +360,14 @@ public class CreateArguments extends AbstractArguments<Player> {
                     }
                     return;
                 }
+            }
+
+            if (!sender.isOnline()) {
+                plugin.warn("玩家 " + sender.getName() + " 试图在上架商品时离开游戏，取消上架商品");
+                if (callback != null) {
+                    plugin.getScheduler().runTask(() -> callback.accept(null));
+                }
+                return;
             }
 
             // 将商品信息提交到数据库
