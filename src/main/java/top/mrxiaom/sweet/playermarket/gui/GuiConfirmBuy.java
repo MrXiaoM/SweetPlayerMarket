@@ -122,6 +122,12 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                     Messages.Gui.buy__amount_not_enough.tm(player);
                     return;
                 }
+
+                if (!player.isOnline()) {
+                    warn("玩家 " + player.getName() + " 试图在确认卖出物品到收购商店前离开游戏，取消确认卖出");
+                    return;
+                }
+
                 // 检查商品适配器设置
                 ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(marketItem);
                 if (entry.hasFactoryParams()) {
@@ -149,6 +155,11 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                         return;
                     }
                     Utils.takeItem(player, sample, totalCount);
+                }
+
+                if (!player.isOnline()) {
+                    warn("玩家 " + player.getName() + " 试图在确认卖出物品到收购商店时离开游戏，取消确认卖出");
+                    return;
                 }
 
                 ConfigurationSection params = marketItem.params();
