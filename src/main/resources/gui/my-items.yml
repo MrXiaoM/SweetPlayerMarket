@@ -18,6 +18,7 @@ main-icons:
       - '  &f单价: &e%price% %currency%  '
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
+      - '  &f最后交易人: &e%last_trader_name%  '
       - ''
       - '$if:(%amount% > 0)$ &b右键 &7| &f下架商品'
     right-click-commands:
@@ -33,6 +34,7 @@ main-icons:
       - '  &f单价: &e%price% %currency%  '
       - '  &f上架时间: &e%create_time%  '
       - '  &f过期时间: &e%outdate_time%  '
+      - '  &f最后交易人: &e%last_trader_name%  '
       - ''
       - '&a左键 &7| &f领取商品 &7(%amount_can_take% 份)'
       - '$if:(%amount% > 0)$ &b右键 &7| &f下架商品'

@@ -369,5 +369,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
         r.add("%create_time%", plugin.toString(item.createTime()));
         r.add("%outdate_time%", plugin.toString(item.outdateTime()));
         r.add("%can_preview%", item.canItemPreview());
+        r.add("%last_trader_uuid%", item.data().getString("last-trader.uuid", ""));
+        r.add("%last_trader_name%", item.data().getString("last-trader.name", Messages.Gui.common__none.str()));
     }
 }

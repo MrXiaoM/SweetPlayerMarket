@@ -133,6 +133,9 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 int oldCount = params.getInt("sell.received-count", 0);
                 params.set("sell.received-count", oldCount + count);
 
+                params.set("last-trader.uuid", player.getUniqueId().toString());
+                params.set("last-trader.name", player.getName());
+
                 // 拿走玩家的指定数量货币。由于上方已添加货币到额外参数中，不需要给予卖家货币
                 if (!currency.takeMoney(player, totalMoney)) {
                     Messages.Gui.sell__currency_not_enough.tm(player, Pair.of("%currency%", currencyName));
@@ -140,11 +143,12 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 }
                 shouldReturnMoneyWhenException = currency;
                 // 提交更改到数据库
-                if (!db.modifyItem(conn, marketItem.toBuilder()
+                MarketItem build = marketItem.toBuilder()
                         .noticeFlag(NoticeFlag.CAN_CLAIM_ITEMS)
                         .amount(finalAmount)
                         .params(params)
-                        .build()
+                        .build();
+                if (!db.modifyItem(conn, build
                 )) {
                     Messages.Gui.sell__submit_failed.tm(player);
                     return;

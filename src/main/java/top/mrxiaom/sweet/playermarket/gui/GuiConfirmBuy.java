@@ -170,12 +170,16 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 }
                 params.set("buy.received-items", itemList);
 
+                params.set("last-trader.uuid", player.getUniqueId().toString());
+                params.set("last-trader.name", player.getName());
+
                 // 提交更改到数据库
-                if (!db.modifyItem(conn, marketItem.toBuilder()
+                MarketItem build = marketItem.toBuilder()
                         .noticeFlag(NoticeFlag.CAN_CLAIM_ITEMS)
                         .amount(finalAmount)
                         .params(params)
-                        .build()
+                        .build();
+                if (!db.modifyItem(conn, build
                 )) {
                     Messages.Gui.buy__submit_failed.tm(player);
                     return;
