@@ -28,6 +28,7 @@ import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiConfirm;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,6 +185,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                     Messages.Gui.buy__submit_failed.tm(player);
                     return;
                 }
+                plugin.getTradeLogs().put(conn, build, player, count, LocalDateTime.now());
             } catch (Throwable e) {
                 warn("玩家 " + player.getName() + " 在下单 " + Messages.getPlayerName(this.marketItem) + " 的收购商品 " + this.marketItem.shopId() + " 时出现异常", e);
                 player.closeInventory();

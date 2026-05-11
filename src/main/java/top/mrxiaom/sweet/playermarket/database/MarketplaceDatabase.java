@@ -85,8 +85,8 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
             return getItems(page, size, searching);
         }
     }
-    private String TABLE_MARKETPLACE;
-    private String TABLE_SEARCH_INDEX;
+    protected String TABLE_MARKETPLACE;
+    protected String TABLE_SEARCH_INDEX;
     private Integer totalCount = null;
     private final Map<String, Integer> tagCountCache = new HashMap<>();
     private boolean enableKeywordSearch;
@@ -220,29 +220,33 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         return items;
     }
 
-    private MarketItem loadItemFromResult(ResultSet result) throws SQLException {
-        String shopId = result.getString("shop_id");
-        String playerId = result.getString("player");
-        int typeInt = result.getInt("shop_type");
+    protected MarketItem loadItemFromResult(ResultSet result) throws SQLException {
+        return loadItemFromResult(result, "");
+    }
+
+    protected MarketItem loadItemFromResult(ResultSet result, String prefix) throws SQLException {
+        String shopId = result.getString(prefix + "shop_id");
+        String playerId = result.getString(prefix + "player");
+        int typeInt = result.getInt(prefix + "shop_type");
         EnumMarketType type = EnumMarketType.valueOf(typeInt);
         if (type == null) {
             warn("商品 " + shopId + " 的类型ID不正确 (" + typeInt + ")，请检查插件是否已更新到最新版本");
             return null;
         }
-        LocalDateTime createTime = Searching.format(result.getString("create_time"));
-        LocalDateTime outdate = Searching.format(result.getString("outdate_time"));
-        String currencyName = result.getString("currency");
+        LocalDateTime createTime = Searching.format(result.getString(prefix + "create_time"));
+        LocalDateTime outdate = Searching.format(result.getString(prefix + "outdate_time"));
+        String currencyName = result.getString(prefix + "currency");
         IEconomy currency = plugin.parseEconomy(currencyName);
-        String priceStr = result.getString("price");
+        String priceStr = result.getString(prefix + "price");
         Double price = Util.parseDouble(priceStr).orElse(null);
         if (price == null) {
             warn("商品 " + shopId + " 的价格不正确 (" + priceStr + ")");
             return null;
         }
-        int amount = result.getInt("amount");
-        int noticeFlag = result.getInt("notice_flag");
-        String tag = result.getString("tag");
-        Reader reader = new StringReader(result.getString("data"));
+        int amount = result.getInt(prefix + "amount");
+        int noticeFlag = result.getInt(prefix + "notice_flag");
+        String tag = result.getString(prefix + "tag");
+        Reader reader = new StringReader(result.getString(prefix + "data"));
         YamlConfiguration data = YamlConfiguration.loadConfiguration(reader);
         try {
             return new MarketItem(shopId, playerId, type, createTime, outdate, currencyName, currency, price, amount, noticeFlag, tag, data);

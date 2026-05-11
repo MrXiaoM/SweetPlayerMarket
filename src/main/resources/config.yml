@@ -146,3 +146,8 @@ notice:
     hover:
       - '&e点击打开个人商品菜单'
     click: '/playermarket me --notice'
+
+# 交易记录设置
+trade-logs:
+  # 是否启用交易记录，启用后，将会记录玩家的每一次下单操作
+  enable: true

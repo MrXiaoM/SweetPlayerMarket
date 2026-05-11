@@ -39,6 +39,7 @@ import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
+import top.mrxiaom.sweet.playermarket.database.TradeLogsDatabase;
 import top.mrxiaom.sweet.playermarket.economy.*;
 import top.mrxiaom.sweet.playermarket.func.CurrencyManager;
 import top.mrxiaom.sweet.playermarket.func.I18nManager;
@@ -108,6 +109,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private IEconomyWithSign customEconomy;
     private ItemTagResolver itemTagResolver = item -> "default";
     private MarketplaceDatabase marketplaceDatabase;
+    private TradeLogsDatabase tradeLogsDatabase;
     private DisplayNames displayNames;
     private DateTimeFormatter datetimeFormatter;
     private String datetimeInfinite;
@@ -211,6 +213,11 @@ public class SweetPlayerMarket extends BukkitPlugin {
         return marketplaceDatabase;
     }
 
+    @NotNull
+    public TradeLogsDatabase getTradeLogs() {
+        return tradeLogsDatabase;
+    }
+
     @Override
     public @NotNull ItemEditor initItemEditor() {
         return PaperFactory.createItemEditor();
@@ -236,7 +243,8 @@ public class SweetPlayerMarket extends BukkitPlugin {
     @Override
     protected void beforeEnable() {
         options.registerDatabase(
-                this.marketplaceDatabase = new MarketplaceDatabase(this)
+                this.marketplaceDatabase = new MarketplaceDatabase(this),
+                this.tradeLogsDatabase = new TradeLogsDatabase(this)
         );
 
         LanguageManager.inst()
@@ -370,6 +378,10 @@ public class SweetPlayerMarket extends BukkitPlugin {
 
     @Nullable
     public String getOfflineKey(OfflinePlayer player) {
+        Player p = player.getPlayer();
+        if (p != null) {
+            return getKey(p);
+        }
         if (onlineMode) {
             return player.getUniqueId().toString();
         } else {

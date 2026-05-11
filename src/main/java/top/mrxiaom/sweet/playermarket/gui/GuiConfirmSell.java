@@ -27,6 +27,7 @@ import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiConfirm;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 
 /**
  * 菜单: 出售商店 下单付款
@@ -153,6 +154,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                     Messages.Gui.sell__submit_failed.tm(player);
                     return;
                 }
+                plugin.getTradeLogs().put(conn, build, player, count, LocalDateTime.now());
             } catch (Throwable e) {
                 warn("玩家 " + player.getName() + " 在下单 " + Messages.getPlayerName(this.marketItem) + " 的出售商品 " + this.marketItem.shopId() + " 时出现异常", e);
                 player.closeInventory();
