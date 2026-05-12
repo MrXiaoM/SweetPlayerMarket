@@ -1,4 +1,5 @@
 import top.mrxiaom.gradle.LibraryHelper
+import java.util.Locale
 
 plugins {
     java
@@ -22,6 +23,9 @@ val shadowGroup = "top.mrxiaom.sweet.playermarket.libs"
 val shadowLink = configurations.create("shadowLink")
 
 repositories {
+    if (Locale.getDefault().country == "CN") {
+        maven("https://mirrors.huaweicloud.com/repository/maven/")
+    }
     mavenCentral()
     maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
