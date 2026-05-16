@@ -18,7 +18,6 @@ import top.mrxiaom.sweet.playermarket.func.AbstractModule;
 
 @AutoRegister(requirePlugins = "CraftEngine")
 public class DependencyCraftEngine extends AbstractModule implements ItemProvider, ItemNameProvider {
-    private static final String MINECRAFT_NAMESPACE = "minecraft";
     public DependencyCraftEngine(SweetPlayerMarket plugin) {
         super(plugin);
         if (Util.isPresent("net.momirealms.craftengine.bukkit.item.BukkitItemDefinition")) {
@@ -30,27 +29,11 @@ public class DependencyCraftEngine extends AbstractModule implements ItemProvide
         }
     }
 
-    private static Key of(String namespacedId) {
-        String[] strings = new String[]{MINECRAFT_NAMESPACE, namespacedId};
-        int i = namespacedId.indexOf(':');
-        if (i >= 0) {
-            strings[1] = namespacedId.substring(i + 1);
-            if (i >= 1) {
-                strings[0] = namespacedId.substring(0, i);
-            }
-        }
-        return of(strings);
-    }
-
-    private static Key of(String[] id) {
-        return new Key(id[0], id[1]);
-    }
-
     @Override
     public @Nullable ItemStack get(String inputText) {
         if (inputText.startsWith("ce:")) {
             String itemId = inputText.substring(3);
-            BukkitItemDefinition customItem = CraftEngineItems.byId(of(itemId));
+            BukkitItemDefinition customItem = CraftEngineItems.byId(Key.of(itemId));
             return customItem == null ? null : customItem.buildBukkitItem();
         }
         return null;
