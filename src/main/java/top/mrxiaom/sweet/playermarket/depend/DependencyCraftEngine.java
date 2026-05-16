@@ -80,5 +80,6 @@ public class DependencyCraftEngine extends AbstractModule implements ItemProvide
     @Override
     public void onDisable() {
         plugin.unregisterItemProvider(this);
+        plugin.unregisterItemNameProvider(this);
     }
 }
