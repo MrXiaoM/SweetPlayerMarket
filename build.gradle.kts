@@ -10,7 +10,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.21")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.22")
 }
 val base = LibraryHelper(project)
 
@@ -65,7 +65,7 @@ dependencies {
     // Nexo
     compileOnly("com.nexomc:nexo:1.19.1")
 
-    base.library(LibraryHelper.adventure("4.22.0"))
+    base.library(LibraryHelper.adventure("4.25.0"))
     base.library(base.depend.HikariCP)
     base.collectPluginHolders()
 
