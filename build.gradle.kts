@@ -10,12 +10,12 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.22")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.23")
 }
 val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.playermarket"
-version = "1.0.14"
+version = "1.0.15"
 
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, gui, actions, l10n, commands, paper, misc) }
