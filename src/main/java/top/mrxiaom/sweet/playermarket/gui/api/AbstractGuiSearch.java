@@ -1,6 +1,5 @@
 package top.mrxiaom.sweet.playermarket.gui.api;
 
-import com.ezylang.evalex.Expression;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -125,7 +124,7 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                 ShopAdapterRegistry.Entry entry = ShopAdapterRegistry.inst().getByMarketItem(item);
                 entry.updateReplacements(item, player, r);
 
-                IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
+                IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), r);
                 IModifier<List<String>> loreModifier = oldLore -> {
                     List<String> lore = new ArrayList<>();
                     for (String s : oldLore) {
@@ -140,12 +139,12 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
                             }
                             continue;
                         }
-                        lore.add(Pair.replace(s, r));
+                        lore.add(Pair.replace(PAPI.setPlaceholders(player, s), r));
                     }
                     return lore;
                 };
                 LoadedIcon loadedIcon = decideIconByMarketItem(gui, player, item, r);
-                ItemStack icon = loadedIcon.generateIcon(baseItem, player, displayModifier, loreModifier);
+                ItemStack icon = loadedIcon.generateIcon(baseItem, null, displayModifier, loreModifier);
                 icon.setAmount(displayAmount);
                 return entry.postProcessIcon(item, player, r, icon);
             }

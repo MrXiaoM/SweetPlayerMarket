@@ -18,6 +18,7 @@ import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
@@ -90,33 +91,33 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             ItemStack sampleItem = gui.sampleItem;
             ListPair<String, Object> r = gui.commonReplacements;
             if (sampleItem == null) {
-                IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
-                IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, r);
+                IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), r);
+                IModifier<List<String>> loreModifier = oldLore -> Pair.replace(PAPI.setPlaceholders(player, oldLore), r);
                 return iconEmptyItem.generateIcon(player, displayModifier, loreModifier);
             }
             return sampleItem; // TODO: 支持修改样例物品的 lore 等格式
         }
         if (id == '确') {
             ListPair<String, Object> r = gui.commonReplacements;
-            IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
+            IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), r);
             IModifier<List<String>> loreModifier = oldLore -> {
                 List<String> lore = new ArrayList<>();
                 for (String s : oldLore) {
                     if (s.equals("limit messages")) {
                         List<String> messages = gui.getLimitMessages();
                         if (!messages.isEmpty()) {
-                            lore.addAll(limitMessagesHeader);
+                            lore.addAll(PAPI.setPlaceholders(player, limitMessagesHeader));
                             for (String message : messages) {
-                                lore.add(limitMessagesLine.replace("%message%", message));
+                                lore.add(PAPI.setPlaceholders(player, limitMessagesLine).replace("%message%", message));
                             }
                         }
                         continue;
                     }
-                    lore.add(s);
+                    lore.add(PAPI.setPlaceholders(player, s));
                 }
                 return Pair.replace(lore, r);
             };
-            return iconConfirm.generateIcon(player, displayModifier, loreModifier);
+            return iconConfirm.generateIcon(null, displayModifier, loreModifier);
         }
         return null;
     }

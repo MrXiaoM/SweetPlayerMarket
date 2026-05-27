@@ -18,6 +18,7 @@ import top.mrxiaom.pluginbase.utils.AdventureItemStack;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
@@ -90,7 +91,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             int displayAmount = baseItem.getAmount();
             List<String> itemLore = AdventureItemStack.getItemLoreAsMiniMessage(baseItem);
 
-            IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
+            IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), gui.commonReplacements);
             IModifier<List<String>> loreModifier = oldLore -> {
                 List<String> lore = new ArrayList<>();
                 for (String s : oldLore) {
@@ -105,11 +106,11 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
                         }
                         continue;
                     }
-                    lore.add(Pair.replace(s, gui.commonReplacements));
+                    lore.add(Pair.replace(PAPI.setPlaceholders(player, s), gui.commonReplacements));
                 }
                 return lore;
             };
-            ItemStack icon = iconItem.generateIcon(baseItem, player, displayModifier, loreModifier);
+            ItemStack icon = iconItem.generateIcon(baseItem, null, displayModifier, loreModifier);
             icon.setAmount(displayAmount);
             return entry.postProcessIcon(item, player, gui.commonReplacements, icon);
         }
