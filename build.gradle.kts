@@ -1,5 +1,4 @@
 import top.mrxiaom.gradle.LibraryHelper
-import java.util.Locale
 
 plugins {
     java
@@ -14,8 +13,8 @@ buildscript {
 }
 val base = LibraryHelper(project)
 
-group = "top.mrxiaom.sweet.playermarket"
-version = "1.0.15"
+println("Group:   $group")
+println("Version: $version")
 
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, gui, actions, l10n, commands, paper, misc) }
