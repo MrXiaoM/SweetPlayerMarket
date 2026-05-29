@@ -60,13 +60,6 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
         }
 
         @Override
-        protected void checkNeedToLockAction(char id) {
-            if (id == '确' || id == '返') {
-                actionLock = true;
-            }
-        }
-
-        @Override
         protected void onClickConfirm(
                 InventoryAction action, ClickType click,
                 InventoryType.SlotType slotType, int slot,

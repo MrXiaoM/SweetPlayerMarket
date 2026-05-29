@@ -255,7 +255,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             if (actionLock) return;
             Character clickedId = getClickedId(slot);
             if (clickedId == null) return;
-            checkNeedToLockAction(clickedId);
+            actionLock = true;
             if (clickedId == '物') {
                 onClickMarketItem(action, click, slotType, slot, view, event);
                 return;
@@ -271,14 +271,8 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             if (onClickMainIcons(action, click, slotType, slot, clickedId, view, event)) {
                 return;
             }
-            actionLock = true;
-            plugin.getScheduler().runTask(() -> {
-                handleOtherClick(click, clickedId);
-                actionLock = false;
-            });
+            handleOtherClick(click, clickedId);
         }
-
-        protected abstract void checkNeedToLockAction(char id);
 
         protected void onClickMarketItem(
                 InventoryAction action, ClickType click,
@@ -310,6 +304,21 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
                 InventoryView view, InventoryClickEvent event
         ) {
             return false;
+        }
+
+        @Override
+        public void handleOtherClick(ClickType type, Character id) {
+            if (id != null) {
+                LoadedIcon icon = otherIcons.get(id);
+                if (icon != null) {
+                    plugin.getScheduler().runTask(() -> {
+                        icon.click(player, type);
+                        actionLock = false;
+                    });
+                    return;
+                }
+            }
+            actionLock = false;
         }
     }
 

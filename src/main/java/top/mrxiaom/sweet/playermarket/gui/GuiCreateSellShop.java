@@ -54,13 +54,6 @@ public class GuiCreateSellShop extends AbstractGuiDeploy {
         }
 
         @Override
-        protected void checkNeedToLockAction(char id) {
-            if (id == '确') {
-                actionLock = true;
-            }
-        }
-
-        @Override
         protected void onClickConfirm(
                 InventoryAction action, ClickType click,
                 InventoryType.SlotType slotType, int slot,
