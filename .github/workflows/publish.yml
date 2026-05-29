@@ -23,10 +23,14 @@ jobs:
         run: ./gradlew build -Pversion="${{ github.event.release.tag_name }}"
       - name: Upload to Release
         uses: softprops/action-gh-release@v3
+        continue-on-error: true
         with:
           files: out/${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload to Modrinth
         uses: cloudnode-pro/modrinth-publish@v2
+        continue-on-error: true
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project: ${{ vars.MODRINTH_ID }}
@@ -48,5 +52,6 @@ jobs:
             ]
           files: out/${{ github.event.repository.name }}-${{ github.event.release.tag_name }}.jar
       - name: Trigger Jitpack
+        continue-on-error: true
         run: |
           curl -L https://jitpack.io/com/github/${{ github.repository }}/${{ github.event.release.tag_name }}/build.log
