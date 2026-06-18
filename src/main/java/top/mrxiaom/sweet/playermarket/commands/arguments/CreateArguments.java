@@ -81,10 +81,10 @@ public class CreateArguments extends AbstractArguments<Player> {
             plugin.getScheduler().runTask(() -> {
                 switch (type) {
                     case SELL:
-                        GuiCreateSellShop.create(sender, systemName).open();
+                        GuiCreateSellShop.open(sender, systemName);
                         break;
                     case BUY:
-                        GuiCreateBuyShop.create(sender, systemName).open();
+                        GuiCreateBuyShop.open(sender, systemName);
                         break;
                 }
             });

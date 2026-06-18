@@ -10,6 +10,7 @@ import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.func.ItemTagManager;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiCanGoBack;
@@ -62,6 +63,13 @@ public class GuiTagList extends AbstractGuiCanGoBack {
         return instanceOf(GuiTagList.class);
     }
 
+    public static void open(Player player, @Nullable AbstractGuiSearch.SearchGui parent) {
+        OpenGuiHook.ContextTagList context = new OpenGuiHook.ContextTagList(parent);
+        if (OpenGuiHook.test(player, context)) {
+            create(player, context.parent()).open();
+        }
+    }
+
     public static Impl create(Player player, @Nullable AbstractGuiSearch.SearchGui parent) {
         GuiTagList self = inst();
         return self.new Impl(player, parent);
@@ -92,9 +100,12 @@ public class GuiTagList extends AbstractGuiCanGoBack {
                     parent.doSearch();
                     plugin.getScheduler().runTask(parent::open);
                 } else {
-                    GuiMarketplace.Impl gui = GuiMarketplace
-                            .create(player, Searching.of(false).tag(tag));
-                    plugin.getScheduler().runTask(gui::open);
+                    Searching searching = Searching.of(false).tag(tag);
+                    OpenGuiHook.ContextMarketplace context = new OpenGuiHook.ContextMarketplace(searching);
+                    if (OpenGuiHook.test(player, context)) {
+                        GuiMarketplace.Impl gui = GuiMarketplace.create(player, context.searching());
+                        plugin.getScheduler().runTask(gui::open);
+                    }
                 }
             });
         }

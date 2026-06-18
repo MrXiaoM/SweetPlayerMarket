@@ -44,10 +44,10 @@ public class ActionOpenConfirmGui implements IAction {
                 MarketItem item = (MarketItem) objItem;
                 switch (item.type()) {
                     case SELL:
-                        GuiConfirmSell.create(player, gm, item).open();
+                        GuiConfirmSell.open(player, gm, item);
                         break;
                     case BUY:
-                        GuiConfirmBuy.create(player, gm, item).open();
+                        GuiConfirmBuy.open(player, gm, item);
                         break;
                 }
             }

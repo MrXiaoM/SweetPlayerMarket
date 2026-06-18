@@ -24,9 +24,9 @@ public class TagsArguments extends AbstractArguments<CommandSender> {
         IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
         plugin.getScheduler().runTask(() -> {
             if (gui instanceof AbstractGuiSearch.SearchGui) {
-                GuiTagList.create(player, (AbstractGuiSearch.SearchGui) gui).open();
+                GuiTagList.open(player, (AbstractGuiSearch.SearchGui) gui);
             } else {
-                GuiTagList.create(player, null).open();
+                GuiTagList.open(player, null);
             }
         });
         return true;

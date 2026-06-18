@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.playermarket.api;
 
 import org.bukkit.entity.Player;
+import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 
@@ -10,6 +11,9 @@ import java.util.function.Consumer;
  * 全球市场插件 API 接口
  */
 public interface MarketAPI {
+    void hookGuiOpen(HookHandler<OpenGuiHook> handler);
+    void unhookGuiOpen(HookHandler<OpenGuiHook> handler);
+
     /**
      * 向插件注册经济接口处理器
      */

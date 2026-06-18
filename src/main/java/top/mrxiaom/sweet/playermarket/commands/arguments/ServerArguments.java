@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import top.mrxiaom.pluginbase.utils.arguments.CommandArguments;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.AbstractArguments;
+import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.gui.GuiMyItems;
 
@@ -19,12 +20,14 @@ public class ServerArguments extends AbstractArguments<CommandSender> {
         if (player == null) {
             return true;
         }
-        plugin.getScheduler().runTaskAsync(() -> {
-            GuiMyItems.Impl gui = GuiMyItems.create(player, Searching.of(false)
-                    .playerId("#server#")
-            );
-            plugin.getScheduler().runTask(gui::open);
-        });
+        Searching searching = Searching.of(false).playerId("#server#");
+        OpenGuiHook.ContextMyItems context = new OpenGuiHook.ContextMyItems(searching);
+        if (OpenGuiHook.test(player, context)) {
+            plugin.getScheduler().runTaskAsync(() -> {
+                GuiMyItems.Impl gui = GuiMyItems.create(player, context.searching());
+                plugin.getScheduler().runTask(gui::open);
+            });
+        }
         return true;
     }
 

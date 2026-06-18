@@ -48,7 +48,7 @@ public class ActionSearchTag implements IAction {
             if (gui instanceof AbstractGuiSearch.SearchGui) {
                 AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
                 if (tag.equals("::list::")) {
-                    GuiTagList.create(player, gm).open();
+                    GuiTagList.open(player, gm);
                 } else {
                     gm.searching().tag(tag.isEmpty() ? null : tag);
                     gm.resetPage();

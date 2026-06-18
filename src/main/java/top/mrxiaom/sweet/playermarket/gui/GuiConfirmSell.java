@@ -17,6 +17,7 @@ import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.IShopSellConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.api.event.MarketConfirmSellEvent;
+import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
@@ -40,6 +41,13 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
 
     public static GuiConfirmSell inst() {
         return instanceOf(GuiConfirmSell.class);
+    }
+
+    public static void open(Player player, GuiMarketplace.Impl parent, MarketItem marketItem) {
+        OpenGuiHook.ContextConfirmSell context = new OpenGuiHook.ContextConfirmSell(parent, marketItem);
+        if (OpenGuiHook.test(player, context)) {
+            create(player, context.parent(), context.marketItem()).open();
+        }
     }
 
     public static Impl create(Player player, GuiMarketplace.Impl parent, MarketItem marketItem) {

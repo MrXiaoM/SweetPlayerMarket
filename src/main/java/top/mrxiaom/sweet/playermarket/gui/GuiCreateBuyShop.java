@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.commands.arguments.CreateArguments;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
@@ -26,6 +27,13 @@ public class GuiCreateBuyShop extends AbstractGuiDeploy {
 
     public static GuiCreateBuyShop inst() {
         return instanceOf(GuiCreateBuyShop.class);
+    }
+
+    public static void open(Player player, @Nullable String systemName) {
+        OpenGuiHook.ContextCreateBuyShop context = new OpenGuiHook.ContextCreateBuyShop(systemName);
+        if (OpenGuiHook.test(player, context)) {
+            create(player, context.systemName()).open();
+        }
     }
 
     /**

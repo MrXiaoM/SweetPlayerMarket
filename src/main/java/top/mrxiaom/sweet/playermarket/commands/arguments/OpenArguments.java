@@ -6,6 +6,7 @@ import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.arguments.Arguments;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.api.AbstractArguments;
+import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.Searching;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
@@ -49,10 +50,13 @@ public class OpenArguments extends AbstractArguments<CommandSender> {
                 .type(Util.valueOr(EnumMarketType.class, type(), null))
                 .currency(currency == null ? null : currency.id())
                 .tag(tag());
-        plugin.getScheduler().runTaskAsync(() -> {
-            GuiMarketplace.Impl gui = GuiMarketplace.create(player, searching);
-            plugin.getScheduler().runTask(gui::open);
-        });
+        OpenGuiHook.ContextMarketplace context = new OpenGuiHook.ContextMarketplace(searching);
+        if (OpenGuiHook.test(player, context)) {
+            plugin.getScheduler().runTaskAsync(() -> {
+                GuiMarketplace.Impl gui = GuiMarketplace.create(player, context.searching());
+                plugin.getScheduler().runTask(gui::open);
+            });
+        }
         return true;
     }
 

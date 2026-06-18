@@ -19,6 +19,7 @@ import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
 import top.mrxiaom.sweet.playermarket.gui.api.IGuiCanGoBack;
 import top.mrxiaom.sweet.playermarket.gui.api.IGuiPageable;
@@ -90,6 +91,13 @@ public class GuiPreview extends AbstractGuiModule {
 
     public static GuiPreview inst() {
         return instanceOf(GuiPreview.class);
+    }
+
+    public static void open(Player player, IGuiHolder parent, List<ItemStack> items) {
+        OpenGuiHook.ContextPreview context = new OpenGuiHook.ContextPreview(parent, items);
+        if (OpenGuiHook.test(player, context)) {
+            create(player, context.parent(), context.items()).open();
+        }
     }
 
     public static GuiPreview.Impl create(Player player, IGuiHolder parent, List<ItemStack> items) {
