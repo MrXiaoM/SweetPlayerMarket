@@ -97,6 +97,14 @@ public class MarketplaceDatabase extends AbstractPluginHolder implements IDataba
         plugin.getScheduler().runTaskTimerAsync(this::fetchAllCountCache, 15 * 20L, 15 * 20L);
     }
 
+    public String getTableMarketplace() {
+        return TABLE_MARKETPLACE;
+    }
+
+    public String getTableSearchIndex() {
+        return TABLE_SEARCH_INDEX;
+    }
+
     @Override
     public void beforeReload(HikariConfig hikariConfig, YamlConfiguration config) {
         if (plugin.options.database().isSQLite()) {

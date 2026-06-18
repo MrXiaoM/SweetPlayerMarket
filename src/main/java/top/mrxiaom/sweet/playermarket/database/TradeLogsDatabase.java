@@ -25,6 +25,10 @@ public class TradeLogsDatabase extends AbstractPluginHolder implements IDatabase
         super(plugin, true);
     }
 
+    public String getTableTradeLogs() {
+        return TABLE_NAME;
+    }
+
     @Override
     public void reloadConfig(MemoryConfiguration config) {
         enableTradeLogs = config.getBoolean("trade-logs.enable", false);
