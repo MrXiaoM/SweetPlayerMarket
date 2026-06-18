@@ -9,7 +9,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.24")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.25")
 }
 val base = LibraryHelper(project)
 
@@ -41,7 +41,7 @@ dependencies {
 
     compileOnly("com.github.MascusJeoraly:LanguageUtils:1.9")
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
-    compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("me.clip:placeholderapi:2.12.2")
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly(files("libs/MPoints-1.2.2.jar"))
     compileOnly("com.github.nulli0n:ExcellentEconomy:c32f037025") // CoinsEngine
