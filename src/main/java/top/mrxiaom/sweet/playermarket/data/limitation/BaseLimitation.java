@@ -14,12 +14,14 @@ import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class BaseLimitation {
     private final @NotNull Map<EnumMarketType, CreateCost> createCostByType = new HashMap<>();
     private final @Nullable CreateCost createCostAll;
     private final @NotNull List<String> description;
+    private final @NotNull List<String> createCostDescription;
     private final @NotNull Set<EnumMarketType> typeBlackList = new HashSet<>();
     private final @NotNull Set<EnumMarketType> typeWhiteList = new HashSet<>();
     private final @NotNull Set<String> currencyBlackList = new HashSet<>();
@@ -30,35 +32,10 @@ public class BaseLimitation {
         CreateCost createCostAll = null;
         section = config.getConfigurationSection("create-cost");
         if (section != null) for (String key : section.getKeys(false)) {
-            IEconomy currency;
-            String currencyName = section.getString(key + ".currency", "");
-            if ("INHERIT".equalsIgnoreCase(currencyName)) {
-                currency = null;
-            } else {
-                currency = plugin.parseEconomy(currencyName);
-                if (currency == null) {
-                    plugin.warn("[limitation] 找不到货币类型 " + currencyName);
-                    continue;
-                }
-            }
-            Function<Double, Double> moneyFunc;
-            String moneyStr = section.getString(key + ".money", "");
-            if (moneyStr.endsWith("%")) {
-                Double percent = ConfigUtils.getPercentAsDouble(moneyStr, null);
-                if (percent == null) {
-                    plugin.warn("[limitation] 输入的货币数量百分比 " + moneyStr + " 不正确");
-                    continue;
-                }
-                moneyFunc = total -> total * percent;
-            } else {
-                Double money = Util.parseDouble(moneyStr).orElse(null);
-                if (money == null) {
-                    plugin.warn("[limitation] 输入的货币数量 " + moneyStr + " 不正确");
-                    continue;
-                }
-                moneyFunc = total -> money;
-            }
-            CreateCost createCost = new CreateCost(currency, moneyFunc);
+
+            CreateCost createCost = parseCreateCost(plugin, section.getConfigurationSection(key));
+            if (createCost == null) continue;
+
             if (key.equalsIgnoreCase("ALL")) {
                 createCostAll = createCost;
             } else {
@@ -71,6 +48,7 @@ public class BaseLimitation {
         }
         this.createCostAll = createCostAll;
         this.description = config.getStringList("description");
+        this.createCostDescription = config.getStringList("create-cost-description");
 
         for (String s : config.getStringList("shop-type-blacklist")) {
             EnumMarketType type = Util.valueOrNull(EnumMarketType.class, s);
@@ -86,6 +64,82 @@ public class BaseLimitation {
         }
         this.currencyBlackList.addAll(config.getStringList("currency-blacklist"));
         this.currencyWhiteList.addAll(config.getStringList("currency-whitelist"));
+    }
+
+    private static CreateCost parseCreateCost(SweetPlayerMarket plugin, ConfigurationSection section) {
+        if (section == null) {
+            return null;
+        }
+        IEconomy currency;
+        String currencyName = section.getString("currency", "");
+        if ("INHERIT".equalsIgnoreCase(currencyName)) {
+            currency = null;
+        } else {
+            currency = plugin.parseEconomy(currencyName);
+            if (currency == null) {
+                plugin.warn("[limitation] 找不到货币类型 " + currencyName);
+                return null;
+            }
+        }
+        Function<Double, Double> moneyFunc;
+        if (section.isList("money")) {
+            List<Function<Double, Double>> list = new ArrayList<>();
+            boolean error = false;
+            for (String moneyStr : section.getStringList("money")) {
+                Function<Double, Double> result = parseMoneyFunc(plugin, moneyStr);
+                if (result != null) {
+                    list.add(result);
+                } else {
+                    error = true;
+                }
+            }
+            if (error) {
+                return null;
+            }
+            moneyFunc = total -> {
+                double result = 0.0;
+                for (Function<Double, Double> func : list) {
+                    result += func.apply(total);
+                }
+                return result;
+            };
+        } else {
+            String moneyStr = section.getString("money", "");
+            Function<Double, Double> result = parseMoneyFunc(plugin, moneyStr);
+            if (result == null) {
+                return null;
+            }
+            moneyFunc = result;
+        }
+
+        List<CreateCost> more = new ArrayList<>();
+        List<ConfigurationSection> sectionList = ConfigUtils.getSectionList(section, "more");
+        for (ConfigurationSection section1 : sectionList) {
+            CreateCost createCost = parseCreateCost(plugin, section1);
+            if (createCost != null) {
+                more.add(createCost);
+            }
+        }
+
+        return new CreateCost(currency, moneyFunc, more);
+    }
+
+    private static Function<Double, Double> parseMoneyFunc(SweetPlayerMarket plugin, String moneyStr) {
+        if (moneyStr.endsWith("%")) {
+            Double percent = ConfigUtils.getPercentAsDouble(moneyStr, null);
+            if (percent == null) {
+                plugin.warn("[limitation] 输入的货币数量百分比 " + moneyStr + " 不正确");
+                return null;
+            }
+            return total -> total * percent;
+        } else {
+            Double money = Util.parseDouble(moneyStr).orElse(null);
+            if (money == null) {
+                plugin.warn("[limitation] 输入的货币数量 " + moneyStr + " 不正确");
+                return null;
+            }
+            return total -> money;
+        }
     }
 
     /**
@@ -110,17 +164,55 @@ public class BaseLimitation {
         if (description.isEmpty()) {
             return new ArrayList<>();
         }
+        List<String> lore = new ArrayList<>();
         addDescriptionReplacements(r, cost, economy, totalMoney);
-        return Pair.replace(description, r);
+        for (String line : description) {
+            if (line.equals("create costs")) {
+                DisplayNames displayNames = DisplayNames.inst();
+                Map<IEconomy, Double> costMap = new HashMap<>();
+                if (cost != null) {
+                    cost.collectCosts(costMap, economy, totalMoney);
+                }
+                costMap.forEach((currency, moneyValue) -> {
+                    ListPair<String, Object> r1 = new ListPair<>();
+                    String currencyName = displayNames.getCurrencyName(currency);
+                    String money = displayNames.formatMoney(moneyValue);
+                    r1.add(Pair.of("%currency%", currencyName));
+                    r1.add(Pair.of("%money%", money));
+                    r1.addAll(r);
+                    lore.addAll(Pair.replace(createCostDescription, r1));
+                });
+                continue;
+            }
+            lore.add(Pair.replace(line, r));
+        }
+        return lore;
     }
 
     public void addDescriptionReplacements(@NotNull List<Pair<String, Object>> r, @Nullable CreateCost cost, @NotNull IEconomy economy, double totalMoney) {
+        Map<IEconomy, Double> costMap = new HashMap<>();
+        if (cost != null) {
+            cost.collectCosts(costMap, economy, totalMoney);
+        }
+        addDescriptionReplacements(r, costMap, economy, totalMoney);
+    }
+
+    public void addDescriptionReplacements(@NotNull List<Pair<String, Object>> r, @NotNull Map<IEconomy, Double> costMap, @NotNull IEconomy economy, double totalMoney) {
         DisplayNames displayNames = DisplayNames.inst();
-        IEconomy currency = cost == null ? null : cost.currency(economy);
-        String currencyName = currency == null ? "" : displayNames.getCurrencyName(currency);
-        String money = displayNames.formatMoney(cost == null ? totalMoney : cost.money(totalMoney));
-        r.add(Pair.of("%currency%", currencyName));
-        r.add(Pair.of("%money%", money));
+        AtomicBoolean addedFirstCost = new AtomicBoolean(false);
+        costMap.forEach((currency, moneyValue) -> {
+            if (addedFirstCost.compareAndSet(false, true)) {
+                // 为第一种货币添加变量，以支持旧的配置格式
+                String currencyName = currency == null ? "" : displayNames.getCurrencyName(currency);
+                String money = displayNames.formatMoney(moneyValue);
+                r.add(Pair.of("%currency%", currencyName));
+                r.add(Pair.of("%money%", money));
+            }
+        });
+        if (addedFirstCost.compareAndSet(false, true)) {
+            r.add(Pair.of("%currency%", ""));
+            r.add(Pair.of("%money%", "0"));
+        }
     }
 
     /**

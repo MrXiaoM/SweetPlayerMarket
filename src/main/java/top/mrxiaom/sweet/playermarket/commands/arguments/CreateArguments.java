@@ -35,6 +35,8 @@ import top.mrxiaom.sweet.playermarket.utils.Utils;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class CreateArguments extends AbstractArguments<Player> {
@@ -224,21 +226,20 @@ public class CreateArguments extends AbstractArguments<Player> {
         // 检查玩家是否有足够的手续费
         double totalPrice = price * marketAmount;
         CreateCost createCost = limitation.getCreateCost(type);
-        IEconomy costCurrency;
-        double createCostMoney;
+        Map<IEconomy, Double> createCostMap = new HashMap<>();
         if (!sender.hasPermission("sweet.playermarket.create.bypass.cost") && createCost != null) {
-            costCurrency = createCost.currency(currency);
-            createCostMoney = createCost.money(totalPrice);
-            if (createCostMoney > 0 && !costCurrency.has(sender, createCostMoney)) {
-                Messages.Command.create__limitation__create_cost_failed.tm(sender,
-                        Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
-                        Pair.of("%money%", plugin.displayNames().formatMoney(createCostMoney)));
-                if (callback != null) callback.accept(null);
-                return;
+            createCost.collectCosts(createCostMap, currency, totalPrice);
+            for (Map.Entry<IEconomy, Double> entry : createCostMap.entrySet()) {
+                IEconomy costCurrency = entry.getKey();
+                double createCostMoney = entry.getValue();
+                if (createCostMoney > 0 && !costCurrency.has(sender, createCostMoney)) {
+                    Messages.Command.create__limitation__create_cost_failed.tm(sender,
+                            Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),
+                            Pair.of("%money%", plugin.displayNames().formatMoney(createCostMoney)));
+                    if (callback != null) callback.accept(null);
+                    return;
+                }
             }
-        } else {
-            costCurrency = null;
-            createCostMoney = 0.0;
         }
 
         OutdateTime outdateTime = OutdateTimeManager.inst().get(sender);
@@ -265,9 +266,8 @@ public class CreateArguments extends AbstractArguments<Player> {
                 item, itemCount,
                 marketAmount, type,
                 createCost, currency,
-                totalPrice, createCostMoney,
-                costCurrency, price, outdateTime,
-                callback
+                totalPrice, createCostMap, price,
+                outdateTime, callback
         ));
     }
 
@@ -276,8 +276,7 @@ public class CreateArguments extends AbstractArguments<Player> {
             ItemStack item, int itemCount,
             int marketAmount, EnumMarketType type,
             CreateCost createCost, IEconomy currency,
-            double totalPrice, double createCostMoney,
-            IEconomy costCurrency, double price,
+            double totalPrice, Map<IEconomy, Double> createCostMap, double price,
             OutdateTime outdateTime, @Nullable Consumer<MarketItem> callback
     ) {
         MarketItem marketItem;
@@ -320,10 +319,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                 }
                 case BUY: {
                     // 收购商店，收取玩家指定类型的货币
-                    double totalMoney = createCost != null && createCost.isTheSameCurrency(currency)
-                            ? (totalPrice + createCostMoney)
-                            : (totalPrice);
-                    if (!currency.has(sender, totalMoney)) {
+                    if (!currency.has(sender, totalPrice)) {
                         Messages.Command.create__buy__no_enough_currency.tm(sender);
                         if (callback != null) {
                             plugin.getScheduler().runTask(() -> callback.accept(null));
@@ -349,8 +345,10 @@ public class CreateArguments extends AbstractArguments<Player> {
             }
 
             // 扣除手续费
-            if (costCurrency != null && createCostMoney > 0) {
-                if (!costCurrency.takeMoney(sender, createCostMoney)) {
+            for (Map.Entry<IEconomy, Double> entry : createCostMap.entrySet()) {
+                IEconomy costCurrency = entry.getKey();
+                double createCostMoney = entry.getValue();
+                if (createCostMoney > 0 && !costCurrency.takeMoney(sender, createCostMoney)) {
                     // TODO: 保持事务一致性
                     Messages.Command.create__limitation__create_cost_failed.tm(sender,
                             Pair.of("%currency%", plugin.displayNames().getCurrencyName(costCurrency)),

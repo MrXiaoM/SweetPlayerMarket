@@ -21,6 +21,7 @@ import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
+import top.mrxiaom.sweet.playermarket.data.DisplayNames;
 import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
@@ -30,8 +31,7 @@ import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class AbstractGuiDeploy extends AbstractGuiModule {
@@ -72,6 +72,9 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     LoadedIcon iconEmptyItem, iconConfirm;
     List<String> limitMessagesHeader;
     String limitMessagesLine;
+    String createCostsOldSeparator;
+    List<String> createCostsHeader;
+    String createCostsLine;
     @Override
     protected void loadMainIcon(ConfigurationSection section, String id, LoadedIcon icon) {
         if (id.equals("物")) {
@@ -81,6 +84,9 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             iconConfirm = icon;
             limitMessagesHeader = section.getStringList(id + ".limit-messages.header");
             limitMessagesLine = section.getString(id + ".limit-messages.line", "  %message%  ");
+            createCostsOldSeparator = section.getString(id + ".create-costs.old-separator", "&7, &e");
+            createCostsHeader = section.getStringList(id + ".create-costs.header");
+            createCostsLine = section.getString(id + ".create-costs.line", "    &e%money% %currency%");
         }
     }
 
@@ -111,6 +117,25 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
                                 lore.add(PAPI.setPlaceholders(player, limitMessagesLine).replace("%message%", message));
                             }
                         }
+                        continue;
+                    }
+                    if (s.equals("create costs")) {
+                        CreateCost createCost = gui.createCost;
+                        double totalMoney = gui.amount * gui.price;
+                        lore.addAll(PAPI.setPlaceholders(player, createCostsHeader));
+                        DisplayNames displayNames = DisplayNames.inst();
+                        Map<IEconomy, Double> costMap = new HashMap<>();
+                        if (createCost != null) {
+                            createCost.collectCosts(costMap, gui.currency, totalMoney);
+                        }
+                        costMap.forEach((currency, moneyValue) -> {
+                            ListPair<String, Object> r1 = new ListPair<>();
+                            String currencyName = displayNames.getCurrencyName(currency);
+                            String money = displayNames.formatMoney(moneyValue);
+                            r1.add(Pair.of("%currency%", currencyName));
+                            r1.add(Pair.of("%money%", money));
+                            lore.add(Pair.replace(createCostsLine, r1));
+                        });
                         continue;
                     }
                     lore.add(PAPI.setPlaceholders(player, s));
@@ -301,31 +326,28 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             }
             this.limitMessages = limitMessages;
 
-            if (createCost == null) {
+            if (createCost == null || player.hasPermission("sweet.playermarket.create.bypass.cost")) {
                 r.add("%create_cost_money%", Messages.Gui.common__none.str());
-                r.add("%create_cost_currency%", "");
+                r.add("%create_cost_status%", Messages.Gui.common__none.str());
             } else {
-                IEconomy createCostCurrency;
-                Double createCostMoney;
-                if (!player.hasPermission("sweet.playermarket.create.bypass.cost") && createCost != null) {
-                    createCostCurrency = createCost.currency(currency);
-                    createCostMoney = createCost.money(totalMoney);
-                    if (createCostMoney > 0 && !createCostCurrency.has(player, createCostMoney)) {
-                        createCostCurrency = null;
-                        createCostMoney = null;
-                    }
-                } else {
-                    createCostCurrency = null;
-                    createCostMoney = 0.0;
+                // 兼容旧的配置
+                Map<IEconomy, Double> costMap = new HashMap<>();
+                if (createCost != null) {
+                    createCost.collectCosts(costMap, currency, totalMoney);
                 }
-                if (createCostMoney != null) {
-                    r.add("%create_cost_money%", plugin.displayNames().formatMoney(createCostMoney));
-                    r.add("%create_cost_currency%", createCostCurrency == null ? "" : plugin.displayNames().getCurrencyName(createCostCurrency));
-                } else {
-                    r.add("%create_cost_money%", Messages.Gui.common__none.str());
-                    r.add("%create_cost_currency%", "");
+                DisplayNames displayNames = DisplayNames.inst();
+                StringJoiner joiner = new StringJoiner(createCostsOldSeparator);
+                for (Map.Entry<IEconomy, Double> entry : costMap.entrySet()) {
+                    IEconomy costCurrency = entry.getKey();
+                    Double moneyValue = entry.getValue();
+                    String currencyName = displayNames.getCurrencyName(costCurrency);
+                    String money = displayNames.formatMoney(moneyValue);
+                    joiner.add(money + " " + currencyName);
                 }
+                r.add("%create_cost_money%", joiner.toString());
+                r.add("%create_cost_status%", "");
             }
+            r.add("%create_cost_currency%", "");
         }
 
         @Override

@@ -42,7 +42,10 @@ by-currency:
         money: '5%'
     # 限制组在上架菜单中显示的描述
     description:
-      - '  &7● &f上架需要花费手续费 %money% %currency%'
+      - '  &7● &f上架需要花费手续费'
+      - create costs
+    create-cost-description:
+      - '      &f%money% %currency%'
 #    # 限制匹配的物品禁止上架指定商店类型
 #    shop-type-blacklist: [ BUY, SELL ]
 #    # 限制匹配的物品只允许上架指定商店类型
