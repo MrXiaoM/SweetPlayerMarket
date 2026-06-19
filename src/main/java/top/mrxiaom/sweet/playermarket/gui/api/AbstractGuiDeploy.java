@@ -86,7 +86,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             limitMessagesLine = section.getString(id + ".limit-messages.line", "  %message%  ");
             createCostsOldSeparator = section.getString(id + ".create-costs.old-separator", "&7, &e");
             createCostsHeader = section.getStringList(id + ".create-costs.header");
-            createCostsLine = section.getString(id + ".create-costs.line", "    &e%money% %currency%");
+            createCostsLine = section.getString(id + ".create-costs.line", " &l &r&7▶ &e%money% %currency%");
         }
     }
 

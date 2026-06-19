@@ -32,7 +32,7 @@ main-icons:
     create-costs:
       header:
         - '  &f手续费: %create_cost_status%'
-      line: '    &e%money% %currency%'
+      line: ' &l &r&7▶ &e%money% %currency%'
 other-icons:
   框:
     material: WHITE_STAINED_GLASS_PANE
