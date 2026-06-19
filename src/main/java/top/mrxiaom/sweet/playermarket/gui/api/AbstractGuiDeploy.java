@@ -125,7 +125,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
                         lore.addAll(PAPI.setPlaceholders(player, createCostsHeader));
                         DisplayNames displayNames = DisplayNames.inst();
                         Map<IEconomy, Double> costMap = new HashMap<>();
-                        if (createCost != null) {
+                        if (createCost != null && !player.hasPermission("sweet.playermarket.create.bypass.cost")) {
                             createCost.collectCosts(costMap, gui.currency, totalMoney);
                         }
                         costMap.forEach((currency, moneyValue) -> {
