@@ -20,6 +20,7 @@ import top.mrxiaom.sweet.playermarket.api.IShopBuyConfirmAdapter;
 import top.mrxiaom.sweet.playermarket.api.event.MarketConfirmBuyEvent;
 import top.mrxiaom.sweet.playermarket.api.hook.OpenGuiHook;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
+import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
@@ -176,10 +177,14 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 params.set("last-trader.name", player.getName());
 
                 // 提交更改到数据库
-                MarketItem build = marketItem.toBuilder()
+                MarketItemBuilder builder = marketItem.toBuilder()
                         .noticeFlag(NoticeFlag.CAN_CLAIM_ITEMS)
                         .amount(finalAmount)
-                        .params(params)
+                        .params(params);
+                if (finalAmount == 0 && plugin.isUpdateOutdateTimeWhenSoldOut()) {
+                    builder.outdateTime(LocalDateTime.now());
+                }
+                MarketItem build = builder
                         .build();
                 if (!db.modifyItem(conn, build
                 )) {

@@ -118,9 +118,14 @@ public class SweetPlayerMarket extends BukkitPlugin {
     private DisplayNames displayNames;
     private DateTimeFormatter datetimeFormatter;
     private String datetimeInfinite;
+    private boolean updateOutdateTimeWhenSoldOut;
 
     public boolean isOnlineMode() {
         return onlineMode;
+    }
+
+    public boolean isUpdateOutdateTimeWhenSoldOut() {
+        return updateOutdateTimeWhenSoldOut;
     }
 
     @Nullable
@@ -356,6 +361,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
             warn("加载 datetime.format 时发现格式错误，已切换回默认格式");
         }
         datetimeInfinite = config.getString("datetime.infinite", "无期限");
+        updateOutdateTimeWhenSoldOut = config.getBoolean("", true);
     }
 
     @Override

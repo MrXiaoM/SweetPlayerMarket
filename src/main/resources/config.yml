@@ -25,6 +25,9 @@ item-serializer:
 # 是否在玩家上架物品后，刷新所有已打开全球市场界面的玩家界面
 update-gui-after-create-item: true
 
+# 当商品卖完、手动下架后，自动设置过期时间为当前时间，方便用户辨认
+update-outdate-time-when-sold-out: true
+
 # 玩家是否可以购买自己上架的商品
 can-buy-self-items: false
 
