@@ -192,7 +192,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
         @Override
         public void countMinus(int count) {
             int target = count() - count;
-            if (target < 1) {
+            if (target < 1 || getMaxCount() == 0) {
                 countMinusMax();
                 return;
             }
@@ -202,9 +202,15 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
 
         @Override
         public void countMinusMax() {
-            if (count() == 1) return;
-            count(1);
-            refreshGui();
+            if (getMaxCount() == 0) {
+                if (count() == 0) return;
+                count(0);
+                refreshGui();
+            } else {
+                if (count() == 1) return;
+                count(1);
+                refreshGui();
+            }
         }
 
         @Override
