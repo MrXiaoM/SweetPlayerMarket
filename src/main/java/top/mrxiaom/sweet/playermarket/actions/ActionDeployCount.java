@@ -137,7 +137,7 @@ public class ActionDeployCount implements IAction {
                     Prompter.chat(player, cancel, str -> {
                         int v = Util.parseInt(str).orElse(0);
                         if (v > 0) {
-                            messageSuccess.tm(player, Pair.of("%money%", v));
+                            messageSuccess.tm(player, Pair.of("%money%", v), Pair.of("%count%", v));
                             impl.accept(deploy, v);
                         } else {
                             messageNotNumber.tm(player);
