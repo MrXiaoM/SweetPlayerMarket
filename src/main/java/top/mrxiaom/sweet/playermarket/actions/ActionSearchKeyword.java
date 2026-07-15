@@ -52,7 +52,7 @@ public class ActionSearchKeyword implements IAction {
                 AbstractGuiSearch.SearchGui gm = (AbstractGuiSearch.SearchGui) gui;
                 IScheduler scheduler = gm.plugin.getScheduler();
                 if (keyword.isEmpty()) {
-                    player.closeInventory();
+                    scheduler.closeInventory(player);
                     String cancel = Messages.Gui.keyword__prompt_cancel.str();
                     Messages.Gui.keyword__prompt_message.tm(player, Pair.of("%cancel%", cancel));
                     Prompter.chat(player, cancel, (input) -> {

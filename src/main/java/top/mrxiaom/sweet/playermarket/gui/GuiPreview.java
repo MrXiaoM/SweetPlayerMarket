@@ -174,7 +174,7 @@ public class GuiPreview extends AbstractGuiModule {
             if (parent != null) {
                 plugin.getScheduler().runTask(parent::open);
             } else {
-                player.closeInventory();
+                plugin.getScheduler().closeInventory(player);
             }
         }
     }

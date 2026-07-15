@@ -101,7 +101,7 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
             }
         } catch (SQLException e) {
             plugin.warn("玩家 " + player.getName() + " 在下架自己的商品 " + item.shopId() + " 时出现异常", e);
-            player.closeInventory();
+            plugin.getScheduler().closeInventory(player);
             Messages.Gui.me__take_down__exception.tm(player);
             return;
         }

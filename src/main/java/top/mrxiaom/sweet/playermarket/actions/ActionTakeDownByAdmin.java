@@ -119,7 +119,7 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
             }
         } catch (SQLException e) {
             plugin.warn("管理员 " + player.getName() + " 在下架玩家 " + Messages.getPlayerName(item) + " 的商品 " + item.shopId() + " 时出现异常", e);
-            player.closeInventory();
+            plugin.getScheduler().closeInventory(player);
             Messages.Gui.me__take_down__exception.tm(player);
             return;
         }

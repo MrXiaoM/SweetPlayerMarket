@@ -194,7 +194,7 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
                 plugin.getTradeLogs().put(conn, build, player, count, LocalDateTime.now());
             } catch (Throwable e) {
                 warn("玩家 " + player.getName() + " 在下单 " + Messages.getPlayerName(this.marketItem) + " 的收购商品 " + this.marketItem.shopId() + " 时出现异常", e);
-                player.closeInventory();
+                plugin.getScheduler().closeInventory(player);
                 Messages.Gui.buy__exception.tm(player);
                 return;
             }

@@ -131,7 +131,7 @@ public class ActionDeployCount implements IAction {
                 IGuiHolder gui = manager.getOpeningGui(player);
                 if (gui instanceof IGuiDeploy) {
                     IGuiDeploy deploy = (IGuiDeploy) gui;
-                    player.closeInventory();
+                    scheduler.closeInventory(player);
                     String cancel = messageCancel.str();
                     messagePrompt.tm(player, Pair.of("%cancel%", cancel));
                     Prompter.chat(player, cancel, str -> {

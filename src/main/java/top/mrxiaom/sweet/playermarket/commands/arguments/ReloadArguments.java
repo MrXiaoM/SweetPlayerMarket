@@ -32,7 +32,7 @@ public class ReloadArguments extends AbstractArguments<CommandSender> {
         for (Player p : Bukkit.getOnlinePlayers()) {
             IGuiHolder gui = manager.getOpeningGui(p);
             if (gui != null) {
-                p.closeInventory();
+                plugin.getScheduler().closeInventory(p);
             }
         }
         plugin.reloadConfig();

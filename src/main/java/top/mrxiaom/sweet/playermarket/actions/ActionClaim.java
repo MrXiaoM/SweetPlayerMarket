@@ -182,7 +182,7 @@ public class ActionClaim extends AbstractActionWithMarketItem {
             }
         } catch (SQLException e) {
             plugin.warn("玩家 " + player.getName() + " 在领取自己的商品 " + item.shopId() + " 时出现异常", e);
-            player.closeInventory();
+            plugin.getScheduler().closeInventory(player);
             Messages.Gui.me__claim__exception.tm(player);
             return;
         }

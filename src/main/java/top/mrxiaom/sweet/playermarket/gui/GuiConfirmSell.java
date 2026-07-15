@@ -163,7 +163,7 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
                 plugin.getTradeLogs().put(conn, build, player, count, LocalDateTime.now());
             } catch (Throwable e) {
                 warn("玩家 " + player.getName() + " 在下单 " + Messages.getPlayerName(this.marketItem) + " 的出售商品 " + this.marketItem.shopId() + " 时出现异常", e);
-                player.closeInventory();
+                plugin.getScheduler().closeInventory(player);
                 Messages.Gui.sell__exception.tm(player);
                 if (shouldReturnMoneyWhenException != null && totalMoney > 0) {
                     shouldReturnMoneyWhenException.giveMoney(player, totalMoney);

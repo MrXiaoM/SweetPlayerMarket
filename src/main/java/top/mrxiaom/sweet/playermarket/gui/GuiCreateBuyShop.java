@@ -85,7 +85,7 @@ public class GuiCreateBuyShop extends AbstractGuiDeploy {
 
         private void callback(MarketItem marketItem) {
             if (marketItem != null) {
-                player.closeInventory();
+                plugin.getScheduler().closeInventory(player);
             } else {
                 actionLock = false;
             }
