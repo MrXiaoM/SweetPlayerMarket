@@ -44,7 +44,7 @@ jobs:
             paper
             spigot
             bukkit
-          game-versions: 1.8 - 26.1
+          game-versions: 1.8 - 26.2
           # PlayerPoints, CraftEngine, PlaceholderAPI
           dependencies: |-
             [
