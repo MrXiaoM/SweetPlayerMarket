@@ -29,7 +29,6 @@ import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
-import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.playermarket.actions.*;
 import top.mrxiaom.sweet.playermarket.api.HookHandler;
 import top.mrxiaom.sweet.playermarket.api.IEconomyResolver;
@@ -77,8 +76,6 @@ public class SweetPlayerMarket extends BukkitPlugin {
                 .reconnectDatabaseWhenReloadConfig(false)
                 .scanIgnore("top.mrxiaom.sweet.playermarket.libs")
         );
-        this.scheduler = new FoliaLibScheduler(this);
-
         try {
             //noinspection ResultOfMethodCallIgnored
             getDescription().getLibraries();

@@ -8,8 +8,10 @@ plugins {
 }
 
 buildscript {
-    repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.32")
+//    repositories.mavenCentral()
+//    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.32")
+    repositories.maven("https://jitpack.io")
+    dependencies.classpath("top.mrxiaom.PluginBase:LibrariesResolver-Gradle:bbdf80842b")
 }
 val base = LibraryHelper(project)
 
@@ -67,7 +69,6 @@ dependencies {
 
     implementation(base.depend.EvalEx)
     implementation("de.tr7zw:item-nbt-api:2.16.0")
-    implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
         implementation(artifact)
     }
@@ -95,7 +96,6 @@ tasks {
             "top.mrxiaom.pluginbase" to "base",
             "com.ezylang.evalex" to "evalex",
             "de.tr7zw.changeme.nbtapi" to "nbtapi",
-            "com.tcoded.folialib" to "folialib",
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
         }
