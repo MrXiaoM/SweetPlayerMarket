@@ -44,7 +44,7 @@ public class DependencyCraftEngine extends AbstractModule implements ItemProvide
     @Override
     public @Nullable String getDisplayName(@NotNull ItemStack itemStack) {
         BukkitItem bukkitItem = BukkitAdaptor.adapt(itemStack);
-        return BukkitItemManager.instance().s2c(bukkitItem, null)
+        return BukkitItemManager.instance().s2c(bukkitItem.copy(), null)
                 .flatMap(Item::hoverNameComponent)
                 .map(AdventureHelper::componentToMiniMessage)
                 .orElse(null);
