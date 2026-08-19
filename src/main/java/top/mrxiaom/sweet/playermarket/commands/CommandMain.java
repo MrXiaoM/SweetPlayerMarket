@@ -189,7 +189,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 }
             }
             if ("auto-deploy".equalsIgnoreCase(args[0]) && sender.hasPermission("sweet.playermarket.auto-deploy")) {
-                return startsWith(args[2], Lists.newArrayList("print", "condition", "test"));
+                return startsWith(args[2], Lists.newArrayList("print", "save-hand", "condition", "test"));
             }
         }
         if (args.length == 4) {
