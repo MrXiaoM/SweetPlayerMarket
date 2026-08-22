@@ -1,14 +1,15 @@
 package top.mrxiaom.sweet.playermarket.actions;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.api.IActionProvider;
+import top.mrxiaom.pluginbase.api.message.ITagSerializer;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
+import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -159,8 +160,9 @@ public class ActionClaim extends AbstractActionWithMarketItem {
                     }
                     if (!itemList.isEmpty()) {
                         Utils.giveItemsToPlayer(player, itemList);
-                        MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(_item).build();
-                        Messages.Gui.me__claim__buy__success.tm(miniMessage, player,
+                        ITagSerializer.Builder miniMessage = AdventureUtil.handler().builder();
+                        AdventureItemStack.wrapHoverEvent(miniMessage, _item);
+                        Messages.Gui.me__claim__buy__success.tm(miniMessage.build(), player,
                                 Pair.of("%item%", plugin.displayNames().getDisplayName(_item, player)),
                                 Pair.of("%total_count%", _total));
                     }

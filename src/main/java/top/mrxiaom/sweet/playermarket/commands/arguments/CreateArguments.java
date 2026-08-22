@@ -7,7 +7,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.api.message.ITagSerializer;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
+import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.arguments.Arguments;
 import top.mrxiaom.sweet.playermarket.Messages;
@@ -392,8 +394,9 @@ public class CreateArguments extends AbstractArguments<Player> {
         // 通过 BungeeCord 通知其它子服已打开的界面，应该刷新全球市场菜单
         NoticeManager.inst().updateCreated();
         // 提示商品上架成功
-        MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(item).build();
-        Messages.Command.create__success.tm(miniMessage, sender,
+        ITagSerializer.Builder miniMessage = AdventureUtil.handler().builder();
+        AdventureItemStack.wrapHoverEvent(miniMessage, item);
+        Messages.Command.create__success.tm(miniMessage.build(), sender,
                 Pair.of("%item%", plugin.displayNames().getDisplayName(item, sender)));
 
         plugin.getScheduler().runTask(() -> {

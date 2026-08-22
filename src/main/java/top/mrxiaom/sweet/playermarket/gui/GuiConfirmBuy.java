@@ -11,8 +11,10 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import top.mrxiaom.pluginbase.api.InventoryViewAccessor;
+import top.mrxiaom.pluginbase.api.message.ITagSerializer;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.AdventureItemStack;
+import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.playermarket.Messages;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
@@ -202,8 +204,9 @@ public class GuiConfirmBuy extends AbstractGuiConfirm {
             currency.giveMoney(player, totalMoney);
             // 获取物品名，提示玩家卖出成功
             ItemStack itemDisplay = marketItem.item();
-            MiniMessage miniMessage = AdventureItemStack.wrapHoverEvent(itemDisplay).build();
-            Messages.Gui.buy__success.tm(miniMessage, player,
+            ITagSerializer.Builder miniMessage = AdventureUtil.handler().builder();
+            AdventureItemStack.wrapHoverEvent(miniMessage, itemDisplay);
+            Messages.Gui.buy__success.tm(miniMessage.build(), player,
                     Pair.of("%item%", plugin.displayNames().getDisplayName(itemDisplay, player)),
                     Pair.of("%total_count%", totalCount),
                     Pair.of("%money%", plugin.displayNames().formatMoney(totalMoney)),
