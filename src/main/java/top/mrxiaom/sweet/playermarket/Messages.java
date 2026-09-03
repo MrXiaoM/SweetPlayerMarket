@@ -28,6 +28,14 @@ public class Messages {
         public static final Message takedown_by_admin__unknown_admin = field("管理员");
     }
 
+    @Language(prefix="messages.limited.")
+    public static class Limited {
+        public static final Message total__normal = field("&7[&e&l全球市场&r&7]&e 你上架的商品总数已达到限制 &7(限制数量: %count%)&e，请下架一些商品，或者等待商品过期再进行上架操作");
+        public static final Message total__zero = field("&7[&e&l全球市场&r&7]&e 你所在的权限组已被限制不允许上架商品 &7(限制数量: 0)");
+        public static final Message by_type__normal = field("&7[&e&l全球市场&r&7]&e 你上架的%type%商品已达到数量限制 &7(限制数量: %count%)&e，请下架一些商品，或者等待商品过期再进行上架操作");
+        public static final Message by_type__zero = field("&7[&e&l全球市场&r&7]&e 你所在的权限组已被限制不允许上架%type%商品 &7(限制数量: 0)");
+    }
+
     @Language(prefix="messages.command.")
     public static class Command {
         public static final Message no_permission = field("&c你没有执行该命令的权限");

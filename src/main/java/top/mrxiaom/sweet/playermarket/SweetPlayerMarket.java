@@ -256,6 +256,7 @@ public class SweetPlayerMarket extends BukkitPlugin {
                 .setLangFile("messages.yml")
                 .register(Messages.class)
                 .register(Messages.Notice.class)
+                .register(Messages.Limited.class)
                 .register(Messages.Command.class)
                 .register(Messages.TabComplete.class)
                 .register(Messages.Gui.class)

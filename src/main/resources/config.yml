@@ -64,6 +64,28 @@ outdate-time:
     buy: 10d
     sell: 10d
 
+# 全球市场上架数量限制组
+# 拥有权限 sweet.playermarket.active.<组名> 即使用相应的数量限制，例如 sweet.playermarket.active.admin
+# 优先级 (priority) 数值越小的限制组越优先使用，在所有组都不匹配时，使用 default 组
+# 填写的限制是玩家同时能够上架的商店类型限制。
+# 注意：按格子计算，不是按上架份数或者物品数量计算。
+# 例如玩家只能同时有 10 个收购(buy)类型的商品挂在全球市场上，想要上架更多商品，就要先手动下架，或者等过期之后才能再上架。
+# 填写 infinite 代表不进行限制。
+active-items-limit:
+  default:
+    priority: 1000
+    # 总限制 (可以比指定类型限制小)
+    total: infinite
+    # 收购限制
+    buy: 10
+    # 出售限制
+    sell: 15
+  admin:
+    priority: 0
+    total: infinite
+    buy: infinite
+    sell: infinite
+
 # 商品数据的显示名称
 display-names:
   # 商店类型名称

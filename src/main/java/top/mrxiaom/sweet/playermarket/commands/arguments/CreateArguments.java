@@ -1,6 +1,5 @@
 package top.mrxiaom.sweet.playermarket.commands.arguments;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,10 +25,7 @@ import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.CreateCost;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
-import top.mrxiaom.sweet.playermarket.func.ItemSerializerManager;
-import top.mrxiaom.sweet.playermarket.func.LimitationManager;
-import top.mrxiaom.sweet.playermarket.func.NoticeManager;
-import top.mrxiaom.sweet.playermarket.func.OutdateTimeManager;
+import top.mrxiaom.sweet.playermarket.func.*;
 import top.mrxiaom.sweet.playermarket.gui.GuiCreateBuyShop;
 import top.mrxiaom.sweet.playermarket.gui.GuiCreateSellShop;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
@@ -283,6 +279,12 @@ public class CreateArguments extends AbstractArguments<Player> {
     ) {
         MarketItem marketItem;
         try (Connection conn = plugin.getConnection()) {
+            if (ActiveItemsLimitManager.inst().shouldNotCreateItem(conn, sender, type)) {
+                if (callback != null) {
+                    plugin.getScheduler().runTask(() -> callback.accept(null));
+                }
+                return;
+            }
             MarketplaceDatabase db = plugin.getMarketplace();
             String shopId = db.createNewId(conn);
             if (shopId == null) {

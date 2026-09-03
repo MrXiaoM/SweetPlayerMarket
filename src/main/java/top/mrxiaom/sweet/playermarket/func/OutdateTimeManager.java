@@ -17,8 +17,8 @@ import java.util.function.Function;
 
 @AutoRegister
 public class OutdateTimeManager extends AbstractModule {
-    List<OutdateTime> outdateTimeList = new ArrayList<>();
-    OutdateTime outdateTimeDefault;
+    private final List<OutdateTime> outdateTimeList = new ArrayList<>();
+    private OutdateTime outdateTimeDefault;
     public OutdateTimeManager(SweetPlayerMarket plugin) {
         super(plugin);
     }
@@ -49,7 +49,7 @@ public class OutdateTimeManager extends AbstractModule {
         }
         outdateTimeList.sort(Comparator.comparingInt(OutdateTime::priority));
         if (outdateTimeDefault == null) {
-            warn("[config] 配置中 outdate-time.default 无效，将使用缺省值代替");
+            warn("[config] 配置中 outdate-time.default 无效，将使用缺省值 5d 代替");
             Map<EnumMarketType, Function<LocalDateTime, LocalDateTime>> outdateTimes = new HashMap<>();
             for (EnumMarketType type : EnumMarketType.values()) {
                 outdateTimes.put(type, now -> now.plusDays(5));
