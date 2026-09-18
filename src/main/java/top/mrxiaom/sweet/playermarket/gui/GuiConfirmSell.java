@@ -180,12 +180,14 @@ public class GuiConfirmSell extends AbstractGuiConfirm {
             } else {
                 int total = 0;
                 // 如果没有商品适配器，直接给予玩家物品
+                ItemStack[] items = new ItemStack[count];
                 for (int i = 0; i < count; i++) {
                     ItemStack item = marketItem.item();
                     total += item.getAmount();
-                    Utils.giveItemsToPlayer(player, item);
+                    items[i] = item;
                 }
                 totalCount = total;
+                plugin.getScheduler().runTask(() -> Utils.giveItemsToPlayer(player, items));
             }
             // 获取物品名，提示玩家购买成功
             ItemStack itemDisplay = marketItem.item();
