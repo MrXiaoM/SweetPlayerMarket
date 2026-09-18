@@ -158,14 +158,14 @@ public class Utils {
         World world = player.getWorld();
         Location location = player.getLocation();
         Location loc = new Location(world, location.getBlockX() + 0.5, location.getY() + 1.0, location.getBlockZ() + 0.5);
-        SweetPlayerMarket.getInstance().getScheduler().runAtLocation(loc, () -> {
+        SweetPlayerMarket.getInstance().getScheduler().runAtLocationLater(loc, () -> {
             for (ItemStack item : last.values()) {
                 if (item == null || item.getType().equals(Material.AIR) || item.getAmount() <= 0) {
                     continue;
                 }
                 world.dropItem(loc, item);
             }
-        });
+        }, 1L);
     }
 
     private static int first(Inventory inv, ItemStack item) {
