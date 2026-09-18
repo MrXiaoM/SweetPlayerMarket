@@ -4,6 +4,10 @@ inventory:
   - '框　物　数价币　框'
   - '框　　　量格确　框'
   - '返框框框框框框框框'
+
+# 界面允许输入的最小价格
+min-price: 0.01
+
 main-icons:
   物:
     material: BARRIER

@@ -67,6 +67,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     protected void reloadMenuConfig(YamlConfiguration config) {
         iconEmptyItem = null;
         iconConfirm = null;
+        minPrice = Math.max(0, config.getDouble("min-price", 0.01));
     }
 
     LoadedIcon iconEmptyItem, iconConfirm;
@@ -75,6 +76,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     String createCostsOldSeparator;
     List<String> createCostsHeader;
     String createCostsLine;
+    double minPrice = 0.01;
     @Override
     protected void loadMainIcon(ConfigurationSection section, String id, LoadedIcon icon) {
         if (id.equals("物")) {
@@ -233,13 +235,13 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             double newPrice = price;
             switch (operation) {
                 case SET:
-                    newPrice = Math.max(1, value);
+                    newPrice = Math.max(minPrice, value);
                     break;
                 case ADD:
-                    newPrice = Math.max(1, price + value);
+                    newPrice = Math.max(minPrice, price + value);
                     break;
                 case MINUS:
-                    newPrice = Math.max(1, price - value);
+                    newPrice = Math.max(minPrice, price - value);
                     break;
             }
             if (price != newPrice) {
