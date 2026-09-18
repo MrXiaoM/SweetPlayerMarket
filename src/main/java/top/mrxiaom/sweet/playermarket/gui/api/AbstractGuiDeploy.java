@@ -95,7 +95,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
         DeployGui gui = (DeployGui) instance;
         if (id == '物') {
             ItemStack sampleItem = gui.sampleItem;
-            ListPair<String, Object> r = gui.commonReplacements;
+            List<Pair<String, Object>> r = new ArrayList<>(gui.commonReplacements);
             if (sampleItem == null) {
                 IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), r);
                 IModifier<List<String>> loreModifier = oldLore -> Pair.replace(PAPI.setPlaceholders(player, oldLore), r);
@@ -104,7 +104,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
             return sampleItem; // TODO: 支持修改样例物品的 lore 等格式
         }
         if (id == '确') {
-            ListPair<String, Object> r = gui.commonReplacements;
+            List<Pair<String, Object>> r = new ArrayList<>(gui.commonReplacements);
             IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), r);
             IModifier<List<String>> loreModifier = oldLore -> {
                 List<String> lore = new ArrayList<>();
@@ -150,7 +150,7 @@ public class AbstractGuiDeploy extends AbstractGuiModule {
     @Override
     protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
         DeployGui gui = (DeployGui) instance;
-        ListPair<String, Object> r = gui.commonReplacements;
+        List<Pair<String, Object>> r = new ArrayList<>(gui.commonReplacements);
         IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
         IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, r);
         return icon.generateIcon(player, displayModifier, loreModifier);

@@ -82,6 +82,8 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
     @Override
     protected ItemStack applyMainIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes) {
         ConfirmGui gui = (ConfirmGui) instance;
+        ListPair<String, Object> r = new ListPair<>();
+        r.addAll(gui.commonReplacements);
         if (id == '物') {
             MarketItem item = gui.marketItem;
 
@@ -91,7 +93,7 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
             int displayAmount = baseItem.getAmount();
             List<String> itemLore = AdventureItemStack.getItemLoreAsMiniMessage(baseItem);
 
-            IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), gui.commonReplacements);
+            IModifier<String> displayModifier = oldName -> Pair.replace(PAPI.setPlaceholders(player, oldName), r);
             IModifier<List<String>> loreModifier = oldLore -> {
                 List<String> lore = new ArrayList<>();
                 for (String s : oldLore) {
@@ -99,23 +101,23 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
                         lore.addAll(itemLore);
                         continue;
                     }
-                    String result = Utils.replaceOrNull(player, s, gui.commonReplacements);
+                    String result = Utils.replaceOrNull(player, s, r);
                     if (result != null) {
                         if (!result.isEmpty()) {
                             lore.add(result);
                         }
                         continue;
                     }
-                    lore.add(Pair.replace(PAPI.setPlaceholders(player, s), gui.commonReplacements));
+                    lore.add(Pair.replace(PAPI.setPlaceholders(player, s), r));
                 }
                 return lore;
             };
             ItemStack icon = iconItem.generateIcon(baseItem, null, displayModifier, loreModifier);
             icon.setAmount(displayAmount);
-            return entry.postProcessIcon(item, player, gui.commonReplacements, icon);
+            return entry.postProcessIcon(item, player, r, icon);
         }
-        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
-        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
+        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
+        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, r);
         if (id == '确') {
             return iconConfirm.generateIcon(player, displayModifier, loreModifier);
         }
@@ -128,8 +130,9 @@ public abstract class AbstractGuiConfirm extends AbstractGuiModule {
     @Override
     protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
         ConfirmGui gui = (ConfirmGui) instance;
-        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
-        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
+        List<Pair<String, Object>> r = new ArrayList<>(gui.commonReplacements);
+        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
+        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, r);
         return icon.generateIcon(player, displayModifier, loreModifier);
     }
 

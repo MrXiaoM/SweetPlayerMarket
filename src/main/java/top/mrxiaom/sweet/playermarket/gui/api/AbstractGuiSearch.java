@@ -155,8 +155,9 @@ public abstract class AbstractGuiSearch extends AbstractGuiModule {
     @Override
     protected @Nullable ItemStack applyOtherIcon(IGuiHolder instance, Player player, char id, int index, int appearTimes, LoadedIcon icon) {
         SearchGui gui = (SearchGui) instance;
-        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, gui.commonReplacements);
-        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, gui.commonReplacements);
+        List<Pair<String, Object>> r = new ArrayList<>(gui.commonReplacements);
+        IModifier<String> displayModifier = oldName -> Pair.replace(oldName, r);
+        IModifier<List<String>> loreModifier = oldLore -> Pair.replace(oldLore, r);
         return icon.generateIcon(player, displayModifier, loreModifier);
     }
 
