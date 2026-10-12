@@ -14,8 +14,11 @@ import top.mrxiaom.sweet.playermarket.data.EnumMarketType;
 import top.mrxiaom.sweet.playermarket.data.MarketItem;
 import top.mrxiaom.sweet.playermarket.data.MarketItemBuilder;
 import top.mrxiaom.sweet.playermarket.data.NoticeFlag;
+import top.mrxiaom.sweet.playermarket.data.limitation.ReturnCreateCost;
 import top.mrxiaom.sweet.playermarket.database.MarketplaceDatabase;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
+import top.mrxiaom.sweet.playermarket.func.CurrencyManager;
+import top.mrxiaom.sweet.playermarket.func.LimitationManager;
 import top.mrxiaom.sweet.playermarket.func.NoticeManager;
 import top.mrxiaom.sweet.playermarket.func.ShopAdapterRegistry;
 import top.mrxiaom.sweet.playermarket.gui.api.AbstractGuiSearch;
@@ -80,12 +83,27 @@ public class ActionTakeDown extends AbstractActionWithMarketItem {
                 return;
             }
             if (marketItem.type().equals(EnumMarketType.SELL)) {
-                // 归还上架所需物品，不退手续费
+                // 归还上架所需物品
                 if (!takeDownSell(marketItem, player, marketItem.amount())) return;
             }
             if (marketItem.type().equals(EnumMarketType.BUY)) {
-                // 归还上架所需货币，不退手续费
+                // 归还上架所需货币
                 if (!takeDownBuy(marketItem, player, marketItem.amount())) return;
+            }
+            // 处理退还手续费
+            ConfigurationSection createCosts = marketItem.params().getConfigurationSection("create-cost");
+            if (createCosts != null) {
+                ReturnCreateCost rcc = LimitationManager.inst().getReturnCreateCost(player);
+                for (String currencyId : createCosts.getKeys(false)) {
+                    IEconomy currency = plugin.parseEconomy(currencyId);
+                    if (currency != null) {
+                        double rate = rcc.returnRateByCurrency(currencyId);
+                        double money = createCosts.getDouble(currencyId) * rate;
+                        if (money > 0.0) {
+                            currency.giveMoney(player, money);
+                        }
+                    }
+                }
             }
             // 提交更改到数据库
             MarketItemBuilder builder = marketItem.toBuilder()

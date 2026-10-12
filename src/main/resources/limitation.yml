@@ -124,3 +124,32 @@ by-items:
     description:
       - '  &7● &f该物品禁止上架'
     shop-type-blacklist: [ BUY, SELL ]
+
+# 主动下架商品时（管理员下架不算），退还上架手续费配置
+# 只支持在插件 1.0.21 更新后上架的商品退还手续费，在插件更新之前上架的商品不会退还手续费
+# 按权限来指定手续费退还比例，权限是 sweet.playermarket.rcc.名称
+# 例如 sweet.playermarket.rcc.vip
+# 均无权限时默认使用 default，无 default 配置时默认不退还手续费
+# 【建议】如果开启这个功能，务必保证每个子服的经济插件一致
+# 退还手续费时，如果找不到相应的经济插件，将不会退还相应经济插件的金额
+return-create-costs:
+  default:
+    # 配置优先级，当玩家同时有多个配置的权限时，用于决定使用哪个配置
+    # 数值越小代表优先级越高
+    priority: 1000
+    # 回退百分比，支持小数 (0.5) 或者百分数 (50%)
+    # 这里的比例是手续费的比例，与上架总价格等无关，小心不要与之前的上架手续费配置混淆
+    return-rate:
+      common: '0%'
+      # 按货币 ID 来决定的百分比
+      by-currency:
+        PlayerPoints: '0%'
+  vip:
+    priority: 999
+    return-rate:
+      common: '0%'
+      by-currency:
+        # 返还一半金币
+        Vault: '50%'
+        # 点券全部返还
+        PlayerPoints: '100%'

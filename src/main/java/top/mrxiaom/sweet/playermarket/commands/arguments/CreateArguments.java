@@ -221,6 +221,9 @@ public class CreateArguments extends AbstractArguments<Player> {
             if (callback != null) callback.accept(null);
             return;
         }
+
+        YamlConfiguration params = new YamlConfiguration();
+
         // 检查玩家是否有足够的手续费
         double totalPrice = price * marketAmount;
         CreateCost createCost = limitation.getCreateCost(type);
@@ -237,6 +240,9 @@ public class CreateArguments extends AbstractArguments<Player> {
                     if (callback != null) callback.accept(null);
                     return;
                 }
+                String currencyId = costCurrency.id();
+                double old = params.getDouble("create-cost." + currencyId, 0);
+                params.set("create-cost." + currencyId, old + createCostMoney);
             }
         }
 
@@ -251,6 +257,7 @@ public class CreateArguments extends AbstractArguments<Player> {
                 .currency(currency)
                 .amount(marketAmount)
                 .outdateTime(outdateTime.get(type))
+                .params(params)
                 .build(plugin.itemTagResolver()), sender);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {

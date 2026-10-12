@@ -13,11 +13,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.func.AbstractGuiModule;
@@ -227,5 +229,24 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             return null;
         }
+    }
+
+    @Contract("_,!null->!null")
+    public static Double parseRate(String input, Double def) {
+        if (input == null) {
+            return def;
+        }
+        if (input.endsWith("%")) {
+            Double v = Util.parseDouble(input.substring(0, input.length() - 1)).orElse(null);
+            if (v != null) {
+                return Util.between(v / 100.0, 0.0, 1.0);
+            }
+        } else {
+            Double v = Util.parseDouble(input).orElse(null);
+            if (v != null) {
+                return Util.between(v, 0.0, 1.0);
+            }
+        }
+        return def;
     }
 }

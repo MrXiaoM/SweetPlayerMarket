@@ -79,13 +79,15 @@ public class ActionTakeDownByAdmin extends AbstractActionWithMarketItem {
             }
             // 管理员下架，无需归还商品
 //                if (marketItem.type().equals(EnumMarketType.SELL)) {
-//                    // 归还上架所需物品，不退手续费
+//                    // 归还上架所需物品
 //                    if (!ActionTakeDown.takeDownSell(marketItem, player, marketItem.amount())) return;
 //                }
 //                if (marketItem.type().equals(EnumMarketType.BUY)) {
-//                    // 归还上架所需货币，不退手续费
+//                    // 归还上架所需货币
 //                    if (!ActionTakeDown.takeDownBuy(marketItem, player, marketItem.amount())) return;
 //                }
+            // 管理员下架，无需退还手续费
+
             ConfigurationSection params = marketItem.params();
             params.set("take-down-by", player.getName());
 

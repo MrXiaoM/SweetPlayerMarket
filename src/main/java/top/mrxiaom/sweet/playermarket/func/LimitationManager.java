@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +14,7 @@ import top.mrxiaom.sweet.playermarket.SweetPlayerMarket;
 import top.mrxiaom.sweet.playermarket.data.limitation.BaseLimitation;
 import top.mrxiaom.sweet.playermarket.data.limitation.LimitationByCurrency;
 import top.mrxiaom.sweet.playermarket.data.limitation.LimitationByItem;
+import top.mrxiaom.sweet.playermarket.data.limitation.ReturnCreateCost;
 import top.mrxiaom.sweet.playermarket.economy.IEconomy;
 import top.mrxiaom.sweet.playermarket.utils.Utils;
 
@@ -25,6 +27,8 @@ public class LimitationManager extends AbstractModule {
     private BaseLimitation limitDefault;
     private final List<LimitationByCurrency> limitByCurrency = new ArrayList<>();
     private final List<LimitationByItem> limitByItems = new ArrayList<>();
+    private final List<ReturnCreateCost> returnCreateCosts = new ArrayList<>();
+    private ReturnCreateCost returnCreateCostDefault;
     public LimitationManager(SweetPlayerMarket plugin) {
         super(plugin);
     }
@@ -47,6 +51,18 @@ public class LimitationManager extends AbstractModule {
         for (ConfigurationSection section : Utils.getSectionList(config, "by-items")) {
             limitByItems.add(LimitationByItem.of(plugin, section));
         }
+
+        returnCreateCostDefault = ReturnCreateCost.ZERO;
+        returnCreateCosts.clear();
+        ConfigurationSection section = config.getConfigurationSection("return-create-costs");
+        if (section != null) for (String id : section.getKeys(false)) {
+            ReturnCreateCost rcc = ReturnCreateCost.of(id, section);
+            returnCreateCosts.add(rcc);
+            if (id.equals("default")) {
+                returnCreateCostDefault = rcc;
+            }
+        }
+        returnCreateCosts.sort(ReturnCreateCost.BY_PRIORITY);
 
         info("读取了 " + limitByItems.size() + " 个特殊物品上架限制");
     }
@@ -98,6 +114,15 @@ public class LimitationManager extends AbstractModule {
     public BaseLimitation getLimitByItem(@Nullable ItemStack item) {
         BaseLimitation limit = getLimitByItemOrNull(item);
         return limit == null ? limitDefault : limit;
+    }
+
+    public ReturnCreateCost getReturnCreateCost(Permissible p) {
+        for (ReturnCreateCost rcc : returnCreateCosts) {
+            if (rcc.hasPermission(p)) {
+                return rcc;
+            }
+        }
+        return returnCreateCostDefault;
     }
 
     @SuppressWarnings("SameParameterValue")
