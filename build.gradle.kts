@@ -9,7 +9,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.8.1")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.8.2")
 }
 val base = LibraryHelper(project)
 
